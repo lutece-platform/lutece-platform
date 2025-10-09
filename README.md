@@ -1,1 +1,37 @@
 # lutece
+![](https://dev.lutece.paris.fr/jenkins/buildStatus/icon?job=core-deploy)
+[![Alerte](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece%3Alutece-core&metric=alert_status)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece%3Alutece-core)
+[![Line of code](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece%3Alutece-core&metric=ncloc)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece%3Alutece-core)
+[![Coverage](https://dev.lutece.paris.fr/sonar/api/project_badges/measure?project=fr.paris.lutece%3Alutece-core&metric=coverage)](https://dev.lutece.paris.fr/sonar/dashboard?id=fr.paris.lutece%3Alutece-core)
+
+# What is Lutece?
+
+![Lutece logo](https://github.com/lutece-platform/lutece-core/blob/develop/webapp/images/Lutece-logo.png?raw=true)
+
+Lutece is an open platform that enables city governments to share, re-use and adapt digital services created by other cities. Lutece is free, modular and secure.
+
+Through Lutece, discover more than 400 off-the shelf modules to power your digital services and respond to resident needs.
+
+You can easily customize and enhance modules to fit their city’s needs or create digital modules from scratch and share it back with the Lutece community.
+
+
+| Free| Modular| Secure|
+|-----------------|-----------------|-----------------|
+| Lutece is built on open-source, which means its source code is freely available.| Lutece allows you to customize one of 400 off-the-shelf modules or create your own to meet your specific needs.| Lutece is a proven, stable and secure platform that is used by public sector organizations around the world.|
+
+
+# Project Information
+
+ 
+* The official Lutece site : [https://lutece.paris.fr](https://lutece.paris.fr) 
+* The open source [Project License](LICENSE) 
+* Technical documentation [Lutece WIKI](https://lutece.paris.fr/support/jsp/site/Portal.jsp?page=wiki) 
+*  [Lutece MOOC](https://mooc.lutece.paris.fr/) : This course will teach you all the basics of development with Lutece.
+* The [Lutece demo site](http://dev.lutece.paris.fr/site-demo/) online (data reset every 3 hours)
+*  [Lutece docker hub](https://hub.docker.com/u/lutece) : Project's Docker built-in images
+*  [Lutece platform Source Repository](https://github.com/lutece-platform/) : the online repository for all the Lutece plugins.
+*  [Lutece platform Package Repository](https://dev.lutece.paris.fr/nexus/#view-repositories) : the package repository for all the Lutece plugins.
+*  [Issue Tracking](https://dev.lutece.paris.fr/bugtracker/projects/lutece/issues) : Issue management system for this project (authentication needed).
+
+)
+

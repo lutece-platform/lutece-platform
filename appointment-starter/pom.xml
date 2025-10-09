@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.paris.lutece</groupId>
+        <artifactId>lutece-parent</artifactId>
+        <version>8.0.0-SNAPSHOT</version>
+    </parent>
+    <groupId>fr.paris.lutece.starters</groupId>
+    <artifactId>appointment-starter</artifactId>
+    <name>Lutece Appointment Starter</name>
+    <description>Lutece Appointment Starter</description>
+
+    <properties>
+        <maven.deploy.skip>${appointment.deploy.skip}</maven.deploy.skip>
+    </properties>
+
+    <dependencies>
+        <!-- Core Profile -->
+            <dependency>
+                <groupId>fr.paris.lutece</groupId>
+	            <artifactId>lutece-core</artifactId>
+	            <type>lutece-core</type>
+                <version>${lutece.core.version}</version>
+            </dependency>
+            
+            <!-- Appointment Profile 
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+			    <artifactId>plugin-appointment</artifactId>
+			    <type>lutece-plugin</type>
+                <version>${lutece.plugin-appointment.version}</version>
+            </dependency>
+            -->
+            
+            
+    </dependencies>
+</project>

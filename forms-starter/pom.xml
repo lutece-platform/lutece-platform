@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.paris.lutece</groupId>
+        <artifactId>lutece-parent</artifactId>
+        <version>8.0.0-SNAPSHOT</version>
+    </parent>
+    <groupId>fr.paris.lutece.starters</groupId>
+    <artifactId>forms-starter</artifactId>
+    <name>Lutece Forms Starter</name>
+    <description>Lutece Forms Starter</description>
+
+    <properties>
+        <maven.deploy.skip>${forms.deploy.skip}</maven.deploy.skip>
+    </properties>
+
+    <dependencies>
+        <!-- Core Profile -->
+            <dependency>
+                <groupId>fr.paris.lutece</groupId>
+	            <artifactId>lutece-core</artifactId>
+	            <type>lutece-core</type>
+                <version>${lutece.core.version}</version>
+            </dependency>
+            
+            
+            <!-- Forms Profile -->
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+			    <artifactId>plugin-forms</artifactId>
+			    <type>lutece-plugin</type>
+                <version>${lutece.plugin-forms.version}</version>
+            </dependency>
+            <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>library-utils</artifactId>
+	            <type>jar</type>
+	            <version>${lutece.library-utils.version}</version>
+	        </dependency>
+            
+            <!--Others-->
+             <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-referencelist</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-referencelist.version}</version>
+	        </dependency>
+	         <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-genericattributes</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-genericattributes.version}</version>
+	        </dependency>
+	         <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-regularexpression</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-regularexpression.version}</version>
+	        </dependency>
+	         <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-filegenerator</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-filegenerator.version}</version>
+	        </dependency>
+	         <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-htmltopdf</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-htmltopdf.version}</version>
+	        </dependency>
+                        
+    </dependencies>
+</project>

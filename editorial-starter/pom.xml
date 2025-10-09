@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>fr.paris.lutece</groupId>
+        <artifactId>lutece-parent</artifactId>
+        <version>8.0.0-SNAPSHOT</version>
+    </parent>
+    <groupId>fr.paris.lutece.starters</groupId>
+    <artifactId>editorial-starter</artifactId>
+    <name>Lutece Editorial Starter</name>
+    <description>Lutece Editorial Starter</description>
+
+    <properties>
+        <maven.deploy.skip>${editorial.deploy.skip}</maven.deploy.skip>
+    </properties>
+
+    <dependencies>
+        <!-- Core Profile -->
+            <dependency>
+                <groupId>fr.paris.lutece</groupId>
+	            <artifactId>lutece-core</artifactId>
+	            <type>lutece-core</type>
+                <version>${lutece.core.version}</version>
+            </dependency>
+            
+            <!-- Editorial Profile  -->
+             <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+			    <artifactId>plugin-html</artifactId>
+			    <type>lutece-plugin</type>
+                <version>${lutece.plugin-html.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>fr.paris.lutece.plugins</groupId>
+		      <artifactId>plugin-htmlpage</artifactId>
+		      <type>lutece-plugin</type>
+              <version>${lutece.plugin-htmlpage.version}</version>
+            </dependency>
+           <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-extend</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-extend.version}</version>
+	        </dependency>
+            
+    </dependencies>
+</project>

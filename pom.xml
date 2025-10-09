@@ -1,0 +1,198 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>lutece-global-pom</artifactId>
+        <groupId>fr.paris.lutece.tools</groupId>
+        <version>8.0.0-SNAPSHOT</version>
+        <relativePath/>
+    </parent>
+ <!--   <parent>
+        <artifactId>lutece-site-pom</artifactId>
+        <groupId>fr.paris.lutece.tools</groupId>
+        <version>8.0.0-SNAPSHOT</version>
+    </parent>
+-->
+    <groupId>fr.paris.lutece</groupId>
+    <artifactId>lutece-parent</artifactId>
+    <version>8.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Lutece plate-form parent</name>
+    <description>Lutece plate-form parent</description>
+
+    <repositories>
+       <repository>
+          <id>lutece</id>
+          <name>luteceRepository</name>
+          <url>https://dev.lutece.paris.fr/maven_repository</url>
+          <snapshots>
+              <enabled>false</enabled>
+          </snapshots>
+       </repository>
+    </repositories>
+
+    <modules>
+        <module>lutece-bom</module>
+        <module>lutece-forms</module>
+        <module>lutece-appointment</module>
+        <module>lutece-editorial</module> 
+        <module>lutece-platform</module> 
+    </modules>
+
+    <properties>
+        <revision>8.0.0-SNAPSHOT</revision>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <lutece.version>${revision}</lutece.version>
+        <extra.excludes />
+        <javadoc.options />
+        
+        <parent.deploy.skip>true</parent.deploy.skip>
+        <bom.deploy.skip>false</bom.deploy.skip>
+        <forms.deploy.skip>false</forms.deploy.skip>
+        <appointment.deploy.skip>false</appointment.deploy.skip>
+        <editorial.deploy.skip>false</editorial.deploy.skip>
+        <platform.deploy.skip>false</platform.deploy.skip>
+<!--
+        <apidocs.api.src>${project.build.directory}/api-sources</apidocs.api.src>
+        <apidocs.api.tmp>${project.build.directory}/api-sources-tmp</apidocs.api.tmp>
+        <apidocs.api.dist>${project.build.directory}/api-javadoc</apidocs.api.dist>
+        <apidocs.modulepath/>
+        <apidocs.required>*</apidocs.required>
+        <apidocs.windowtitle>${project.name}</apidocs.windowtitle>
+        <apidocs.doctitle>${project.name}</apidocs.doctitle>
+        <apidocs.header><![CDATA[<br>${project.name} v${project.version}]]></apidocs.header>
+        <apidocs.bottom><![CDATA[
+<p align="left">Copyright &#169; 2018, 2025 Eclipse Foundation.<br>Use is subject to <a href="{@docRoot}/doc-files/speclicense.html" target="_top">license terms</a>.]]></apidocs.bottom>
+-->
+        <!-- For independent relases set a previous release version e.g.,
+            mvn -Drevision=11.0.0-RC3 -Djakartaee.core-api.version=11.0.0 ...
+        -->
+        
+        <!-- LUTECE PROFILES VERSION-->
+        <lutece.forms.version>${revision}</lutece.forms.version>
+        <lutece.appointment.version>${revision}</lutece.appointment.version>
+        <lutece.editorial.version>${revision}</lutece.editorial.version>
+
+        <!-- Lutece core -->
+        <lutece.core.version>8.0.0-SNAPSHOT</lutece.core.version>
+		<lutece.library-lutece-unit-testing-common.version>1.0.0-SNAPSHOT</lutece.library-lutece-unit-testing-common.version>
+        <lutece.library-lucene.version>6.0.0-SNAPSHOT</lutece.library-lucene.version>
+        <lutece.library-user-api.version>1.0.1</lutece.library-user-api.version>
+        <lutece.library-rbac-api.version>1.0.0</lutece.library-rbac-api.version>
+        <lutece.library-workflow-core.version>4.0.0-SNAPSHOT</lutece.library-workflow-core.version>
+        <lutece.library-workgroup-api.version>1.0.0</lutece.library-workgroup-api.version>
+        <lutece.library-jmx-api.version>1.0.0</lutece.library-jmx-api.version>
+        <lutece.library-priority-extension.version>1.0.0-SNAPSHOT</lutece.library-priority-extension.version>
+        <lutece.library-freemarker.version>2.0.0-SNAPSHOT</lutece.library-freemarker.version>
+        <lutece.library-lutece-resources.version>1.0.0-SNAPSHOT</lutece.library-lutece-resources.version>
+        
+        <!-- Lutece forms -->
+        <lutece.plugin-forms.version>4.0.0-SNAPSHOT</lutece.plugin-forms.version>
+        <lutece.library-utils.version>2.0.0-SNAPSHOT</lutece.library-utils.version>
+
+
+        <!-- Lutece appointment
+        <lutece.plugin-appointment.version>6.1.0</lutece.plugin-appointment.version>
+        <lutece.module-workflow-appointment.version>4.0.0</lutece.module-workflow-appointment.version>
+        -->
+
+        <!--  Lutece Editorial  -->
+        <lutece.plugin-html.version>6.0.0-SNAPSHOT</lutece.plugin-html.version>
+        <lutece.plugin-htmlpage.version>6.0.0-SNAPSHOT</lutece.plugin-htmlpage.version>
+       
+		<!--  Lutece Editorial  -->
+		<lutece.plugin-html.version>6.0.0-SNAPSHOT</lutece.plugin-html.version>
+
+		<!-- Others -->
+		<lutece.plugin-referencelist.version>2.0.0-SNAPSHOT</lutece.plugin-referencelist.version>
+		<lutece.plugin-genericattributes.version>3.0.0-SNAPSHOT</lutece.plugin-genericattributes.version>
+		<lutece.plugin-regularexpression.version>5.0.0-SNAPSHOT</lutece.plugin-regularexpression.version>
+		<lutece.plugin-filegenerator.version>3.0.0-SNAPSHOT</lutece.plugin-filegenerator.version>
+		<lutece.plugin-htmltopdf.version>2.0.0-SNAPSHOT</lutece.plugin-htmltopdf.version>
+		<lutece.plugin-extend.version>2.0.0-SNAPSHOT</lutece.plugin-extend.version>
+
+        <!--  Others dependencies  
+		<copyright-plugin.version>1.50</copyright-plugin.version>
+        -->
+
+    </properties>
+
+
+    <build>
+        <defaultGoal>package</defaultGoal>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.7.0</version>
+                <configuration>
+                    <updatePomFile>true</updatePomFile>
+                    <flattenMode>clean</flattenMode>
+                    <flattenDependencyMode>all</flattenDependencyMode>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>flatten.clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+           
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>${parent.deploy.skip}</skip>
+                </configuration>
+                <inherited>false</inherited>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+                </plugin>
+                
+                
+            </plugins>
+        </pluginManagement>
+       
+    </build>
+
+    <profiles>
+        <!--
+            A profile to report serialVersionUID errors when compiling
+            the code source files.
+        -->
+        <profile>
+            <id>check-serial-version-uid</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <useIncrementalCompilation>false</useIncrementalCompilation>
+                            <showWarnings>true</showWarnings>
+                            <compilerArgs>
+                                <arg>-Xlint:serial</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
