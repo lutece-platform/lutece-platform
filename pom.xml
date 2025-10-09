@@ -32,10 +32,10 @@
 
     <modules>
         <module>lutece-bom</module>
-        <module>lutece-forms</module>
-        <module>lutece-appointment</module>
-        <module>lutece-editorial</module> 
-        <module>lutece-platform</module> 
+        <module>forms-starter</module>
+        <module>appointment-starter</module>
+        <module>editorial-starter</module> 
+        <module>lutece-starter</module> 
     </modules>
 
     <properties>

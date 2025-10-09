@@ -28,14 +28,14 @@
             <!-- Appointment starter -->
             <dependency>
                 <groupId>fr.paris.lutece.starters</groupId>
-			    <artifactId>appointment-starters</artifactId>
+			    <artifactId>appointment-starter</artifactId>
                 <version>${lutece.appointment.version}</version>
             </dependency>
             
             <!-- Editorial starter -->
             <dependency>
                 <groupId>fr.paris.lutece</groupId>
-			    <artifactId>editorial-starters</artifactId>
+			    <artifactId>editorial-starter</artifactId>
                 <version>${lutece.editorial.version}</version>
             </dependency>
             
