@@ -34,12 +34,32 @@
             
             <!-- Editorial starter -->
             <dependency>
-                <groupId>fr.paris.lutece</groupId>
+                <groupId>fr.paris.lutece.starters</groupId>
 			    <artifactId>editorial-starter</artifactId>
                 <version>${lutece.editorial.version}</version>
             </dependency>
             
             <!-- others plugins not included in the starters forms, appointment , editorial-->
+            
+            <!--Authentification Plugins-->
+			<dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-mylutece</artifactId>
+				<version>${lutece.plugin-mylutece.version}</version>
+				<type>lutece-plugin</type>
+			</dependency>
+			<dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>module-mylutece-database</artifactId>
+				<version>${lutece.module-mylutece-database.version}</version>
+				<type>lutece-plugin</type>
+			</dependency>
+		    <dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-adminauthenticationwsso</artifactId>
+				<version>${lutece.plugin-adminauthenticationwsso.version}</version>
+				<type>lutece-plugin</type>
+			</dependency>
             
     </dependencies>
 </project>
