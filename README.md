@@ -29,7 +29,7 @@ graph LR
     A[Jakarta EE] --> D[Lutece Platform]
     B[FreeMarker] --> D
     C[MicroProfile] --> D
-    E[Bootstrap/jQuery] --> D
+    E[Bootstrap] --> D
     F[Maven] --> D
 ```
 
@@ -96,8 +96,9 @@ graph TD
     A --> D[plugin-referencelist]
     A --> E[plugin-genericattributes]
     A --> F[plugin-filegenerator]
-    A --> G[plugin-html2pdf]
-    A --> H[plugin-workflow]
+    A --> G[plugin-workflow]
+    A --> H[autres plugins...]
+    
     
     style A fill:#bfb,stroke:#333,stroke-width:4px
 ```
@@ -110,9 +111,11 @@ Starter pour la gestion de rendez-vous.
 graph TD
     A[appointment-starter] --> B[lutece-core]
     A --> C[plugin-appointment]
-    A --> D[plugin-calendar]
+    A --> D[plugin-genericattributes]
     A --> E[plugin-workflow]
     A --> F[plugin-notificationstore]
+    A --> G[plugin-workflow]
+    A --> H[autres plugins...]
     
     style A fill:#bfb,stroke:#333,stroke-width:4px
 ```
@@ -129,6 +132,8 @@ graph TD
     A --> E[plugin-extend]
     A --> F[plugin-document]
     A --> G[plugin-blog]
+    A --> H[autres plugins...]
+    
     
     style A fill:#bfb,stroke:#333,stroke-width:4px
 ```
@@ -143,7 +148,7 @@ graph TD
     A --> C[appointment-starter]
     A --> D[editorial-starter]
     A --> E[plugin-mylutece]
-    A --> F[plugin-myluteceauthentication]
+    A --> F[module-mylutece-database]
     A --> G[plugin-rest]
     A --> H[Autres plugins...]
     
@@ -208,12 +213,137 @@ graph TB
     B3 --> D2
     B4 --> D2
 ```
+### Lutece palte-form
 
+```mermaid
+graph TB
+    subgraph "Lutece Platform Starters"
+        
+        subgraph "lutece-starter"
+            A[lutece-starter<br/>Complete Application Platform]
+            
+            subgraph "Core & Authentication"
+                A1[lutece-core]
+                A2[plugin-mylutece]
+                A3[module-mylutece-directory]
+                A4[module-mylutece-database]
+                A5[plugin-avatar]
+            end
+            
+            subgraph "Forms Management"
+                B1[plugin-forms]
+                B2[plugin-workflow]
+                B3[module-workflow-forms]
+                B4[module-forms-documentproducer]
+                B5[plugin-genericattributes]
+                B6[plugin-unittree]
+                B7[module-unittree-forms]
+            end
+            
+            subgraph "Appointment & Calendar"
+                C1[plugin-appointment]
+                C2[module-appointment-solr]
+                C3[module-appointment-alert]
+                C4[module-appointment-management]
+                C5[module-appointment-desk]
+            end
+            
+            subgraph "Content Management"
+                D1[plugin-html]
+                D2[plugin-htmlpage]
+                D3[plugin-extend]
+                D4[module-htmlpage-extend]
+            end
+            
+            subgraph "Document & Files"
+                E1[plugin-document]
+                E2[plugin-filegenerator]
+                E3[library-lucene]
+            end
+            
+            subgraph "Search & Indexing"
+                F1[plugin-solr]
+                F2[library-elastic]
+                F3[plugin-elasticdata]
+                F4[module-forms-solr]
+            end
+            
+            subgraph "Utilities & Libraries"
+                G1[library-jwt]
+                G2[library-httpaccess]
+                G3[library-signrequest]
+                G4[library-utils]
+                G5[library-image]
+                G6[library-freemarker]
+            end
+        end
+        
+        subgraph "forms-starter"
+            H[forms-starter<br/>]
+            H --> B1
+            H --> B2
+            H --> B3
+            H --> B4
+            H --> B5
+            H --> B6
+            H --> B7
+            H --> F1
+            H --> F4
+            H --> A1
+            H --> E2
+
+
+        end
+        
+        subgraph "appointment-starter"
+            I[appointment-starter<br/>]
+            I --> C1
+            I --> C2
+            I --> C3
+            I --> C4
+            I --> C5
+            I --> B2
+            I --> B5
+            I --> F1
+            I --> A1
+
+        end
+        
+        subgraph "editorial-starter"
+            J[editorial-starter<br/>]
+            J --> D1
+            J --> D2
+            J --> D3
+            J --> D4
+            J --> E1
+            J --> A1
+        end
+        
+        %% Styling
+        classDef starter fill:#4fc3f7,stroke:#01579b,stroke-width:3px,color:#fff
+        classDef core fill:#81c784,stroke:#2e7d32,stroke-width:2px
+        classDef forms fill:#ffb74d,stroke:#e65100,stroke-width:2px
+        classDef appointment fill:#f06292,stroke:#c2185b,stroke-width:2px
+        classDef content fill:#ba68c8,stroke:#6a1b9a,stroke-width:2px
+        classDef document fill:#64b5f6,stroke:#0277bd,stroke-width:2px
+        classDef search fill:#4db6ac,stroke:#00695c,stroke-width:2px
+        classDef utils fill:#90a4ae,stroke:#37474f,stroke-width:2px
+        
+        class A,H,I,J starter
+        class A1,A2,A3,A4,A5 core
+        class B1,B2,B3,B4,B5,B6,B7 forms
+        class C1,C2,C3,C4,C5 appointment
+        class D1,D2,D3,D4 content
+        class E1,E2,E3 document
+        class F1,F2,F3,F4 search
+        class G1,G2,G3,G4,G5,G6 utils
+    end
+```
 ### Gestion des versions
 
 ```mermaid
 graph LR
-    A[lutece-bom] --> |Définit les versions| B[Starters]
+    A[pom-parent] --> |Définit les versions| B[Starters/BOM]
     B --> |Héritent des versions| C[Applications]
     C --> |Peuvent surcharger| D[Versions spécifiques]
     
@@ -227,29 +357,78 @@ graph LR
 ### 1. Créer un nouveau projet Lutece
 
 ```bash
-# Cloner le projet starters
-git clone [repository-url]
+# Créer le pom du site
+pom.xml
 
 # Choisir votre starter
-cd lutece-starter  # Pour une application complète
-# OU
-cd forms-starter   # Pour une application de formulaires
-# OU
-cd appointment-starter  # Pour une application de RDV
-# OU
-cd editorial-starter    # Pour un CMS
+forms-starter  # Pour une application de gestion de formulaire dynamique
+ou appointment-starter  # Pour une application de gestion de rdvs
+ou  editorial-starter  # Pour une application de gestion de contenu
+ou  lutece-starter  # Pour une application complète
+ou lutece-bom # Pour choisir les plugins qui vous intéresse
+#Builder le site en mode dev pour surcharger le FO
+mvn liberty:dev
+
 ```
 
 ### 2. Configuration Maven
 
+Exemple d'un pom de site forms pour la gestion de formulaires dynamiques.
+
 ```xml
 <!-- pom.xml de votre application -->
 <parent>
-    <groupId>fr.paris.lutece.starters</groupId>
-    <artifactId>forms-starter</artifactId>
-    <version>8.0.0-SNAPSHOT</version>
+        <artifactId>lutece-site-pom</artifactId>
+        <groupId>fr.paris.lutece.tools</groupId>
+        <version>8.0.0</version>
 </parent>
-
+ 
+ <modelVersion>4.0.0</modelVersion>
+ <groupId>fr.paris.lutece</groupId>
+ <artifactId>lutece-site-forms</artifactId>
+ <packaging>lutece-site</packaging>
+ <name>Site Lutece</name>
+ <version>1.0.0</version>
+ <description></description>
+ 
+<repositories>
+       <repository>
+           <releases>
+               <enabled>true</enabled>
+           </releases>
+           <snapshots>
+               <enabled>false</enabled>
+           </snapshots>
+           <id>lutece</id>
+           <name>luteceRepository</name>
+           <url>https://dev.lutece.paris.fr/maven_repository</url>
+           <layout>default</layout>
+       </repository>
+</repositories>
+<dependencyManagement>
+      <dependencies>
+            <!-- Lutece BOM -->
+		<dependency>
+			<groupId>fr.paris.lutece</groupId>
+			<artifactId>lutece-bom</artifactId>
+			<version>8.0.0</version>
+			<scope>import</scope>
+			<type>pom</type>
+		</dependency>
+	<dependencies>
+</dependencyManagement>
+<dependencies>
+	<dependency>
+	    <groupId>fr.paris.lutece.starters</groupId>
+	    <artifactId>forms-starter</artifactId>
+	    <version>8.0.0</version>
+	</dependency>
+	<!--Dépendance non importée par le starter forms-starter -->
+	<dependency>
+	    <groupId>fr.paris.lutece.plugins</groupId>
+	    <artifactId>module-mylutece-database</artifactId>			
+	</dependency>
+</dependencies>
 <properties>
     <!-- Surcharger les versions si nécessaire -->
     <lutece.plugin-forms.version>1.3.2</lutece.plugin-forms.version>
@@ -270,9 +449,9 @@ cd editorial-starter    # Pour un CMS
 
 | Cas d'usage | Starter recommandé | Plugins inclus |
 |-------------|-------------------|----------------|
-| Formulaires en ligne | forms-starter | forms, genericattributes, workflow |
-| Prise de RDV | appointment-starter | appointment, calendar |
-| Site éditorial | editorial-starter | html, htmlpage, extend |
+| Formulaires en ligne | forms-starter | forms, genericattributes, workflow ... |
+| Prise de RDV | appointment-starter | appointment, calendar, ... |
+| Site éditorial | editorial-starter | html, htmlpage, extend, ... |
 | Application complète | lutece-starter | Tous les plugins |
 
 ### 2. Gestion des versions
