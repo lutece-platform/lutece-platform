@@ -163,18 +163,19 @@ graph TD
 
 ```mermaid
 graph TB
-    subgraph "Couche Application"
-        A1[Application Lutece]
+    subgraph APP["Couche Application"]
+        A1["Application Lutece"]
     end
     
-    subgraph "Couche Starters"
+    subgraph STARTERS["Couche Starters & BOM"]
         B1[forms-starter]
         B2[appointment-starter]
         B3[editorial-starter]
         B4[lutece-starter]
+        B5[lutece-bom]
     end
     
-    subgraph "Couche Plugins"
+    subgraph PLUGINS ["Couche Plugins"]
         C1[plugin-forms]
         C2[plugin-appointment]
         C3[plugin-html]
@@ -182,15 +183,16 @@ graph TB
         C5[Autres plugins...]
     end
     
-    subgraph "Couche Core"
+    subgraph CORE ["Couche Core"]
         D1[lutece-core]
-        D2[lutece-bom]
+
     end
     
     A1 --> B1
     A1 --> B2
     A1 --> B3
     A1 --> B4
+    A1 --> B5
     
     B1 --> C1
     B1 --> C4
@@ -208,10 +210,12 @@ graph TB
     C4 --> D1
     C5 --> D1
     
-    B1 --> D2
-    B2 --> D2
-    B3 --> D2
-    B4 --> D2
+    B5 --> C1 
+    B5 --> C2
+    B5 --> C4
+    B5 --> C3
+    B5 --> C5  
+
 ```
 ### Lutece palte-form
 
