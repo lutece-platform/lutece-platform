@@ -22,21 +22,21 @@
             <dependency>
                 <groupId>fr.paris.lutece.starters</groupId>
 			    <artifactId>forms-starter</artifactId>
-                <version>${lutece.forms.version}</version>
+                <version>${lutece.forms-starter.version}</version>
             </dependency>
             
             <!-- Appointment starter -->
             <dependency>
                 <groupId>fr.paris.lutece.starters</groupId>
 			    <artifactId>appointment-starter</artifactId>
-                <version>${lutece.appointment.version}</version>
+                <version>${lutece.appointment-starter.version}</version>
             </dependency>
             
             <!-- Editorial starter -->
             <dependency>
                 <groupId>fr.paris.lutece.starters</groupId>
 			    <artifactId>editorial-starter</artifactId>
-                <version>${lutece.editorial.version}</version>
+                <version>${lutece.editorial-starter.version}</version>
             </dependency>
             
             <!-- others plugins not included in the starters forms, appointment , editorial-->
