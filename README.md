@@ -413,24 +413,25 @@ Exemple d'un pom de site forms pour la gestion de formulaires dynamiques.
       <dependencies>
             <!-- Lutece BOM -->
 		<dependency>
-			<groupId>fr.paris.lutece</groupId>
+			<groupId>fr.paris.lutece.starters</groupId>
 			<artifactId>lutece-bom</artifactId>
-			<version>8.0.0</version>
+			<version>8.0.0-SNAPSHOT</version>
 			<scope>import</scope>
 			<type>pom</type>
 		</dependency>
-	<dependencies>
+	</dependencies>
 </dependencyManagement>
 <dependencies>
 	<dependency>
 	    <groupId>fr.paris.lutece.starters</groupId>
 	    <artifactId>forms-starter</artifactId>
-	    <version>8.0.0</version>
+	    <version>8.0.0-SNAPSHOT</version>
 	</dependency>
 	<!--Dépendance non importée par le starter forms-starter -->
 	<dependency>
 	    <groupId>fr.paris.lutece.plugins</groupId>
-	    <artifactId>module-mylutece-database</artifactId>			
+	    <artifactId>module-mylutece-database</artifactId>
+	    <type>lutece-plugin</type>			
 	</dependency>
 </dependencies>
 <properties>

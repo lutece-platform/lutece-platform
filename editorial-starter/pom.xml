@@ -3,17 +3,18 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>fr.paris.lutece</groupId>
+        <groupId>fr.paris.luteces.starters</groupId>
         <artifactId>lutece-parent</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>fr.paris.lutece.starters</groupId>
+    
     <artifactId>editorial-starter</artifactId>
     <name>Lutece Editorial Starter</name>
     <description>Lutece Editorial Starter</description>
 
     <properties>
         <maven.deploy.skip>${editorial.deploy.skip}</maven.deploy.skip>
+        <componentName>editorial-starter</componentName>
     </properties>
 
     <dependencies>
@@ -44,6 +45,18 @@
 	            <type>lutece-plugin</type>
 	            <version>${lutece.plugin-extend.version}</version>
 	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-galleryimage</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-galleryimage.version}</version>
+	        </dependency>
+	         <dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-carto</artifactId>
+				<version>${lutece.plugin-carto.version}</version>
+				<type>lutece-plugin</type>
+			</dependency>
             
     </dependencies>
 </project>

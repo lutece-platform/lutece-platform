@@ -3,7 +3,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>fr.paris.lutece</groupId>
+        <groupId>fr.paris.lutece.starters</groupId>
         <artifactId>lutece-parent</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
@@ -15,6 +15,7 @@
 
     <properties>
         <maven.deploy.skip>${bom.deploy.skip}</maven.deploy.skip>
+        <componentName>lutece-bom</componentName>
     </properties>
 
     <build>
@@ -22,7 +23,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.7.0</version>
+                <version>1.7.3</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>bom</flattenMode>
@@ -148,6 +149,12 @@
 				<version>${lutece.module-workflow-forms-automatic-assignment.version}</version>
 				<type>lutece-plugin</type>
 			</dependency>
+			 <dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>module-workflow-formstopdf</artifactId>
+				<version>${lutece.module-workflow-formstopdf.version}</version>
+				<type>lutece-plugin</type>
+			</dependency>
 			<dependency>
 				<groupId>fr.paris.lutece.plugins</groupId>
 				<artifactId>module-forms-userassignment</artifactId>
@@ -204,7 +211,13 @@
 				<artifactId>module-extend-rating</artifactId>
 				<version>${lutece.module-extend-rating.version}</version>
 				<type>lutece-plugin</type>
-			</dependency>	
+			</dependency>
+			 <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-galleryimage</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-galleryimage.version}</version>
+	        </dependency>
             <!-- Appointment Profile
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
@@ -251,6 +264,12 @@
 				<groupId>fr.paris.lutece.plugins</groupId>
 				<artifactId>module-genericattributes-address</artifactId>
 				<version>${lutece.module-genericattributes-address.version}</version>
+				<type>lutece-plugin</type>
+			</dependency>
+			 <dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-carto</artifactId>
+				<version>${lutece.plugin-carto.version}</version>
 				<type>lutece-plugin</type>
 			</dependency>
             <!--GRU-->
@@ -416,6 +435,12 @@
 	            <artifactId>plugin-workflow</artifactId>
 	            <type>lutece-plugin</type>
 	            <version>${lutece.plugin-workflow.version}</version>
+	        </dependency>
+	         <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-workflow-upload</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.module-workflow-upload.version}</version>
 	        </dependency>
 	        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>

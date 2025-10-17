@@ -3,17 +3,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>fr.paris.lutece</groupId>
+        <groupId>fr.paris.lutece.starters</groupId>
         <artifactId>lutece-parent</artifactId>
         <version>8.0.0-SNAPSHOT</version>
     </parent>
-    <groupId>fr.paris.lutece.starters</groupId>
     <artifactId>lutece-starter</artifactId>
     <name>Lutece Platform</name>
     <description>Lutece Platform</description>
     
     <properties>
         <maven.deploy.skip>${lutece.deploy.skip}</maven.deploy.skip>
+        <componentName>lutece-starter</componentName>
     </properties>
 
     <dependencies>
