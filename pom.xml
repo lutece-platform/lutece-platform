@@ -150,7 +150,9 @@
         <lutece.plugin-liquibase.version>2.0.0-SNAPSHOT</lutece.plugin-liquibase.version>
         <lutece.configsource-vault.version>2.0.0-SNAPSHOT</lutece.configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0-SNAPSHOT</lutece.plugin-quartz-scheduler.version>
+        <lutece.plugin-systeminfo.version>4.0.0-SNAPSHOT</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.0.0-SNAPSHOT</lutece.plugin-rest.version>
+        <lutece.plugin-matomo.version>2.0.0-SNAPSHOT</lutece.plugin-matomo.version>
     </properties>
 
 
