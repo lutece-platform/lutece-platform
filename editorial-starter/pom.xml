@@ -57,6 +57,18 @@
 				<version>${lutece.plugin-carto.version}</version>
 				<type>lutece-plugin</type>
 			</dependency>
+			<dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-contact</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-contact.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-menus</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-menus.version}</version>
+	        </dependency>
             
     </dependencies>
 </project>

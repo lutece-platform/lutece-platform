@@ -130,8 +130,9 @@
         <!--  Lutece Editorial  -->
         <lutece.plugin-html.version>6.0.0-SNAPSHOT</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.0.0-SNAPSHOT</lutece.plugin-htmlpage.version>
-       
-       <!--Authentification-->
+        <lutece.plugin-contact.version>6.0.0-SNAPSHOT</lutece.plugin-contact.version>
+        <lutece.plugin-menus.version>3.0.0-SNAPSHOT</lutece.plugin-menus.version>
+        <!--Authentification-->
 		<lutece.plugin-mylutece.version>5.0.0-SNAPSHOT</lutece.plugin-mylutece.version>
 		<lutece.module-mylutece-database.version>7.0.0-SNAPSHOT</lutece.module-mylutece-database.version>
 		<lutece.plugin-adminauthenticationwsso.version>3.0.0-SNAPSHOT</lutece.plugin-adminauthenticationwsso.version>
