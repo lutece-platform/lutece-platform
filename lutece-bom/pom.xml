@@ -181,11 +181,16 @@
 			</dependency>
             <dependency>
 				<groupId>fr.paris.lutece.plugins</groupId>
-				<artifactId>module-notifygru-forms</artifactId>
-				<version>${lutece.module-notifygru-forms.version}</version>
+				<artifactId>module-workflow-alertforms</artifactId>
+				<version>${lutece.module-workflow-alertforms.version}</version>
 				<type>lutece-plugin</type>
 			</dependency>
-            
+            <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-elasticdata-forms</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.module-elasticdata-forms.version}</version>
+	        </dependency>
             
             <!-- Editorial Profile -->
             <dependency>
@@ -217,6 +222,12 @@
 	            <artifactId>plugin-galleryimage</artifactId>
 	            <type>lutece-plugin</type>
 	            <version>${lutece.plugin-galleryimage.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-blog</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-blog.version}</version>
 	        </dependency>
             <!-- Appointment Profile
             <dependency>
@@ -277,6 +288,12 @@
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>plugin-modulenotifygrumappingmanager</artifactId>
 	            <version>${lutece.plugin-modulenotifygrumappingmanager.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-notifygru-forms</artifactId>
+	            <version>${lutece.module-notifygru-forms.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
 	        <dependency>
@@ -473,6 +490,80 @@
 	            <type>lutece-plugin</type>
 	            <version>${lutece.plugin-menus.version}</version>
 	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-genericattributes-cartography</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.module-genericattributes-cartography.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-leaflet</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-leaflet.version}</version>
+	        </dependency>
+	         <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-myluteceaccessrules</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-myluteceaccessrules.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-profiles</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-profiles.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-sitelabels</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-sitelabels.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-solr</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-solr.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-cartography-solr</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.module-cartography-solr.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-forms-cartography</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.module-forms-cartography.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-parser</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-parser.version}</version>
+	        </dependency>
+	        
+	        <dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>library-elastic</artifactId>
+				<version>${lutece.library-elastic.version}</version>
+				<type>jar</type>
+			</dependency>
+			<dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-elasticdata</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-elasticdata.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-elasticdata-forms</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.module-elasticdata-forms.version}</version>
+	        </dependency>
+	        
         </dependencies>
     </dependencyManagement>
 </project>
