@@ -229,6 +229,18 @@
 	            <type>lutece-plugin</type>
 	            <version>${lutece.plugin-blog.version}</version>
 	        </dependency>
+	        <dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-document</artifactId>
+				<type>lutece-plugin</type>
+				<version>${lutece.plugin-document.version}</version>
+			</dependency>			 
+			<dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-library</artifactId>
+				<type>lutece-plugin</type>
+     			<version>${lutece.plugin-library.version}</version>
+			</dependency>
             <!-- Appointment Profile
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>

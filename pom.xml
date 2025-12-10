@@ -135,6 +135,8 @@
         <lutece.plugin-contact.version>6.0.0-SNAPSHOT</lutece.plugin-contact.version>
         <lutece.plugin-menus.version>3.0.0-SNAPSHOT</lutece.plugin-menus.version>
         <lutece.plugin-blog.version>4.0.0-SNAPSHOT</lutece.plugin-blog.version>
+        <lutece.plugin-document.version>6.0.0-SNAPSHOT</lutece.plugin-document.version>
+        <lutece.plugin-library.version>6.0.0-SNAPSHOT</lutece.plugin-library.version>
         <!--Authentification-->
 		<lutece.plugin-mylutece.version>5.0.0-SNAPSHOT</lutece.plugin-mylutece.version>
 		<lutece.module-mylutece-database.version>7.0.0-SNAPSHOT</lutece.module-mylutece-database.version>
