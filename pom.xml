@@ -167,6 +167,7 @@
         <lutece.module-forms-cartography.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography.version>
         <lutece.module-forms-cartography-explorer.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography-explorer.version>
         <lutece.module-cartography-solr.version>2.0.0-SNAPSHOT</lutece.module-cartography-solr.version>
+        <lutece.module-forms-solr.version>2.0.0-SNAPSHOT</lutece.module-forms-solr.version>
         <lutece.plugin-solr.version>5.0.0-SNAPSHOT</lutece.plugin-solr.version>
     	<lutece.plugin-parser.version>2.0.0-SNAPSHOT</lutece.plugin-parser.version>
         <lutece.plugin-matomo.version>2.0.0-SNAPSHOT</lutece.plugin-matomo.version>
