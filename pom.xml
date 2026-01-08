@@ -140,6 +140,8 @@
         <!--Authentification-->
 		<lutece.plugin-mylutece.version>5.0.0-SNAPSHOT</lutece.plugin-mylutece.version>
 		<lutece.module-mylutece-database.version>7.0.0-SNAPSHOT</lutece.module-mylutece-database.version>
+		<lutece.module-mylutece-oauth2.version>3.0.0-SNAPSHOT</lutece.module-mylutece-oauth2.version>
+		<lutece.plugin-oauth2.version>3.0.0-SNAPSHOT</lutece.plugin-oauth2.version>
 		<lutece.plugin-adminauthenticationwsso.version>3.0.0-SNAPSHOT</lutece.plugin-adminauthenticationwsso.version>
 		<lutece.plugin-myluteceaccessrules.version>2.0.0-SNAPSHOT</lutece.plugin-myluteceaccessrules.version>
 		<lutece.plugin-profiles.version>5.0.0-SNAPSHOT</lutece.plugin-profiles.version>
