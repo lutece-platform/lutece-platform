@@ -161,6 +161,7 @@
         <lutece.library-httpaccess.version>4.0.0-SNAPSHOT</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.0-SNAPSHOT</lutece.library-core-utils.version>
         <lutece.plugin-liquibase.version>2.0.0-SNAPSHOT</lutece.plugin-liquibase.version>
+        <lutece.library-sql-utils.version>1.0.3-SNAPSHOT</lutece.library-sql-utils.version>
         <lutece.configsource-vault.version>2.0.0-SNAPSHOT</lutece.configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0-SNAPSHOT</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0-SNAPSHOT</lutece.plugin-systeminfo.version>
@@ -173,7 +174,8 @@
         <lutece.plugin-solr.version>5.0.0-SNAPSHOT</lutece.plugin-solr.version>
     	<lutece.plugin-parser.version>2.0.0-SNAPSHOT</lutece.plugin-parser.version>
         <lutece.plugin-matomo.version>2.0.0-SNAPSHOT</lutece.plugin-matomo.version>
-    
+    	<lutece.plugin-captcha.version>3.0.0-SNAPSHOT</lutece.plugin-captcha.version>
+   		<lutece.module-captcha-captchetat.version>1.0.0-SNAPSHOT</lutece.module-captcha-captchetat.version>
     </properties>
 
 
@@ -189,7 +191,7 @@
                     <flattenMode>clean</flattenMode>
                     <flattenDependencyMode>all</flattenDependencyMode>
                 </configuration>
-                <executions>
+                <executions> 
                     <execution>
                         <id>flatten</id>
                         <phase>process-resources</phase>
