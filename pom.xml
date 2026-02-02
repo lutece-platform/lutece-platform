@@ -85,7 +85,7 @@
         <lutece.library-freemarker.version>2.0.0-SNAPSHOT</lutece.library-freemarker.version>
         <lutece.library-lutece-resources.version>1.0.0-SNAPSHOT</lutece.library-lutece-resources.version>
         <lutece.module-extend-rating.version>4.0.0-SNAPSHOT</lutece.module-extend-rating.version>
-        
+        <lutece.module-extend-feedback.version>3.0.0-SNAPSHOT</lutece.module-extend-feedback.version>
         <!-- Lutece forms -->
         <lutece.plugin-forms.version>4.0.0-SNAPSHOT</lutece.plugin-forms.version>
         <lutece.library-utils.version>2.0.0-SNAPSHOT</lutece.library-utils.version>
@@ -112,6 +112,7 @@
         <lutece.plugin-modulenotifygrumappingmanager.version>3.0.0-SNAPSHOT</lutece.plugin-modulenotifygrumappingmanager.version>
         <lutece.plugin-accesscontrol.version>2.0.0-SNAPSHOT</lutece.plugin-accesscontrol.version>
         <lutece.module-workflow-alertforms.version>3.0.0-SNAPSHOT</lutece.module-workflow-alertforms.version>
+        <lutece.module-workflow-notifygru-alert.version>3.0.0-SNAPSHOT</lutece.module-workflow-notifygru-alert.version>
         <!-- Address-->
         <lutece.plugin-address.version>2.0.0-SNAPSHOT</lutece.plugin-address.version>
         <lutece.module-address-autocomplete.version>2.0.0-SNAPSHOT</lutece.module-address-autocomplete.version>
@@ -176,6 +177,7 @@
         <lutece.plugin-matomo.version>2.0.0-SNAPSHOT</lutece.plugin-matomo.version>
     	<lutece.plugin-captcha.version>3.0.0-SNAPSHOT</lutece.plugin-captcha.version>
    		<lutece.module-captcha-captchetat.version>1.0.0-SNAPSHOT</lutece.module-captcha-captchetat.version>
+    	<lutece.plugin-verifybackurl.version>2.0.0-SNAPSHOT</lutece.plugin-verifybackurl.version>
     </properties>
 
 

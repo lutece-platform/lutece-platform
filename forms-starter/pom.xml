@@ -158,6 +158,7 @@
 				<version>${lutece.module-notifygru-forms.version}</version>
 				<type>lutece-plugin</type>
 			</dependency>
+			
             <!-- Address-->
             <dependency>
 				<groupId>fr.paris.lutece.plugins</groupId>
@@ -208,7 +209,12 @@
 				<version>${lutece.module-workflow-alertforms.version}</version>
 				<type>lutece-plugin</type>
 			</dependency>
-            
+            <dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>module-workflow-notifygru-alert</artifactId>
+				<type>lutece-plugin</type>
+				<version>${lutece.module-workflow-notifygru-alert.version}</version>
+			</dependency>
             <!--Others-->
              <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
