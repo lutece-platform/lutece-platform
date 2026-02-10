@@ -1,0 +1,995 @@
+/**
+ * Lutece Platform — Release Pipeline
+ *
+ * Automates the full release workflow:
+ *   plugins → POM parent → specialized starters → lutece-starter → BOM
+ *
+ * DRY_RUN is true by default to prevent accidental releases.
+ */
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '20'))
+        timeout(time: 4, unit: 'HOURS')
+        disableConcurrentBuilds()
+    }
+
+    tools {
+        maven 'Maven-3'
+        jdk 'JDK-17'
+    }
+
+    parameters {
+        choice(
+            name: 'RELEASE_TARGET',
+            choices: ['forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter', 'lutece-bom', 'all'],
+            description: 'Cible de la release. "all" = starters spécialisés + lutece-starter + BOM.'
+        )
+        string(
+            name: 'RELEASE_VERSION',
+            defaultValue: '',
+            description: 'Version release (ex: 8.0.0). Vide = auto-calculée depuis la version SNAPSHOT courante.'
+        )
+        string(
+            name: 'NEXT_SNAPSHOT_VERSION',
+            defaultValue: '',
+            description: 'Prochaine version SNAPSHOT (ex: 8.0.1-SNAPSHOT). Vide = auto-calculée (patch+1).'
+        )
+        booleanParam(
+            name: 'DRY_RUN',
+            defaultValue: true,
+            description: 'Mode simulation : aucun push, deploy ou merge ne sera effectué.'
+        )
+        booleanParam(
+            name: 'SKIP_PLUGIN_RELEASES',
+            defaultValue: false,
+            description: 'Sauter la release des plugins (si déjà faite manuellement).'
+        )
+        booleanParam(
+            name: 'SKIP_TESTS',
+            defaultValue: false,
+            description: 'Sauter les tests des plugins (non recommandé).'
+        )
+        string(
+            name: 'PLUGIN_WHITELIST',
+            defaultValue: '',
+            description: 'Liste d\'artifactIds à releaser (séparés par des virgules). Vide = tous les plugins SNAPSHOT.'
+        )
+    }
+
+    environment {
+        GITHUB_TOKEN        = credentials('github-token-lutece')
+        MAVEN_SETTINGS_XML  = credentials('maven-settings-lutece')
+        GITHUB_ORG_PLATFORM = 'lutece-platform'
+        GITHUB_ORG_PUBLIC   = 'lutece-secteur-public'
+        RELEASE_REPORT      = "${WORKSPACE}/release-report.txt"
+        PLUGIN_WORK_DIR     = "${WORKSPACE}/plugin-releases"
+    }
+
+    stages {
+
+        // ================================================================
+        // Stage 0 — Initialize
+        // ================================================================
+        stage('Initialize') {
+            steps {
+                script {
+                    echo "=========================================="
+                    echo " Lutece Release Pipeline"
+                    echo " Target  : ${params.RELEASE_TARGET}"
+                    echo " Dry-Run : ${params.DRY_RUN}"
+                    echo "=========================================="
+
+                    // Read current version from root pom
+                    def pomContent = readFile('pom.xml')
+                    def currentVersion = (pomContent =~ /<artifactId>lutece-parent<\/artifactId>\s*\n\s*<version>([^<]+)<\/version>/)[0][1]
+                    echo "Current project version: ${currentVersion}"
+
+                    // Compute release version
+                    if (params.RELEASE_VERSION?.trim()) {
+                        env.COMPUTED_RELEASE_VERSION = params.RELEASE_VERSION.trim()
+                    } else {
+                        env.COMPUTED_RELEASE_VERSION = currentVersion.replace('-SNAPSHOT', '')
+                    }
+
+                    // Compute next snapshot version
+                    if (params.NEXT_SNAPSHOT_VERSION?.trim()) {
+                        env.COMPUTED_NEXT_SNAPSHOT = params.NEXT_SNAPSHOT_VERSION.trim()
+                    } else {
+                        env.COMPUTED_NEXT_SNAPSHOT = computeNextSnapshot(env.COMPUTED_RELEASE_VERSION)
+                    }
+
+                    echo "Release version     : ${env.COMPUTED_RELEASE_VERSION}"
+                    echo "Next SNAPSHOT version: ${env.COMPUTED_NEXT_SNAPSHOT}"
+
+                    // Resolve which starters to release
+                    env.STARTERS_TO_RELEASE = resolveStartersToRelease(params.RELEASE_TARGET)
+                    echo "Starters to release : ${env.STARTERS_TO_RELEASE}"
+
+                    // Initialize report
+                    writeFile file: env.RELEASE_REPORT, text: """Lutece Release Report
+====================================
+Date        : ${new Date()}
+Target      : ${params.RELEASE_TARGET}
+Release Ver : ${env.COMPUTED_RELEASE_VERSION}
+Next SNAPSHOT: ${env.COMPUTED_NEXT_SNAPSHOT}
+Dry-Run     : ${params.DRY_RUN}
+====================================
+
+"""
+                    // Create work directory for plugin clones
+                    sh "mkdir -p ${env.PLUGIN_WORK_DIR}"
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 1 — Detect SNAPSHOT Plugins
+        // ================================================================
+        stage('Detect SNAPSHOT Plugins') {
+            steps {
+                script {
+                    def pomContent = readFile('pom.xml')
+                    def allSnapshotPlugins = parseSnapshotPlugins(pomContent)
+                    echo "All SNAPSHOT plugins detected: ${allSnapshotPlugins.size()}"
+                    allSnapshotPlugins.each { echo "  - ${it.propertyName} = ${it.version}" }
+
+                    // Filter by starter target
+                    def startersList = env.STARTERS_TO_RELEASE.split(',').collect { it.trim() }.findAll { it }
+                    def filtered = filterPluginsForStarters(allSnapshotPlugins, startersList)
+
+                    // Apply whitelist if specified
+                    if (params.PLUGIN_WHITELIST?.trim()) {
+                        def whitelist = params.PLUGIN_WHITELIST.split(',').collect { it.trim() }
+                        filtered = filtered.findAll { plugin ->
+                            whitelist.any { w -> plugin.artifactId.contains(w) || plugin.propertyName.contains(w) }
+                        }
+                        echo "After whitelist filter: ${filtered.size()} plugins"
+                    }
+
+                    // Store for later stages
+                    env.SNAPSHOT_PLUGIN_COUNT = "${filtered.size()}"
+                    // Serialize plugin list as JSON for downstream stages
+                    def pluginListJson = groovy.json.JsonOutput.toJson(filtered.collect { [
+                        propertyName: it.propertyName,
+                        artifactId: it.artifactId,
+                        currentVersion: it.version,
+                        releaseVersion: it.version.replace('-SNAPSHOT', ''),
+                        nextSnapshot: computeNextSnapshot(it.version.replace('-SNAPSHOT', ''))
+                    ]})
+                    env.SNAPSHOT_PLUGINS_JSON = pluginListJson
+
+                    appendReport("SNAPSHOT Plugins Detected: ${filtered.size()}")
+                    filtered.each { appendReport("  - ${it.artifactId} : ${it.version}") }
+                    appendReport('')
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 2 — Locate Plugin Repos on GitHub
+        // ================================================================
+        stage('Locate Plugin Repos') {
+            when {
+                expression { return env.SNAPSHOT_PLUGIN_COUNT.toInteger() > 0 && !params.SKIP_PLUGIN_RELEASES }
+            }
+            steps {
+                script {
+                    def plugins = new groovy.json.JsonSlurper().parseText(env.SNAPSHOT_PLUGINS_JSON)
+                    def resolved = []
+
+                    plugins.each { plugin ->
+                        def repoInfo = resolveGitHubRepo(plugin.artifactId)
+                        if (repoInfo) {
+                            plugin.org = repoInfo.org
+                            plugin.repoName = repoInfo.repoName
+                            plugin.branch = repoInfo.branch
+                            resolved.add(plugin)
+                            echo "Resolved: ${plugin.artifactId} -> ${repoInfo.org}/${repoInfo.repoName} (${repoInfo.branch})"
+                        } else {
+                            echo "WARNING: Could not resolve repo for ${plugin.artifactId}"
+                            appendReport("WARNING: Repo not found for ${plugin.artifactId} — skipped")
+                        }
+                    }
+
+                    env.RESOLVED_PLUGINS_JSON = groovy.json.JsonOutput.toJson(resolved)
+                    env.RESOLVED_PLUGIN_COUNT = "${resolved.size()}"
+                    echo "Resolved ${resolved.size()} / ${plugins.size()} plugin repos"
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 3 — Release Plugins (parallel batches of 5)
+        // ================================================================
+        stage('Release Plugins') {
+            when {
+                expression {
+                    return (env.RESOLVED_PLUGIN_COUNT?.toInteger() ?: 0) > 0 && !params.SKIP_PLUGIN_RELEASES
+                }
+            }
+            steps {
+                script {
+                    def plugins = new groovy.json.JsonSlurper().parseText(env.RESOLVED_PLUGINS_JSON)
+                    def batchSize = 5
+                    def batches = plugins.collate(batchSize)
+                    def failedPlugins = []
+                    def releasedPlugins = []
+
+                    batches.eachWithIndex { batch, batchIndex ->
+                        echo "--- Batch ${batchIndex + 1} / ${batches.size()} (${batch.size()} plugins) ---"
+
+                        def parallelSteps = [:]
+                        batch.each { plugin ->
+                            parallelSteps["${plugin.artifactId}"] = {
+                                try {
+                                    releasePlugin(plugin)
+                                    releasedPlugins.add(plugin.artifactId)
+                                } catch (Exception e) {
+                                    echo "FAILED: ${plugin.artifactId} — ${e.message}"
+                                    failedPlugins.add([artifactId: plugin.artifactId, error: e.message])
+                                    appendReport("FAILED: ${plugin.artifactId} — ${e.message}")
+                                    try {
+                                        rollbackPlugin(plugin)
+                                        appendReport("ROLLBACK OK: ${plugin.artifactId}")
+                                    } catch (Exception re) {
+                                        appendReport("ROLLBACK FAILED: ${plugin.artifactId} — manual intervention required: ${re.message}")
+                                    }
+                                }
+                            }
+                        }
+                        parallel parallelSteps
+                    }
+
+                    appendReport("\nPlugin Release Summary:")
+                    appendReport("  Released : ${releasedPlugins.size()}")
+                    appendReport("  Failed   : ${failedPlugins.size()}")
+                    releasedPlugins.each { appendReport("  OK   : ${it}") }
+                    failedPlugins.each { appendReport("  FAIL : ${it.artifactId} — ${it.error}") }
+                    appendReport('')
+
+                    env.RELEASED_PLUGINS = releasedPlugins.join(',')
+                    env.FAILED_PLUGIN_COUNT = "${failedPlugins.size()}"
+
+                    if (failedPlugins.size() > 0) {
+                        unstable("${failedPlugins.size()} plugin(s) failed to release")
+                    }
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 4 — Update POM Parent Versions
+        // ================================================================
+        stage('Update POM Parent Versions') {
+            steps {
+                script {
+                    echo "Updating root pom.xml with release versions..."
+
+                    def pomFile = 'pom.xml'
+                    def pomContent = readFile(pomFile)
+                    def updatedPom = pomContent
+
+                    // Update <revision> property
+                    updatedPom = updatedPom.replaceAll(
+                        /(<revision>)[^<]+(SNAPSHOT)(<\/revision>)/,
+                        "\$1${env.COMPUTED_RELEASE_VERSION}\$3"
+                    )
+
+                    // Update project version
+                    updatedPom = updatedPom.replaceAll(
+                        /(<artifactId>lutece-parent<\/artifactId>\s*\n\s*<version>)[^<]+(<\/version>)/,
+                        "\$1${env.COMPUTED_RELEASE_VERSION}\$2"
+                    )
+
+                    // Update all SNAPSHOT plugin properties
+                    if (!params.SKIP_PLUGIN_RELEASES) {
+                        def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? new groovy.json.JsonSlurper().parseText(env.RESOLVED_PLUGINS_JSON) : []
+                        def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
+
+                        resolvedPlugins.each { plugin ->
+                            if (releasedList.contains(plugin.artifactId)) {
+                                def propPattern = /(<${plugin.propertyName}>)[^<]+(-SNAPSHOT<\/${plugin.propertyName}>)/
+                                def propReplacement = "\$1${plugin.releaseVersion}\$2".replace('-SNAPSHOT', '')
+                                // Use sed for reliability with special chars in property names
+                                def sedExpr = "s|<${plugin.propertyName}>${plugin.currentVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|g"
+                                if (params.DRY_RUN) {
+                                    echo "[DRY-RUN] Would update ${plugin.propertyName}: ${plugin.currentVersion} -> ${plugin.releaseVersion}"
+                                } else {
+                                    sh "sed -i '${sedExpr}' ${pomFile}"
+                                }
+                            }
+                        }
+                    }
+
+                    // Also update all remaining SNAPSHOT properties that match the project version pattern
+                    if (!params.DRY_RUN) {
+                        // Update <revision>
+                        sh "sed -i 's|<revision>${env.COMPUTED_RELEASE_VERSION}-SNAPSHOT</revision>|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|g' ${pomFile}"
+                        sh "sed -i 's|<revision>8.0.0-SNAPSHOT</revision>|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|g' ${pomFile}"
+
+                        // Update the project version
+                        sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_RELEASE_VERSION}</version>|}' ${pomFile}"
+
+                        // Update child module parent versions
+                        def modules = ['lutece-bom', 'forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter']
+                        modules.each { mod ->
+                            def modPom = "${mod}/pom.xml"
+                            if (fileExists(modPom)) {
+                                sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_RELEASE_VERSION}</version>|}' ${modPom}"
+                            }
+                        }
+
+                        sh """
+                            git add -A
+                            git commit -m "release: update versions to ${env.COMPUTED_RELEASE_VERSION}"
+                        """
+                    } else {
+                        echo "[DRY-RUN] Would update POM parent and module versions to ${env.COMPUTED_RELEASE_VERSION}"
+                    }
+
+                    appendReport("POM Parent Updated: versions set to ${env.COMPUTED_RELEASE_VERSION}")
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 5 — Validate Release Readiness (no SNAPSHOT remaining)
+        // ================================================================
+        stage('Validate Release Readiness') {
+            steps {
+                script {
+                    echo "Checking for remaining SNAPSHOT dependencies..."
+
+                    def pomContent = readFile('pom.xml')
+                    def remainingSnapshots = parseSnapshotPlugins(pomContent)
+
+                    // Exclude the revision property itself and starter cross-references
+                    def ignoredProps = ['revision', 'lutece.version',
+                                        'lutece.forms-starter.version',
+                                        'lutece.appointment-starter.version',
+                                        'lutece.editorial-starter.version']
+                    def violations = remainingSnapshots.findAll { !ignoredProps.contains(it.propertyName) }
+
+                    if (violations.size() > 0) {
+                        echo "WARNING: ${violations.size()} SNAPSHOT dependencies remain:"
+                        violations.each { echo "  - ${it.propertyName} = ${it.version}" }
+                        appendReport("\nSNAPSHOT Violations: ${violations.size()}")
+                        violations.each { appendReport("  - ${it.propertyName} = ${it.version}") }
+
+                        if (!params.SKIP_PLUGIN_RELEASES) {
+                            unstable("SNAPSHOT dependencies remain — review the report")
+                        }
+                    } else {
+                        echo "All plugin dependencies are in release version."
+                        appendReport("Validation: All dependencies are release versions.")
+                    }
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 6 — Release Specialized Starters (parallel)
+        // ================================================================
+        stage('Release Specialized Starters') {
+            when {
+                expression {
+                    def starters = env.STARTERS_TO_RELEASE?.split(',')?.collect { it.trim() }?.findAll { it } ?: []
+                    return starters.any { it in ['forms-starter', 'appointment-starter', 'editorial-starter'] }
+                }
+            }
+            steps {
+                script {
+                    def starters = env.STARTERS_TO_RELEASE.split(',').collect { it.trim() }.findAll { it }
+                    def specializedStarters = starters.findAll { it in ['forms-starter', 'appointment-starter', 'editorial-starter'] }
+
+                    def parallelSteps = [:]
+                    specializedStarters.each { starter ->
+                        parallelSteps[starter] = {
+                            try {
+                                releaseStarter(starter)
+                                appendReport("Starter Released: ${starter} ${env.COMPUTED_RELEASE_VERSION}")
+                            } catch (Exception e) {
+                                appendReport("FAILED Starter: ${starter} — ${e.message}")
+                                error("Failed to release ${starter}: ${e.message}")
+                            }
+                        }
+                    }
+                    parallel parallelSteps
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 7 — Release lutece-starter
+        // ================================================================
+        stage('Release lutece-starter') {
+            when {
+                expression {
+                    def starters = env.STARTERS_TO_RELEASE?.split(',')?.collect { it.trim() }?.findAll { it } ?: []
+                    return starters.contains('lutece-starter')
+                }
+            }
+            steps {
+                script {
+                    echo "Validating specialized starters are in release version before releasing lutece-starter..."
+
+                    // Verify the 3 specialized starter versions in lutece-starter's pom
+                    def luteceStarterPom = readFile('lutece-starter/pom.xml')
+                    def starterRefs = ['forms-starter', 'appointment-starter', 'editorial-starter']
+                    starterRefs.each { ref ->
+                        if (luteceStarterPom.contains('SNAPSHOT') && luteceStarterPom.contains(ref)) {
+                            // Check the actual version property — they use ${revision} or ${lutece.*-starter.version}
+                            echo "Note: ${ref} version resolved via \${revision} or parent property"
+                        }
+                    }
+
+                    releaseStarter('lutece-starter')
+                    appendReport("Starter Released: lutece-starter ${env.COMPUTED_RELEASE_VERSION}")
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 8 — Release lutece-bom
+        // ================================================================
+        stage('Release lutece-bom') {
+            when {
+                expression {
+                    def starters = env.STARTERS_TO_RELEASE?.split(',')?.collect { it.trim() }?.findAll { it } ?: []
+                    return starters.contains('lutece-bom') || params.RELEASE_TARGET == 'all'
+                }
+            }
+            steps {
+                script {
+                    releaseStarter('lutece-bom')
+                    appendReport("BOM Released: lutece-bom ${env.COMPUTED_RELEASE_VERSION}")
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 9 — Prepare Next SNAPSHOT
+        // ================================================================
+        stage('Prepare Next SNAPSHOT') {
+            steps {
+                script {
+                    echo "Preparing next development iteration: ${env.COMPUTED_NEXT_SNAPSHOT}"
+
+                    if (params.DRY_RUN) {
+                        echo "[DRY-RUN] Would set all versions to ${env.COMPUTED_NEXT_SNAPSHOT}"
+                    } else {
+                        def pomFile = 'pom.xml'
+
+                        // Update <revision> to next SNAPSHOT
+                        sh "sed -i 's|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|<revision>${env.COMPUTED_NEXT_SNAPSHOT}</revision>|g' ${pomFile}"
+
+                        // Update project version
+                        sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_NEXT_SNAPSHOT}</version>|}' ${pomFile}"
+
+                        // Update all released plugin properties to next SNAPSHOT
+                        if (env.RESOLVED_PLUGINS_JSON) {
+                            def resolvedPlugins = new groovy.json.JsonSlurper().parseText(env.RESOLVED_PLUGINS_JSON)
+                            def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
+
+                            resolvedPlugins.each { plugin ->
+                                if (releasedList.contains(plugin.artifactId)) {
+                                    sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.nextSnapshot}</${plugin.propertyName}>|g' ${pomFile}"
+                                }
+                            }
+                        }
+
+                        // Update child module parent versions
+                        def modules = ['lutece-bom', 'forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter']
+                        modules.each { mod ->
+                            def modPom = "${mod}/pom.xml"
+                            if (fileExists(modPom)) {
+                                sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_NEXT_SNAPSHOT}</version>|}' ${modPom}"
+                            }
+                        }
+
+                        sh """
+                            git add -A
+                            git commit -m "chore: prepare next development iteration ${env.COMPUTED_NEXT_SNAPSHOT}"
+                            git push origin develop --tags
+                        """
+                    }
+
+                    appendReport("\nNext SNAPSHOT: ${env.COMPUTED_NEXT_SNAPSHOT}")
+                }
+            }
+        }
+
+        // ================================================================
+        // Stage 10 — Release Report
+        // ================================================================
+        stage('Release Report') {
+            steps {
+                script {
+                    appendReport("\n====================================")
+                    appendReport("Pipeline completed: ${new Date()}")
+                    appendReport("Status: ${currentBuild.result ?: 'SUCCESS'}")
+                    appendReport("====================================")
+
+                    def report = readFile(env.RELEASE_REPORT)
+                    echo report
+                }
+                archiveArtifacts artifacts: 'release-report.txt', fingerprint: true
+            }
+        }
+    }
+
+    // ====================================================================
+    // Post — Notifications
+    // ====================================================================
+    post {
+        success {
+            script {
+                def report = readFile(env.RELEASE_REPORT)
+                try {
+                    slackSend(
+                        channel: '#lutece-releases',
+                        color: 'good',
+                        message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS*
+Target: ${params.RELEASE_TARGET}
+Dry-Run: ${params.DRY_RUN}
+${params.DRY_RUN ? '(Simulation only — no changes were pushed)' : ''}
+<${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
+                    )
+                } catch (Exception e) {
+                    echo "Slack notification skipped: ${e.message}"
+                }
+                try {
+                    emailext(
+                        subject: "Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS",
+                        body: report,
+                        recipientProviders: [culprits(), requestor()]
+                    )
+                } catch (Exception e) {
+                    echo "Email notification skipped: ${e.message}"
+                }
+            }
+        }
+        failure {
+            script {
+                def report = readFile(env.RELEASE_REPORT)
+                try {
+                    slackSend(
+                        channel: '#lutece-releases',
+                        color: 'danger',
+                        message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION} — FAILED*
+Target: ${params.RELEASE_TARGET}
+Check the report for rollback actions required.
+<${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
+                    )
+                } catch (Exception e) {
+                    echo "Slack notification skipped: ${e.message}"
+                }
+                try {
+                    emailext(
+                        subject: "Lutece Release ${env.COMPUTED_RELEASE_VERSION} — FAILED",
+                        body: report,
+                        recipientProviders: [culprits(), requestor()]
+                    )
+                } catch (Exception e) {
+                    echo "Email notification skipped: ${e.message}"
+                }
+            }
+        }
+        always {
+            cleanWs(deleteDirs: true, patterns: [[pattern: 'plugin-releases/**', type: 'INCLUDE']])
+        }
+    }
+}
+
+// ========================================================================
+// Helper Functions
+// ========================================================================
+
+/**
+ * Computes the next SNAPSHOT version by incrementing the patch number.
+ * Example: "8.0.0" -> "8.0.1-SNAPSHOT"
+ */
+def computeNextSnapshot(String version) {
+    def parts = version.replace('-SNAPSHOT', '').split('\\.')
+    if (parts.length < 3) {
+        return "${version}.1-SNAPSHOT"
+    }
+    def patch = parts[2].toInteger() + 1
+    return "${parts[0]}.${parts[1]}.${patch}-SNAPSHOT"
+}
+
+/**
+ * Resolves which starters (and BOM) to release based on the target parameter.
+ * Returns a comma-separated string.
+ *
+ * "lutece-starter" implies the 3 specialized starters must be released first.
+ * "all" includes everything.
+ */
+def resolveStartersToRelease(String target) {
+    switch (target) {
+        case 'forms-starter':
+            return 'forms-starter'
+        case 'appointment-starter':
+            return 'appointment-starter'
+        case 'editorial-starter':
+            return 'editorial-starter'
+        case 'lutece-starter':
+            return 'forms-starter,appointment-starter,editorial-starter,lutece-starter'
+        case 'lutece-bom':
+            return 'lutece-bom'
+        case 'all':
+            return 'forms-starter,appointment-starter,editorial-starter,lutece-starter,lutece-bom'
+        default:
+            return target
+    }
+}
+
+/**
+ * Parses the root pom.xml content and extracts all <lutece.*.version> properties
+ * that contain a SNAPSHOT version.
+ *
+ * Returns a list of maps: [propertyName, artifactId, version]
+ */
+def parseSnapshotPlugins(String pomContent) {
+    def plugins = []
+    def matcher = pomContent =~ /<(lutece\.[a-zA-Z0-9._-]+\.version)>([^<]*-SNAPSHOT)<\//
+    while (matcher.find()) {
+        def propertyName = matcher.group(1)
+        def version = matcher.group(2)
+        // Derive artifactId from property name:
+        // lutece.plugin-forms.version -> plugin-forms
+        // lutece.library-lucene.version -> library-lucene
+        // lutece.core.version -> lutece-core
+        def artifactId = propertyName
+            .replace('lutece.', '')
+            .replace('.version', '')
+        if (artifactId == 'core') {
+            artifactId = 'lutece-core'
+        }
+        plugins.add([
+            propertyName: propertyName,
+            artifactId: artifactId,
+            version: version
+        ])
+    }
+    return plugins
+}
+
+/**
+ * Filters the list of SNAPSHOT plugins to only those referenced by the target starters.
+ *
+ * Reads each starter's pom.xml and extracts which ${lutece.*.version} properties it uses,
+ * then returns only the SNAPSHOT plugins that match.
+ */
+def filterPluginsForStarters(List allPlugins, List starters) {
+    if (!starters || starters.isEmpty()) {
+        return allPlugins
+    }
+
+    def referencedProperties = [] as Set
+
+    // Map starter names to their pom files
+    def starterPomMap = [
+        'forms-starter'       : 'forms-starter/pom.xml',
+        'appointment-starter' : 'appointment-starter/pom.xml',
+        'editorial-starter'   : 'editorial-starter/pom.xml',
+        'lutece-starter'      : 'lutece-starter/pom.xml',
+        'lutece-bom'          : 'lutece-bom/pom.xml'
+    ]
+
+    starters.each { starter ->
+        def pomPath = starterPomMap[starter]
+        if (pomPath && fileExists(pomPath)) {
+            def content = readFile(pomPath)
+            // Extract all ${lutece.*.version} references
+            def refMatcher = content =~ /\$\{(lutece\.[a-zA-Z0-9._-]+\.version)\}/
+            while (refMatcher.find()) {
+                referencedProperties.add(refMatcher.group(1))
+            }
+        }
+    }
+
+    // If lutece-starter is in the list, it depends on the 3 specialized starters,
+    // so we also need their plugins
+    if (starters.contains('lutece-starter')) {
+        ['forms-starter', 'appointment-starter', 'editorial-starter'].each { sub ->
+            def pomPath = starterPomMap[sub]
+            if (pomPath && fileExists(pomPath)) {
+                def content = readFile(pomPath)
+                def refMatcher = content =~ /\$\{(lutece\.[a-zA-Z0-9._-]+\.version)\}/
+                while (refMatcher.find()) {
+                    referencedProperties.add(refMatcher.group(1))
+                }
+            }
+        }
+    }
+
+    echo "Referenced properties from starters: ${referencedProperties.size()}"
+    referencedProperties.each { echo "  - ${it}" }
+
+    return allPlugins.findAll { referencedProperties.contains(it.propertyName) }
+}
+
+/**
+ * Resolves the GitHub organization and repo name for a given artifactId.
+ *
+ * Convention Lutece : le nom du depot GitHub suit le pattern
+ *   lutece-{categorie}-{artifactId}
+ * Exemples :
+ *   plugin-forms              -> lutece-form-plugin-forms
+ *   module-workflow-forms      -> lutece-wf-module-workflow-forms
+ *   library-lucene             -> lutece-tech-library-lucene
+ *   lutece-core                -> lutece-core
+ *
+ * Certains depots ne suivent pas la convention standard (artifactId != suffixe du repo).
+ * Ces cas sont geres par une table de correspondance REPO_OVERRIDES.
+ *
+ * Strategie de resolution :
+ *   1. Verifie la table REPO_OVERRIDES
+ *   2. Cherche le repo via l'API Search GitHub (nom se terminant par l'artifactId)
+ *   3. Cherche dans lutece-platform, puis lutece-secteur-public
+ *   4. Resout la branche de developpement
+ *
+ * Returns a map [org, repoName, branch] or null if not found.
+ */
+def resolveGitHubRepo(String artifactId) {
+    // Table de correspondance pour les depots dont le nom ne suit pas
+    // la convention standard lutece-{categorie}-{artifactId}
+    def REPO_OVERRIDES = [
+        // artifactId POM                        : [org, repoName]
+        'plugin-modulenotifygrumappingmanager'    : ['lutece-secteur-public', 'gru-module-notifygru-mapping-manager'],
+        'plugin-galleryimage'                     : ['lutece-platform', 'lutece-tech-plugin-image-gallery'],
+        'library-sql-utils'                       : ['lutece-platform', 'lutece-build-library-sqlutils'],
+        // Ajouter ici d'autres cas speciaux si necessaire
+    ]
+
+    // 1. Check overrides first
+    if (REPO_OVERRIDES.containsKey(artifactId)) {
+        def override = REPO_OVERRIDES[artifactId]
+        def org = override[0]
+        def repoName = override[1]
+        def branch = resolveDevBranch(org, repoName)
+        echo "Resolved (override): ${artifactId} -> ${org}/${repoName} (${branch})"
+        return [org: org, repoName: repoName, branch: branch]
+    }
+
+    // 2. Search via GitHub API
+    def orgs = [env.GITHUB_ORG_PLATFORM, env.GITHUB_ORG_PUBLIC]
+
+    for (org in orgs) {
+        def searchJson = sh(
+            script: """curl -s \
+                -H 'Authorization: token ${env.GITHUB_TOKEN}' \
+                -H 'Accept: application/vnd.github.v3+json' \
+                'https://api.github.com/search/repositories?q=org:${org}+${artifactId}+in:name&per_page=10'""",
+            returnStdout: true
+        ).trim()
+
+        def searchResult = new groovy.json.JsonSlurper().parseText(searchJson)
+        if (searchResult.total_count > 0) {
+            // Find the repo whose name ends with the artifactId
+            // (handles the lutece-{category}-{artifactId} prefix convention)
+            def match = searchResult.items.find { repo ->
+                repo.name == artifactId || repo.name.endsWith("-${artifactId}")
+            }
+            if (match) {
+                def branch = resolveDevBranch(org, match.name)
+                echo "Resolved: ${artifactId} -> ${org}/${match.name} (${branch})"
+                return [org: org, repoName: match.name, branch: branch]
+            }
+        }
+    }
+
+    echo "WARNING: Repository not found for artifactId: ${artifactId}"
+    return null
+}
+
+/**
+ * Resolves the development branch for a repo.
+ * Priority: develop > develop_core8 > develop8 > develop8.x > main > master
+ */
+def resolveDevBranch(String org, String repoName) {
+    def branchesJson = sh(
+        script: """curl -s \
+            -H 'Authorization: token ${env.GITHUB_TOKEN}' \
+            'https://api.github.com/repos/${org}/${repoName}/branches?per_page=100'""",
+        returnStdout: true
+    ).trim()
+
+    def branches = new groovy.json.JsonSlurper().parseText(branchesJson)
+    def branchNames = branches.collect { it.name }
+
+    def priorities = ['develop', 'develop_core8', 'develop8', 'develop8.x']
+    for (b in priorities) {
+        if (branchNames.contains(b)) {
+            return b
+        }
+    }
+    return 'master'
+}
+
+/**
+ * Performs the full release workflow for a single plugin:
+ * 1. Clone develop
+ * 2. Run tests (if packaging is lutece-plugin or lutece-core)
+ * 3. Set release version
+ * 4. Commit + tag
+ * 5. Merge to master, push, deploy
+ * 6. Return to develop, set next SNAPSHOT, push + tags
+ */
+def releasePlugin(Map plugin) {
+    def workDir = "${env.PLUGIN_WORK_DIR}/${plugin.artifactId}"
+    def repoUrl = "https://${env.GITHUB_TOKEN}@github.com/${plugin.org}/${plugin.repoName}.git"
+    def tagName = "${plugin.artifactId}-${plugin.releaseVersion}"
+
+    echo "=== Releasing ${plugin.artifactId} : ${plugin.currentVersion} -> ${plugin.releaseVersion} ==="
+
+    if (params.DRY_RUN) {
+        echo "[DRY-RUN] Would release ${plugin.artifactId}"
+        echo "[DRY-RUN]   Clone ${plugin.org}/${plugin.repoName} (${plugin.branch})"
+        echo "[DRY-RUN]   Test, set version ${plugin.releaseVersion}, tag ${tagName}"
+        echo "[DRY-RUN]   Merge to master, deploy, next SNAPSHOT ${plugin.nextSnapshot}"
+        return
+    }
+
+    dir(workDir) {
+        // 1. Clone
+        sh "git clone -b ${plugin.branch} --single-branch ${repoUrl} ."
+        sh "git config user.email 'jenkins@lutece.paris.fr'"
+        sh "git config user.name 'Jenkins Release Bot'"
+
+        // 2. Check packaging and run tests
+        if (!params.SKIP_TESTS) {
+            def pluginPom = readFile('pom.xml')
+            def packagingMatch = pluginPom =~ /<packaging>([^<]+)<\/packaging>/
+            def packaging = packagingMatch ? packagingMatch[0][1] : 'jar'
+
+            if (packaging in ['lutece-plugin', 'lutece-core']) {
+                echo "Running tests for ${plugin.artifactId} (packaging: ${packaging})..."
+                sh "mvn -s ${env.MAVEN_SETTINGS_XML} lutece:exploded antrun:run -Dlutece-test-hsql test"
+            } else {
+                echo "Skipping tests for ${plugin.artifactId} (packaging: ${packaging})"
+            }
+        }
+
+        // 3. Set release version
+        sh "mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.releaseVersion} -DgenerateBackupPoms=false"
+
+        // 4. Commit + tag
+        sh """
+            git add -A
+            git commit -m "release: ${tagName}"
+            git tag -a ${tagName} -m "Release ${plugin.artifactId} ${plugin.releaseVersion}"
+        """
+
+        // 5. Merge to master, push, deploy
+        sh """
+            git checkout master || git checkout -b master origin/master
+            git merge ${plugin.branch} -m "Merge ${plugin.branch} for release ${tagName}"
+            git push origin master
+            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -P release -DskipTests
+        """
+
+        // 6. Return to develop, next SNAPSHOT
+        sh """
+            git checkout ${plugin.branch}
+            mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
+            git add -A
+            git commit -m "chore: prepare next development iteration ${plugin.artifactId}-${plugin.nextSnapshot}"
+            git push origin ${plugin.branch} --tags
+        """
+    }
+
+    echo "Released ${plugin.artifactId} ${plugin.releaseVersion} successfully."
+}
+
+/**
+ * Rollback a failed plugin release:
+ * - Reset master and develop to their pre-release state
+ * - Delete the release tag (local + remote)
+ */
+def rollbackPlugin(Map plugin) {
+    def workDir = "${env.PLUGIN_WORK_DIR}/${plugin.artifactId}"
+    def tagName = "${plugin.artifactId}-${plugin.releaseVersion}"
+
+    echo "Rolling back ${plugin.artifactId}..."
+
+    if (params.DRY_RUN) {
+        echo "[DRY-RUN] Would rollback ${plugin.artifactId}"
+        return
+    }
+
+    dir(workDir) {
+        // Try to reset master
+        try {
+            sh """
+                git checkout master
+                git reset --hard HEAD~1
+                git push origin master --force
+            """
+        } catch (Exception e) {
+            echo "WARNING: Could not reset master for ${plugin.artifactId}: ${e.message}"
+        }
+
+        // Try to reset develop
+        try {
+            sh """
+                git checkout ${plugin.branch}
+                git reset --hard HEAD~1
+                git push origin ${plugin.branch} --force
+            """
+        } catch (Exception e) {
+            echo "WARNING: Could not reset ${plugin.branch} for ${plugin.artifactId}: ${e.message}"
+        }
+
+        // Delete tag
+        try {
+            sh """
+                git tag -d ${tagName} || true
+                git push origin :refs/tags/${tagName} || true
+            """
+        } catch (Exception e) {
+            echo "WARNING: Could not delete tag ${tagName}: ${e.message}"
+        }
+    }
+}
+
+/**
+ * Releases a starter or BOM module within this monorepo:
+ * 1. The version was already updated in Stage 4
+ * 2. Tag, merge to master, deploy the specific module, return to develop
+ */
+def releaseStarter(String starterName) {
+    def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
+
+    echo "=== Releasing ${starterName} ${env.COMPUTED_RELEASE_VERSION} ==="
+
+    if (params.DRY_RUN) {
+        echo "[DRY-RUN] Would release ${starterName}"
+        echo "[DRY-RUN]   Tag: ${tagName}"
+        echo "[DRY-RUN]   Deploy: mvn deploy -pl ${starterName} -am"
+        return
+    }
+
+    // Tag on develop
+    sh """
+        git tag -a ${tagName} -m "Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}"
+    """
+
+    // Merge to master
+    sh """
+        git checkout master
+        git merge develop -m "Merge develop for release ${tagName}"
+        git push origin master
+    """
+
+    // Deploy only this module (and its dependencies within the reactor)
+    sh """
+        mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -P release -DskipTests
+    """
+
+    // Return to develop
+    sh """
+        git checkout develop
+        git push origin develop --tags
+    """
+
+    echo "Released ${starterName} ${env.COMPUTED_RELEASE_VERSION} successfully."
+}
+
+/**
+ * Appends a line to the release report file.
+ */
+def appendReport(String line) {
+    sh "echo '${line.replace("'", "\\'")}' >> ${env.RELEASE_REPORT}"
+}
+
+/**
+ * Generates and returns the full release report content.
+ */
+def generateReleaseReport() {
+    return readFile(env.RELEASE_REPORT)
+}
