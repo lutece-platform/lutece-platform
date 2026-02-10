@@ -29,3 +29,15 @@ pom.xml.releaseBackup
 pom.xml.next
 release.properties
 dependency-reduced-pom.xml
+
+# Flatten Maven Plugin #
+.flattened-pom.xml
+*/.flattened-pom.xml
+
+# Vim swap files #
+*.swp
+*.swo
+
+# Maven effective POM #
+effective-pom.xml
+*/effective-pom.xml
