@@ -57,6 +57,16 @@ pipeline {
             defaultValue: '',
             description: 'Liste d\'artifactIds à releaser (séparés par des virgules). Vide = tous les plugins SNAPSHOT.'
         )
+        booleanParam(
+            name: 'RC_BUILD',
+            defaultValue: false,
+            description: 'Release Candidate : crée une version X.Y.Z-RCn. Pas de merge sur master, retour en SNAPSHOT après deploy.'
+        )
+        string(
+            name: 'RC_NUMBER',
+            defaultValue: '1',
+            description: 'Numéro de la Release Candidate (1, 2, 3...). Utilisé uniquement si RC_BUILD = true.'
+        )
     }
 
     environment {
@@ -76,10 +86,15 @@ pipeline {
         stage('Initialize') {
             steps {
                 script {
+                    // Determine RC mode
+                    env.IS_RC = "${params.RC_BUILD}"
+                    env.RC_NUM = params.RC_NUMBER?.trim() ?: '1'
+
                     echo "=========================================="
                     echo " Lutece Release Pipeline"
                     echo " Target  : ${params.RELEASE_TARGET}"
                     echo " Dry-Run : ${params.DRY_RUN}"
+                    echo " RC Build: ${env.IS_RC}${env.IS_RC == 'true' ? ' (RC' + env.RC_NUM + ')' : ''}"
                     echo "=========================================="
 
                     // Read current version from root pom
@@ -87,34 +102,55 @@ pipeline {
                     def currentVersion = (pomContent =~ /<artifactId>lutece-parent<\/artifactId>\s*\n\s*<version>([^<]+)<\/version>/)[0][1]
                     echo "Current project version: ${currentVersion}"
 
-                    // Compute release version
+                    // Store the original SNAPSHOT version (used to restore after RC)
+                    env.ORIGINAL_SNAPSHOT_VERSION = currentVersion
+
+                    // Compute base release version (without RC suffix)
+                    def baseVersion
                     if (params.RELEASE_VERSION?.trim()) {
-                        env.COMPUTED_RELEASE_VERSION = params.RELEASE_VERSION.trim()
+                        baseVersion = params.RELEASE_VERSION.trim().replaceAll(/-RC\\d+$/, '')
                     } else {
-                        env.COMPUTED_RELEASE_VERSION = currentVersion.replace('-SNAPSHOT', '')
+                        baseVersion = currentVersion.replace('-SNAPSHOT', '')
+                    }
+                    env.BASE_RELEASE_VERSION = baseVersion
+
+                    // Compute final release version (with RC suffix if applicable)
+                    if (env.IS_RC == 'true') {
+                        env.COMPUTED_RELEASE_VERSION = "${baseVersion}-RC${env.RC_NUM}"
+                    } else {
+                        env.COMPUTED_RELEASE_VERSION = baseVersion
                     }
 
                     // Compute next snapshot version
-                    if (params.NEXT_SNAPSHOT_VERSION?.trim()) {
+                    // RC: retour au SNAPSHOT courant (pas d'increment)
+                    // Stable: increment du patch
+                    if (env.IS_RC == 'true') {
+                        env.COMPUTED_NEXT_SNAPSHOT = env.ORIGINAL_SNAPSHOT_VERSION
+                    } else if (params.NEXT_SNAPSHOT_VERSION?.trim()) {
                         env.COMPUTED_NEXT_SNAPSHOT = params.NEXT_SNAPSHOT_VERSION.trim()
                     } else {
-                        env.COMPUTED_NEXT_SNAPSHOT = computeNextSnapshot(env.COMPUTED_RELEASE_VERSION)
+                        env.COMPUTED_NEXT_SNAPSHOT = computeNextSnapshot(baseVersion)
                     }
 
                     echo "Release version     : ${env.COMPUTED_RELEASE_VERSION}"
                     echo "Next SNAPSHOT version: ${env.COMPUTED_NEXT_SNAPSHOT}"
+                    if (env.IS_RC == 'true') {
+                        echo "RC Mode             : RC will NOT merge to master, deploy from develop"
+                    }
 
                     // Resolve which starters to release
                     env.STARTERS_TO_RELEASE = resolveStartersToRelease(params.RELEASE_TARGET)
                     echo "Starters to release : ${env.STARTERS_TO_RELEASE}"
 
                     // Initialize report
-                    writeFile file: env.RELEASE_REPORT, text: """Lutece Release Report
+                    def rcLabel = env.IS_RC == 'true' ? " (Release Candidate ${env.RC_NUM})" : ''
+                    writeFile file: env.RELEASE_REPORT, text: """Lutece Release Report${rcLabel}
 ====================================
 Date        : ${new Date()}
 Target      : ${params.RELEASE_TARGET}
 Release Ver : ${env.COMPUTED_RELEASE_VERSION}
 Next SNAPSHOT: ${env.COMPUTED_NEXT_SNAPSHOT}
+RC Build    : ${env.IS_RC}
 Dry-Run     : ${params.DRY_RUN}
 ====================================
 
@@ -152,13 +188,22 @@ Dry-Run     : ${params.DRY_RUN}
                     // Store for later stages
                     env.SNAPSHOT_PLUGIN_COUNT = "${filtered.size()}"
                     // Serialize plugin list as JSON for downstream stages
-                    def pluginListJson = groovy.json.JsonOutput.toJson(filtered.collect { [
-                        propertyName: it.propertyName,
-                        artifactId: it.artifactId,
-                        currentVersion: it.version,
-                        releaseVersion: it.version.replace('-SNAPSHOT', ''),
-                        nextSnapshot: computeNextSnapshot(it.version.replace('-SNAPSHOT', ''))
-                    ]})
+                    // RC mode: version = X.Y.Z-RCn, next = current SNAPSHOT (no increment)
+                    // Stable mode: version = X.Y.Z, next = X.Y.(Z+1)-SNAPSHOT
+                    def isRc = env.IS_RC == 'true'
+                    def rcNum = env.RC_NUM
+                    def pluginListJson = groovy.json.JsonOutput.toJson(filtered.collect { plugin ->
+                        def baseVer = plugin.version.replace('-SNAPSHOT', '')
+                        def relVer = isRc ? "${baseVer}-RC${rcNum}" : baseVer
+                        def nextVer = isRc ? plugin.version : computeNextSnapshot(baseVer)
+                        [
+                            propertyName: plugin.propertyName,
+                            artifactId: plugin.artifactId,
+                            currentVersion: plugin.version,
+                            releaseVersion: relVer,
+                            nextSnapshot: nextVer
+                        ]
+                    })
                     env.SNAPSHOT_PLUGINS_JSON = pluginListJson
 
                     appendReport("SNAPSHOT Plugins Detected: ${filtered.size()}")
@@ -456,27 +501,41 @@ Dry-Run     : ${params.DRY_RUN}
         stage('Prepare Next SNAPSHOT') {
             steps {
                 script {
-                    echo "Preparing next development iteration: ${env.COMPUTED_NEXT_SNAPSHOT}"
+                    def isRc = env.IS_RC == 'true'
+
+                    if (isRc) {
+                        echo "RC Mode: restoring original SNAPSHOT version ${env.ORIGINAL_SNAPSHOT_VERSION}"
+                        echo "(Plugin repos already restored individually in Stage 3)"
+                    } else {
+                        echo "Preparing next development iteration: ${env.COMPUTED_NEXT_SNAPSHOT}"
+                    }
 
                     if (params.DRY_RUN) {
-                        echo "[DRY-RUN] Would set all versions to ${env.COMPUTED_NEXT_SNAPSHOT}"
+                        if (isRc) {
+                            echo "[DRY-RUN] Would restore POM parent to ${env.ORIGINAL_SNAPSHOT_VERSION}"
+                        } else {
+                            echo "[DRY-RUN] Would set all versions to ${env.COMPUTED_NEXT_SNAPSHOT}"
+                        }
                     } else {
                         def pomFile = 'pom.xml'
+                        def targetVersion = isRc ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT
 
-                        // Update <revision> to next SNAPSHOT
-                        sh "sed -i 's|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|<revision>${env.COMPUTED_NEXT_SNAPSHOT}</revision>|g' ${pomFile}"
+                        // Update <revision>
+                        sh "sed -i 's|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|<revision>${targetVersion}</revision>|g' ${pomFile}"
 
                         // Update project version
-                        sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_NEXT_SNAPSHOT}</version>|}' ${pomFile}"
+                        sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${targetVersion}</version>|}' ${pomFile}"
 
-                        // Update all released plugin properties to next SNAPSHOT
+                        // Update all released plugin properties
                         if (env.RESOLVED_PLUGINS_JSON) {
                             def resolvedPlugins = new groovy.json.JsonSlurper().parseText(env.RESOLVED_PLUGINS_JSON)
                             def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
 
                             resolvedPlugins.each { plugin ->
                                 if (releasedList.contains(plugin.artifactId)) {
-                                    sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.nextSnapshot}</${plugin.propertyName}>|g' ${pomFile}"
+                                    // RC: restore original SNAPSHOT | Stable: set next SNAPSHOT
+                                    def nextVer = isRc ? plugin.currentVersion : plugin.nextSnapshot
+                                    sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${nextVer}</${plugin.propertyName}>|g' ${pomFile}"
                                 }
                             }
                         }
@@ -486,18 +545,23 @@ Dry-Run     : ${params.DRY_RUN}
                         modules.each { mod ->
                             def modPom = "${mod}/pom.xml"
                             if (fileExists(modPom)) {
-                                sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_NEXT_SNAPSHOT}</version>|}' ${modPom}"
+                                sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${targetVersion}</version>|}' ${modPom}"
                             }
                         }
 
+                        def commitMsg = isRc ?
+                            "chore: restore SNAPSHOT after RC ${env.COMPUTED_RELEASE_VERSION}" :
+                            "chore: prepare next development iteration ${env.COMPUTED_NEXT_SNAPSHOT}"
                         sh """
                             git add -A
-                            git commit -m "chore: prepare next development iteration ${env.COMPUTED_NEXT_SNAPSHOT}"
+                            git commit -m "${commitMsg}"
                             git push origin develop --tags
                         """
                     }
 
-                    appendReport("\nNext SNAPSHOT: ${env.COMPUTED_NEXT_SNAPSHOT}")
+                    appendReport(isRc ?
+                        "\nRestored SNAPSHOT: ${env.ORIGINAL_SNAPSHOT_VERSION}" :
+                        "\nNext SNAPSHOT: ${env.COMPUTED_NEXT_SNAPSHOT}")
                 }
             }
         }
@@ -529,11 +593,12 @@ Dry-Run     : ${params.DRY_RUN}
             script {
                 def report = readFile(env.RELEASE_REPORT)
                 try {
+                    def rcInfo = env.IS_RC == 'true' ? '\nType: Release Candidate' : ''
                     slackSend(
                         channel: '#lutece-releases',
                         color: 'good',
                         message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS*
-Target: ${params.RELEASE_TARGET}
+Target: ${params.RELEASE_TARGET}${rcInfo}
 Dry-Run: ${params.DRY_RUN}
 ${params.DRY_RUN ? '(Simulation only — no changes were pushed)' : ''}
 <${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
@@ -813,25 +878,33 @@ def resolveDevBranch(String org, String repoName) {
 
 /**
  * Performs the full release workflow for a single plugin:
- * 1. Clone develop
- * 2. Run tests (if packaging is lutece-plugin or lutece-core)
- * 3. Set release version
- * 4. Commit + tag
- * 5. Merge to master, push, deploy
- * 6. Return to develop, set next SNAPSHOT, push + tags
+ *
+ * Stable release:
+ *   1. Clone develop → 2. Tests → 3. Version set → 4. Commit+tag
+ *   5. Merge to master, push, deploy → 6. Next SNAPSHOT on develop
+ *
+ * RC release:
+ *   1. Clone develop → 2. Tests → 3. Version set (X.Y.Z-RCn) → 4. Commit+tag
+ *   5. Deploy from develop (NO merge to master) → 6. Restore SNAPSHOT on develop
  */
 def releasePlugin(Map plugin) {
     def workDir = "${env.PLUGIN_WORK_DIR}/${plugin.artifactId}"
     def repoUrl = "https://${env.GITHUB_TOKEN}@github.com/${plugin.org}/${plugin.repoName}.git"
     def tagName = "${plugin.artifactId}-${plugin.releaseVersion}"
+    def isRc = env.IS_RC == 'true'
 
-    echo "=== Releasing ${plugin.artifactId} : ${plugin.currentVersion} -> ${plugin.releaseVersion} ==="
+    echo "=== Releasing ${plugin.artifactId} : ${plugin.currentVersion} -> ${plugin.releaseVersion}${isRc ? ' (RC)' : ''} ==="
 
     if (params.DRY_RUN) {
         echo "[DRY-RUN] Would release ${plugin.artifactId}"
         echo "[DRY-RUN]   Clone ${plugin.org}/${plugin.repoName} (${plugin.branch})"
-        echo "[DRY-RUN]   Test, set version ${plugin.releaseVersion}, tag ${tagName}"
-        echo "[DRY-RUN]   Merge to master, deploy, next SNAPSHOT ${plugin.nextSnapshot}"
+        echo "[DRY-RUN]   Test, set version ${plugin.releaseVersion}, update plugin XML descriptor, tag ${tagName}"
+        if (isRc) {
+            echo "[DRY-RUN]   RC: deploy from develop (no merge to master)"
+            echo "[DRY-RUN]   RC: restore SNAPSHOT ${plugin.nextSnapshot}"
+        } else {
+            echo "[DRY-RUN]   Merge to master, deploy, next SNAPSHOT ${plugin.nextSnapshot}"
+        }
         return
     }
 
@@ -858,6 +931,15 @@ def releasePlugin(Map plugin) {
         // 3. Set release version
         sh "mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.releaseVersion} -DgenerateBackupPoms=false"
 
+        // 3b. Update <version> in plugin XML descriptor (webapp/WEB-INF/plugins/*.xml)
+        sh """
+            for xmlFile in webapp/WEB-INF/plugins/*.xml; do
+                [ -f "\$xmlFile" ] || continue
+                sed -i 's|<version>[^<]*</version>|<version>${plugin.releaseVersion}</version>|' "\$xmlFile"
+                echo "Updated version in \$xmlFile"
+            done
+        """
+
         // 4. Commit + tag
         sh """
             git add -A
@@ -865,22 +947,45 @@ def releasePlugin(Map plugin) {
             git tag -a ${tagName} -m "Release ${plugin.artifactId} ${plugin.releaseVersion}"
         """
 
-        // 5. Merge to master, push, deploy
-        sh """
-            git checkout master || git checkout -b master origin/master
-            git merge ${plugin.branch} -m "Merge ${plugin.branch} for release ${tagName}"
-            git push origin master
-            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -P release -DskipTests
-        """
+        if (isRc) {
+            // 5-RC. Deploy from develop (NO merge to master)
+            sh """
+                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests
+            """
 
-        // 6. Return to develop, next SNAPSHOT
-        sh """
-            git checkout ${plugin.branch}
-            mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
-            git add -A
-            git commit -m "chore: prepare next development iteration ${plugin.artifactId}-${plugin.nextSnapshot}"
-            git push origin ${plugin.branch} --tags
-        """
+            // 6-RC. Restore original SNAPSHOT version on develop
+            sh """
+                mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
+                for xmlFile in webapp/WEB-INF/plugins/*.xml; do
+                    [ -f "\$xmlFile" ] || continue
+                    sed -i 's|<version>[^<]*</version>|<version>${plugin.nextSnapshot}</version>|' "\$xmlFile"
+                done
+                git add -A
+                git commit -m "chore: restore SNAPSHOT after RC ${plugin.artifactId}-${plugin.releaseVersion}"
+                git push origin ${plugin.branch} --tags
+            """
+        } else {
+            // 5. Merge to master, push, deploy
+            sh """
+                git checkout master || git checkout -b master origin/master
+                git merge ${plugin.branch} -m "Merge ${plugin.branch} for release ${tagName}"
+                git push origin master
+                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests
+            """
+
+            // 6. Return to develop, next SNAPSHOT
+            sh """
+                git checkout ${plugin.branch}
+                mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
+                for xmlFile in webapp/WEB-INF/plugins/*.xml; do
+                    [ -f "\$xmlFile" ] || continue
+                    sed -i 's|<version>[^<]*</version>|<version>${plugin.nextSnapshot}</version>|' "\$xmlFile"
+                done
+                git add -A
+                git commit -m "chore: prepare next development iteration ${plugin.artifactId}-${plugin.nextSnapshot}"
+                git push origin ${plugin.branch} --tags
+            """
+        }
     }
 
     echo "Released ${plugin.artifactId} ${plugin.releaseVersion} successfully."
@@ -938,19 +1043,28 @@ def rollbackPlugin(Map plugin) {
 }
 
 /**
- * Releases a starter or BOM module within this monorepo:
- * 1. The version was already updated in Stage 4
- * 2. Tag, merge to master, deploy the specific module, return to develop
+ * Releases a starter or BOM module within this monorepo.
+ *
+ * Stable release:
+ *   Tag → merge to master → deploy → return to develop
+ *
+ * RC release:
+ *   Tag → deploy from develop (NO merge to master) → stay on develop
  */
 def releaseStarter(String starterName) {
     def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
+    def isRc = env.IS_RC == 'true'
 
-    echo "=== Releasing ${starterName} ${env.COMPUTED_RELEASE_VERSION} ==="
+    echo "=== Releasing ${starterName} ${env.COMPUTED_RELEASE_VERSION}${isRc ? ' (RC)' : ''} ==="
 
     if (params.DRY_RUN) {
         echo "[DRY-RUN] Would release ${starterName}"
         echo "[DRY-RUN]   Tag: ${tagName}"
-        echo "[DRY-RUN]   Deploy: mvn deploy -pl ${starterName} -am"
+        if (isRc) {
+            echo "[DRY-RUN]   RC: deploy from develop (no merge to master)"
+        } else {
+            echo "[DRY-RUN]   Deploy: mvn deploy -pl ${starterName} -am"
+        }
         return
     }
 
@@ -959,23 +1073,33 @@ def releaseStarter(String starterName) {
         git tag -a ${tagName} -m "Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}"
     """
 
-    // Merge to master
-    sh """
-        git checkout master
-        git merge develop -m "Merge develop for release ${tagName}"
-        git push origin master
-    """
+    if (isRc) {
+        // RC: deploy from develop, no merge to master
+        sh """
+            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests
+        """
+        sh """
+            git push origin develop --tags
+        """
+    } else {
+        // Stable: merge to master
+        sh """
+            git checkout master
+            git merge develop -m "Merge develop for release ${tagName}"
+            git push origin master
+        """
 
-    // Deploy only this module (and its dependencies within the reactor)
-    sh """
-        mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -P release -DskipTests
-    """
+        // Deploy only this module (and its dependencies within the reactor)
+        sh """
+            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests
+        """
 
-    // Return to develop
-    sh """
-        git checkout develop
-        git push origin develop --tags
-    """
+        // Return to develop
+        sh """
+            git checkout develop
+            git push origin develop --tags
+        """
+    }
 
     echo "Released ${starterName} ${env.COMPUTED_RELEASE_VERSION} successfully."
 }

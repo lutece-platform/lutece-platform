@@ -192,6 +192,8 @@ sont disponibles :
 | `SKIP_PLUGIN_RELEASES` | boolean  | `false` | Sauter la release des plugins (utile si deja faite manuellement). |
 | `SKIP_TESTS`           | boolean  | `false` | Sauter les tests des plugins (non recommande). |
 | `PLUGIN_WHITELIST`     | string   | *(vide)* | Liste d'artifactIds a releaser, separes par des virgules. Si vide, tous les plugins SNAPSHOT de la cible seront releasees. |
+| `RC_BUILD`             | boolean  | `false` | Release Candidate : cree une version `X.Y.Z-RCn`. Pas de merge sur master, retour au SNAPSHOT courant apres deploy. |
+| `RC_NUMBER`            | string   | `1`     | Numero de la Release Candidate (1, 2, 3...). Utilise uniquement si `RC_BUILD = true`. |
 
 ### Valeurs de RELEASE_TARGET
 
@@ -218,6 +220,42 @@ le numero de patch :
 
 ```
 8.0.0  →  NEXT_SNAPSHOT_VERSION = 8.0.1-SNAPSHOT
+```
+
+### Release Candidates (RC)
+
+Les Release Candidates permettent de publier une version pre-release
+pour validation avant la release stable. Le mode RC est active par
+le parametre `RC_BUILD = true`.
+
+**Calcul de la version RC :**
+
+```
+Version SNAPSHOT courante : 8.0.0-SNAPSHOT
+RC_NUMBER = 1             → version RC = 8.0.0-RC1
+RC_NUMBER = 2             → version RC = 8.0.0-RC2
+```
+
+**Differences entre RC et release stable :**
+
+| Aspect | Release stable | Release Candidate |
+|--------|---------------|-------------------|
+| Version | `8.0.0` | `8.0.0-RC1` |
+| Tag | `plugin-forms-8.0.0` | `plugin-forms-8.0.0-RC1` |
+| Merge sur master | Oui | **Non** |
+| Deploy depuis | `master` | `develop` |
+| Apres deploy | Version → `8.0.1-SNAPSHOT` (increment patch) | Version → `8.0.0-SNAPSHOT` (restauration, pas d'increment) |
+
+**Cycle de vie typique avec RC :**
+
+```
+ develop
+    │
+    ├── RC1: 8.0.0-SNAPSHOT → 8.0.0-RC1 → deploy → 8.0.0-SNAPSHOT
+    │        (corrections...)
+    ├── RC2: 8.0.0-SNAPSHOT → 8.0.0-RC2 → deploy → 8.0.0-SNAPSHOT
+    │        (validation OK)
+    └── Stable: 8.0.0-SNAPSHOT → 8.0.0 → merge master → deploy → 8.0.1-SNAPSHOT
 ```
 
 ---
@@ -313,6 +351,59 @@ DRY_RUN        = false
 > **Attention :** les tests existent pour une raison. Ne sauter les tests
 > qu'en cas d'urgence absolue et apres validation manuelle.
 
+### 6.7 — Premiere Release Candidate (RC1)
+
+```
+RELEASE_TARGET = all
+RC_BUILD       = true
+RC_NUMBER      = 1
+DRY_RUN        = false
+```
+
+Deroulement :
+1. Chaque plugin SNAPSHOT est release en version `X.Y.Z-RC1`
+2. Deploy depuis `develop` (pas de merge sur `master`)
+3. Tag : `plugin-forms-4.0.0-RC1`, `forms-starter-8.0.0-RC1`, etc.
+4. Apres deploy, chaque composant revient a sa version SNAPSHOT d'origine
+5. On peut continuer a developper sur `develop`
+
+### 6.8 — Deuxieme RC apres corrections
+
+Apres corrections de bugs detectes sur la RC1 :
+
+```
+RELEASE_TARGET = all
+RC_BUILD       = true
+RC_NUMBER      = 2
+DRY_RUN        = false
+```
+
+Meme processus, versions `X.Y.Z-RC2`. Les tags RC1 restent en place.
+
+### 6.9 — Release stable apres validation de la RC
+
+Une fois la RC validee :
+
+```
+RELEASE_TARGET = all
+RC_BUILD       = false    ← release stable
+DRY_RUN        = false
+```
+
+Cette fois, la pipeline effectue le processus complet :
+merge sur `master`, deploy, puis passage en `X.Y.(Z+1)-SNAPSHOT`.
+
+### 6.10 — RC ciblee sur un seul starter
+
+```
+RELEASE_TARGET = forms-starter
+RC_BUILD       = true
+RC_NUMBER      = 1
+DRY_RUN        = false
+```
+
+Seuls les plugins du `forms-starter` seront en RC.
+
 ---
 
 ## 7. Deroulement detaille des stages
@@ -325,6 +416,15 @@ DRY_RUN        = false
 - Calcule la prochaine version SNAPSHOT (ex: `8.0.1-SNAPSHOT`)
 - Resout la liste des starters a releaser en fonction de `RELEASE_TARGET`
 - Initialise le fichier de rapport
+
+**En mode RC :** le calcul des versions est different :
+
+| Variable | Release stable | Release Candidate |
+|----------|---------------|-------------------|
+| `COMPUTED_RELEASE_VERSION` | `8.0.0` | `8.0.0-RC1` |
+| `COMPUTED_NEXT_SNAPSHOT` | `8.0.1-SNAPSHOT` | `8.0.0-SNAPSHOT` (identique a la version d'origine) |
+| `ORIGINAL_SNAPSHOT_VERSION` | *(non utilisee)* | `8.0.0-SNAPSHOT` (sauvegardee pour restauration) |
+| `BASE_RELEASE_VERSION` | *(non utilisee)* | `8.0.0` (version sans suffixe RC) |
 
 **Resolution en cascade pour `RELEASE_TARGET` :**
 
@@ -406,6 +506,11 @@ Batch 2: [module-workflow-forms, plugin-address, ...]
 plugins du batch continuent normalement. Le pipeline passe en etat
 `UNSTABLE` mais ne s'arrete pas.
 
+**En mode RC :** chaque plugin est release en version `X.Y.Z-RCn` au lieu
+de `X.Y.Z`. Le deploy s'effectue depuis `develop` (pas de merge sur master)
+et la version SNAPSHOT d'origine est restauree apres le deploy. Voir
+[section 8](#8-processus-de-release-dun-plugin) pour le detail du processus RC.
+
 ### Stage 4 — Update POM Parent Versions
 
 **Actions :**
@@ -440,6 +545,10 @@ decrit en [section 9](#9-processus-de-release-dun-starter).
 **Condition de saut :** seuls les starters presents dans `STARTERS_TO_RELEASE`
 sont releasees.
 
+**En mode RC :** les starters sont releases en version RC (pas de merge
+sur master, deploy depuis develop). Voir
+[section 9](#9-processus-de-release-dun-starter) pour le detail.
+
 ### Stage 7 — Release lutece-starter
 
 **Actions :**
@@ -449,17 +558,26 @@ sont releasees.
 **Prerequis :** ce stage ne s'execute que si `lutece-starter` est dans
 la liste des cibles et que les Stages 6 est termine.
 
+**En mode RC :** meme adaptation que le Stage 6 — pas de merge sur master,
+deploy depuis develop.
+
 ### Stage 8 — Release lutece-bom
 
 **Actions :** release le BOM (dernier composant du cycle).
 
 ### Stage 9 — Prepare Next SNAPSHOT
 
-**Actions :**
+**Actions (release stable) :**
 - Met a jour `<revision>` avec la prochaine version SNAPSHOT
 - Met a jour la `<version>` du projet et de tous les modules
 - Remet chaque property plugin en SNAPSHOT (version patch+1)
 - Commit et push sur develop avec les tags
+
+**Actions (mode RC) :**
+- Restaure la version SNAPSHOT d'origine (`ORIGINAL_SNAPSHOT_VERSION`)
+- Remet chaque property plugin a sa version SNAPSHOT d'origine
+  (pas d'increment du patch, retour a l'etat avant la RC)
+- Commit et push sur develop avec les tags RC
 
 ### Stage 10 — Release Report
 
@@ -501,6 +619,23 @@ ce type de test et sont sautes.
 mvn versions:set -DnewVersion=4.0.0 -DgenerateBackupPoms=false
 ```
 
+### Etape 3b — Mise a jour du descripteur XML du plugin
+
+Le fichier XML descripteur situe dans `webapp/WEB-INF/plugins/*.xml` contient
+un tag `<version>` qui doit etre synchronise avec la version du `pom.xml` :
+
+```bash
+# Met a jour le tag <version> dans chaque fichier XML du repertoire plugins
+for xmlFile in webapp/WEB-INF/plugins/*.xml; do
+    [ -f "$xmlFile" ] || continue
+    sed -i 's|<version>[^<]*</version>|<version>4.0.0</version>|' "$xmlFile"
+done
+```
+
+> **Note :** tous les plugins n'ont pas forcement un descripteur XML
+> (les libraries et le core n'en ont pas). La boucle `for` ignore
+> silencieusement le cas ou aucun fichier n'est present.
+
 ### Etape 4 — Commit et tag
 
 ```bash
@@ -526,19 +661,98 @@ branche `master`.
 ```bash
 git checkout develop
 mvn versions:set -DnewVersion=4.0.1-SNAPSHOT -DgenerateBackupPoms=false
+# Mise a jour du descripteur XML
+for xmlFile in webapp/WEB-INF/plugins/*.xml; do
+    [ -f "$xmlFile" ] || continue
+    sed -i 's|<version>[^<]*</version>|<version>4.0.1-SNAPSHOT</version>|' "$xmlFile"
+done
 git add -A
 git commit -m "chore: prepare next development iteration plugin-forms-4.0.1-SNAPSHOT"
 git push origin develop --tags
 ```
 
-### Résumé visuel
+### Resume visuel (release stable)
 
 ```
-develop:  ──[SNAPSHOT]──► tests ──► version:set ──► commit+tag ──────────────► version:set(SNAPSHOT) ──► push
+develop:  ──[SNAPSHOT]──► tests ──► version:set ──► commit+tag ──────────────► version:set(SNAPSHOT+1) ──► push
                                                         │
 master:   ─────────────────────────────────────── merge ├──► push ──► deploy
                                                         │
 tags:     ───────────────────────────────── plugin-forms-4.0.0
+```
+
+### Variante RC — Release d'un plugin en Release Candidate
+
+En mode RC (`RC_BUILD = true`), le processus est simplifie : pas de merge
+sur master et la version SNAPSHOT d'origine est restauree apres le deploy.
+
+#### Etape 1 — Clone (identique)
+
+```bash
+git clone -b develop --single-branch https://github.com/{org}/{repo}.git
+```
+
+#### Etape 2 — Tests (identique, conditionnel)
+
+```bash
+mvn lutece:exploded antrun:run -Dlutece-test-hsql test
+```
+
+#### Etape 3 — Version RC
+
+```bash
+mvn versions:set -DnewVersion=4.0.0-RC1 -DgenerateBackupPoms=false
+# Mise a jour du descripteur XML
+for xmlFile in webapp/WEB-INF/plugins/*.xml; do
+    [ -f "$xmlFile" ] || continue
+    sed -i 's|<version>[^<]*</version>|<version>4.0.0-RC1</version>|' "$xmlFile"
+done
+```
+
+#### Etape 4 — Commit et tag RC
+
+```bash
+git add -A
+git commit -m "release: plugin-forms-4.0.0-RC1"
+git tag -a plugin-forms-4.0.0-RC1 -m "Release Candidate plugin-forms 4.0.0-RC1"
+```
+
+#### Etape 5 — Deploy depuis develop (pas de merge sur master)
+
+```bash
+mvn clean deploy -P release -DskipTests
+```
+
+Le deploy s'effectue **directement depuis la branche `develop`**.
+Aucun merge sur `master` n'est effectue.
+
+#### Etape 6 — Restauration de la version SNAPSHOT d'origine
+
+```bash
+mvn versions:set -DnewVersion=4.0.0-SNAPSHOT -DgenerateBackupPoms=false
+# Mise a jour du descripteur XML
+for xmlFile in webapp/WEB-INF/plugins/*.xml; do
+    [ -f "$xmlFile" ] || continue
+    sed -i 's|<version>[^<]*</version>|<version>4.0.0-SNAPSHOT</version>|' "$xmlFile"
+done
+git add -A
+git commit -m "chore: restore SNAPSHOT after RC plugin-forms-4.0.0-RC1"
+git push origin develop --tags
+```
+
+> **Important :** contrairement a la release stable, le numero de patch
+> n'est **pas incremente**. La version revient a `4.0.0-SNAPSHOT` (pas
+> `4.0.1-SNAPSHOT`), ce qui permet de lancer d'autres RC ou la release
+> stable par la suite.
+
+### Resume visuel (mode RC)
+
+```
+develop:  ──[SNAPSHOT]──► tests ──► version:set(RC) ──► commit+tag ──► deploy ──► version:set(SNAPSHOT) ──► push
+                                                                                      │
+master:   ───────────────────────────────────────── (inchange)                         │
+                                                                                      │
+tags:     ──────────────────────────────── plugin-forms-4.0.0-RC1 ────────────────────┘
 ```
 
 ---
@@ -577,6 +791,35 @@ L'option `-pl forms-starter -am` permet de deployer uniquement ce module
 git checkout develop
 git push origin develop --tags
 ```
+
+### Variante RC — Release d'un starter en Release Candidate
+
+En mode RC, le processus des starters est adapte de la meme maniere que
+les plugins : pas de merge sur master, deploy depuis develop.
+
+#### Etape 1 — Tag RC
+
+```bash
+git tag -a forms-starter-8.0.0-RC1 -m "Release Candidate forms-starter 8.0.0-RC1"
+```
+
+#### Etape 2 — Deploy depuis develop (pas de merge sur master)
+
+```bash
+mvn clean deploy -pl forms-starter -am -P release -DskipTests
+```
+
+Le deploy s'effectue **directement depuis la branche `develop`**.
+La branche `master` reste inchangee.
+
+#### Etape 3 — Push des tags
+
+```bash
+git push origin develop --tags
+```
+
+> **Note :** en mode RC, il n'y a pas de retour a SNAPSHOT pour les starters
+> individuellement — c'est le Stage 9 qui restaure la version globale.
 
 ---
 
@@ -689,6 +932,7 @@ Le message Slack contient :
 - Version releasee
 - Cible de la release
 - Indicateur DRY_RUN
+- Indicateur RC (si `RC_BUILD = true`, avec le numero de RC)
 - Lien vers le build Jenkins
 
 ### Email
@@ -791,6 +1035,56 @@ specifier les versions manuellement.
 le Jenkinsfile pour changer la branche source n'est pas recommande.
 Si necessaire, creer une branche de release temporaire et adapter le script.
 
+### Q: Quelle est la difference entre une RC et une release stable ?
+
+**R:** La Release Candidate (RC) est une pre-release pour validation. Les
+differences principales sont :
+- La version porte le suffixe `-RCn` (ex: `8.0.0-RC1`)
+- Aucun merge sur `master` — le deploy s'effectue depuis `develop`
+- Apres le deploy, la version SNAPSHOT d'origine est restauree (pas d'increment)
+- On peut lancer plusieurs RC successives (RC1, RC2, RC3...) avant la release stable
+
+### Q: Peut-on faire une RC sur un seul starter ?
+
+**R:** Oui. Utiliser `RELEASE_TARGET` pour cibler le starter souhaite :
+
+```
+RELEASE_TARGET = forms-starter
+RC_BUILD       = true
+RC_NUMBER      = 1
+DRY_RUN        = false
+```
+
+### Q: Apres une RC, comment lancer la release stable ?
+
+**R:** Relancer la pipeline avec `RC_BUILD = false` :
+
+```
+RELEASE_TARGET = all
+RC_BUILD       = false
+DRY_RUN        = false
+```
+
+La release stable effectuera le processus complet : merge sur master,
+deploy, puis passage en version SNAPSHOT suivante (avec increment du patch).
+
+### Q: Les tags RC et les tags stables coexistent-ils ?
+
+**R:** Oui. Les tags RC restent en place et ne sont pas supprimes lors de
+la release stable. Exemple apres un cycle complet :
+
+```
+plugin-forms-4.0.0-RC1    (tag RC1)
+plugin-forms-4.0.0-RC2    (tag RC2)
+plugin-forms-4.0.0        (tag stable)
+```
+
+### Q: Que se passe-t-il si une RC echoue ?
+
+**R:** Le rollback en mode RC est plus simple qu'en mode stable, car il n'y
+a pas de merge sur master a annuler. Le rollback supprime le tag RC et
+restaure la version SNAPSHOT sur develop.
+
 ---
 
 ## Annexe — Variables d'environnement
@@ -808,6 +1102,10 @@ Si necessaire, creer une branche de release temporaire et adapter le script.
 | `RESOLVED_PLUGINS_JSON` | Calculee au Stage 2 | Liste JSON des plugins avec info repo |
 | `RELEASED_PLUGINS` | Mise a jour au Stage 3 | artifactIds releasees (CSV) |
 | `RELEASE_REPORT` | Jenkinsfile | Chemin du fichier rapport |
+| `IS_RC` | Calculee au Stage 0 | `true` si `RC_BUILD` est active, `false` sinon |
+| `RC_NUM` | Calculee au Stage 0 | Numero de la RC (ex: `1`, `2`) — vide si release stable |
+| `ORIGINAL_SNAPSHOT_VERSION` | Calculee au Stage 0 (RC uniquement) | Version SNAPSHOT sauvegardee pour restauration apres RC (ex: `8.0.0-SNAPSHOT`) |
+| `BASE_RELEASE_VERSION` | Calculee au Stage 0 (RC uniquement) | Version de base sans suffixe RC (ex: `8.0.0`) |
 
 ---
 
@@ -825,3 +1123,4 @@ Si necessaire, creer une branche de release temporaire et adapter le script.
 | `rollbackPlugin` | `(Map plugin) → void` | Annulation d'une release echouee |
 | `releaseStarter` | `(String name) → void` | Release d'un module du monorepo |
 | `appendReport` | `(String line) → void` | Ajoute une ligne au rapport |
+| `generateReleaseReport` | `() → void` | Genere le rapport final de release |
