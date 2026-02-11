@@ -129,7 +129,7 @@ Chaque composant suit le cycle SemVer (`MAJOR.MINOR.PATCH`) :
 
 ## 4. Pipeline Jenkins — Vue d'ensemble
 
-Le fichier `Jenkinsfile` a la racine du projet definit une **pipeline
+Le fichier `Jenkinsfile-release` a la racine du projet definit une **pipeline
 declarative** composee de **11 stages** :
 
 ```
@@ -915,7 +915,7 @@ Les credentials suivants doivent etre configures dans Jenkins :
 1. Creer un job de type **Multibranch Pipeline** ou **Pipeline**
 2. Source : `https://github.com/lutece-platform/lutece`
 3. Branche : `develop`
-4. Script Path : `Jenkinsfile`
+4. Script Path : `Jenkinsfile-release`
 
 ---
 
