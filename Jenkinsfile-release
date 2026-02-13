@@ -125,8 +125,8 @@ pipeline {
                     sh "git config user.email '${params.GIT_USER_EMAIL}'"
                     sh "git config user.name '${params.GIT_USER_NAME}'"
 
-                    // Create local develop branch (Jenkins SCM checkout leaves us in detached HEAD)
-                    sh "git checkout -b develop"
+                    // Create or reset local develop branch (Jenkins SCM checkout leaves us in detached HEAD)
+                    sh "git checkout -B develop"
 
                     // Set remote URL with GitHub token for push operations
                     withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
