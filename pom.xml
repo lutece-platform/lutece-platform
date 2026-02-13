@@ -74,6 +74,7 @@
         <lutece.forms-starter.version>${revision}</lutece.forms-starter.version>
         <lutece.appointment-starter.version>${revision}</lutece.appointment-starter.version>
         <lutece.editorial-starter.version>${revision}</lutece.editorial-starter.version>
+        <lutece.lutece-starter.version>${revision}</lutece.lutece-starter.version>
 
         <!-- Lutece core -->
         <lutece.core.version>8.0.0</lutece.core.version>
@@ -139,7 +140,7 @@
         <!-- Lutece Editorial -->
         <lutece.plugin-html.version>6.0.0</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.0.0</lutece.plugin-htmlpage.version>
-        <lutece.plugin-contact.version>6.0.1-SNAPSHOT</lutece.plugin-contact.version>
+        <lutece.plugin-contact.version>6.0.1</lutece.plugin-contact.version>
         <lutece.plugin-menus.version>3.0.0</lutece.plugin-menus.version>
         <lutece.plugin-blog.version>4.0.0</lutece.plugin-blog.version>
         <lutece.plugin-document.version>6.0.0</lutece.plugin-document.version>
@@ -180,7 +181,7 @@
         <lutece.plugin-liquibase.version>2.0.0</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.0.1</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.0</lutece.library-configsource-vault.version>
-        <lutece.plugin-quartz-scheduler.version>1.0.0-SNAPSHOT</lutece.plugin-quartz-scheduler.version>
+        <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.0.0</lutece.plugin-rest.version>
         <lutece.plugin-sitelabels.version>3.0.0</lutece.plugin-sitelabels.version>
@@ -194,7 +195,7 @@
         <lutece.plugin-parser.version>2.0.0</lutece.plugin-parser.version>
         <lutece.plugin-matomo.version>2.0.0</lutece.plugin-matomo.version>
         <lutece.plugin-captcha.version>3.0.0</lutece.plugin-captcha.version>
-        <lutece.module-captcha-captchetat.version>1.0.0-SNAPSHOT</lutece.module-captcha-captchetat.version>
+        <lutece.module-captcha-captchetat.version>1.0.0</lutece.module-captcha-captchetat.version>
         <lutece.plugin-verifybackurl.version>2.0.0</lutece.plugin-verifybackurl.version>
     </properties>
 
