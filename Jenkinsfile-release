@@ -405,9 +405,10 @@ Dry-Run     : ${params.DRY_RUN}
                             }
                         }
 
+                        // Commit only if there are actual changes (idempotent for re-runs)
                         sh """
                             git add pom.xml */pom.xml
-                            git commit -m "release: update versions to ${env.COMPUTED_RELEASE_VERSION}"
+                            git diff --cached --quiet && echo 'Versions already at ${env.COMPUTED_RELEASE_VERSION} — nothing to commit' || git commit -m "release: update versions to ${env.COMPUTED_RELEASE_VERSION}"
                         """
                         // Push version commit to develop now (before starters create tags in parallel)
                         sh "git push origin develop"
@@ -622,7 +623,7 @@ Dry-Run     : ${params.DRY_RUN}
                             "chore: prepare next development iteration ${env.COMPUTED_NEXT_SNAPSHOT}"
                         sh """
                             git add pom.xml */pom.xml
-                            git commit -m "${commitMsg}"
+                            git diff --cached --quiet && echo 'Versions already at target — nothing to commit' || git commit -m "${commitMsg}"
                             git push origin develop
                         """
                     }
