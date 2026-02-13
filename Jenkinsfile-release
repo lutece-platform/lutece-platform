@@ -409,6 +409,8 @@ Dry-Run     : ${params.DRY_RUN}
                             git add pom.xml */pom.xml
                             git commit -m "release: update versions to ${env.COMPUTED_RELEASE_VERSION}"
                         """
+                        // Push version commit to develop now (before starters create tags in parallel)
+                        sh "git push origin develop"
                     } else {
                         echo "[DRY-RUN] Would update POM parent and module versions to ${env.COMPUTED_RELEASE_VERSION}"
                     }
@@ -1151,9 +1153,9 @@ def releaseStarter(String starterName) {
         return
     }
 
-    // ── Phase 1: prepare (tag + push) ──
+    // ── Phase 1: prepare (tag + push tag only — develop already pushed in Stage 4) ──
     sh "git tag -fa ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
-    sh "git push origin develop --tags"
+    sh "git push origin ${tagName}"
 
     // ── Phase 2: perform (deploy to Nexus) ──
     sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true"
