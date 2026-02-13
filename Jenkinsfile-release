@@ -1037,14 +1037,14 @@ def releasePlugin(Map plugin) {
             git tag -a ${tagName} -m "Release ${plugin.artifactId} ${plugin.releaseVersion}"
         """
 
+        // ── Phase 1: prepare (push branch + tag) ──
+        sh "git push origin ${plugin.branch} --tags"
+
+        // ── Phase 2: perform (deploy to Nexus) ──
+        sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true"
+
         if (isRc) {
-            // 5-RC. Push branch + tag to Git (prepare)
-            sh "git push origin ${plugin.branch} --tags"
-
-            // 6-RC. Deploy to Nexus (perform)
-            sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true"
-
-            // 7-RC. Restore original SNAPSHOT version on develop
+            // ── Phase 3-RC: restore SNAPSHOT on develop ──
             sh """
                 mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
                 for xmlFile in webapp/WEB-INF/plugins/*.xml; do
@@ -1056,17 +1056,14 @@ def releasePlugin(Map plugin) {
                 git push origin ${plugin.branch}
             """
         } else {
-            // 5. Merge to master + push with tags (prepare)
+            // ── Phase 3: promote (merge to master) ──
             sh """
                 git checkout master || git checkout -b master origin/master
                 git merge ${plugin.branch} -m "Merge ${plugin.branch} for release ${tagName}"
-                git push origin master --tags
+                git push origin master
             """
 
-            // 6. Deploy to Nexus (perform)
-            sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true"
-
-            // 7. Return to develop, next SNAPSHOT
+            // ── Phase 4: next SNAPSHOT on develop ──
             sh """
                 git checkout ${plugin.branch}
                 mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
@@ -1087,8 +1084,10 @@ def releasePlugin(Map plugin) {
 
 /**
  * Rollback a failed plugin release:
- * - Reset master and develop to their pre-release state
+ * - Reset develop to pre-release state (undo release commit)
  * - Delete the release tag (local + remote)
+ *
+ * Master is never touched before deploy succeeds, so no master rollback needed.
  */
 def rollbackPlugin(Map plugin) {
     def workDir = "${env.PLUGIN_WORK_DIR}/${plugin.artifactId}"
@@ -1102,29 +1101,18 @@ def rollbackPlugin(Map plugin) {
     }
 
     dir(workDir) {
-        // Try to reset master
-        try {
-            sh """
-                git checkout master
-                git reset --hard HEAD~1
-                git push origin master --force
-            """
-        } catch (Throwable e) {
-            echo "WARNING: Could not reset master for ${plugin.artifactId}: ${e.message}"
-        }
-
-        // Try to reset develop
+        // Reset develop (undo release version commit that was pushed)
         try {
             sh """
                 git checkout ${plugin.branch}
-                git reset --hard HEAD~1
-                git push origin ${plugin.branch} --force
+                git revert HEAD --no-edit
+                git push origin ${plugin.branch}
             """
         } catch (Throwable e) {
-            echo "WARNING: Could not reset ${plugin.branch} for ${plugin.artifactId}: ${e.message}"
+            echo "WARNING: Could not revert release commit on ${plugin.branch} for ${plugin.artifactId}: ${e.message}"
         }
 
-        // Delete tag
+        // Delete tag (local + remote)
         try {
             sh """
                 git tag -d ${tagName} || true
@@ -1139,11 +1127,12 @@ def rollbackPlugin(Map plugin) {
 /**
  * Releases a starter or BOM module within this monorepo.
  *
- * Follows the same approach as mvn release:prepare + release:perform:
+ * Follows the mvn release:prepare + release:perform pattern:
  *   1. Tag + push to Git (prepare)
  *   2. Deploy to Nexus (perform)
+ *   3. Merge to master (promote — stable only, after successful deploy)
  *
- * This ensures that if the git push fails, nothing is deployed to Nexus.
+ * Master is never touched before deploy succeeds → simple rollback (tag delete only).
  */
 def releaseStarter(String starterName) {
     def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
@@ -1155,29 +1144,27 @@ def releaseStarter(String starterName) {
         echo "[DRY-RUN] Would release ${starterName}"
         echo "[DRY-RUN]   Tag: ${tagName}"
         if (isRc) {
-            echo "[DRY-RUN]   RC: tag + push, then deploy from develop (no merge to master)"
+            echo "[DRY-RUN]   RC: tag + push, then deploy from develop"
         } else {
-            echo "[DRY-RUN]   Stable: tag + merge to master + push, then deploy"
+            echo "[DRY-RUN]   Stable: tag + push, then deploy, then merge to master"
         }
         return
     }
 
     // ── Phase 1: prepare (tag + push) ──
     sh "git tag -a ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
-
-    if (isRc) {
-        // RC: push tag from develop, no merge to master
-        sh "git push origin develop --tags"
-    } else {
-        // Stable: merge to master, push master + tags, return to develop
-        sh "git checkout master"
-        sh "git merge develop -m \"Merge develop for release ${tagName}\""
-        sh "git push origin master --tags"
-        sh "git checkout develop"
-    }
+    sh "git push origin develop --tags"
 
     // ── Phase 2: perform (deploy to Nexus) ──
     sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true"
+
+    // ── Phase 3: promote (merge to master — stable only) ──
+    if (!isRc) {
+        sh "git checkout master"
+        sh "git merge develop -m \"Merge develop for release ${tagName}\""
+        sh "git push origin master"
+        sh "git checkout develop"
+    }
 
     echo "Released ${starterName} ${env.COMPUTED_RELEASE_VERSION} successfully."
 }
@@ -1185,9 +1172,9 @@ def releaseStarter(String starterName) {
 /**
  * Rolls back a failed starter release within the monorepo.
  *
- * - Deletes the local and remote git tag
- * - Ensures we are back on the develop branch
- * - Warns about Nexus artifacts (manual cleanup required)
+ * Master is never touched before deploy succeeds, so rollback is simple:
+ * - Delete the git tag (local + remote)
+ * - Ensure we are back on the develop branch
  */
 def rollbackStarter(String starterName) {
     def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
@@ -1215,8 +1202,6 @@ def rollbackStarter(String starterName) {
     } catch (Throwable e) {
         echo "WARNING: Could not checkout develop: ${e.message}"
     }
-
-    echo "WARNING: If ${starterName} was already deployed to Nexus, the artifact must be deleted manually."
 }
 
 /**
