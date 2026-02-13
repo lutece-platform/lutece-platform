@@ -73,57 +73,57 @@
         <lutece.editorial-starter.version>${revision}</lutece.editorial-starter.version>
 
         <!-- Lutece core -->
-        <lutece.core.version>8.0.0-SNAPSHOT</lutece.core.version>
-		<lutece.library-lutece-unit-testing-common.version>1.0.0-SNAPSHOT</lutece.library-lutece-unit-testing-common.version>
-        <lutece.library-lucene.version>6.0.0-SNAPSHOT</lutece.library-lucene.version>
+        <lutece.core.version>8.0.0</lutece.core.version>
+		<lutece.library-lutece-unit-testing-common.version>1.0.0</lutece.library-lutece-unit-testing-common.version>
+        <lutece.library-lucene.version>6.0.0</lutece.library-lucene.version>
         <lutece.library-user-api.version>1.0.1</lutece.library-user-api.version>
         <lutece.library-rbac-api.version>1.0.0</lutece.library-rbac-api.version>
-        <lutece.library-workflow-core.version>4.0.0-SNAPSHOT</lutece.library-workflow-core.version>
+        <lutece.library-workflow-core.version>4.0.0</lutece.library-workflow-core.version>
         <lutece.library-workgroup-api.version>1.0.0</lutece.library-workgroup-api.version>
         <lutece.library-jmx-api.version>1.0.0</lutece.library-jmx-api.version>
-        <lutece.library-priority-extension.version>1.0.0-SNAPSHOT</lutece.library-priority-extension.version>
-        <lutece.library-freemarker.version>2.0.0-SNAPSHOT</lutece.library-freemarker.version>
-        <lutece.library-lutece-resources.version>1.0.0-SNAPSHOT</lutece.library-lutece-resources.version>
-        <lutece.module-extend-rating.version>4.0.0-SNAPSHOT</lutece.module-extend-rating.version>
-        <lutece.module-extend-feedback.version>3.0.0-SNAPSHOT</lutece.module-extend-feedback.version>
+        <lutece.library-priority-extension.version>1.0.0</lutece.library-priority-extension.version>
+        <lutece.library-freemarker.version>2.0.0</lutece.library-freemarker.version>
+        <lutece.library-lutece-resources.version>1.0.0</lutece.library-lutece-resources.version>
+        <lutece.module-extend-rating.version>4.0.0</lutece.module-extend-rating.version>
+        <lutece.module-extend-feedback.version>3.0.0</lutece.module-extend-feedback.version>
         <!-- Lutece forms -->
-        <lutece.plugin-forms.version>4.0.0-SNAPSHOT</lutece.plugin-forms.version>
-        <lutece.library-utils.version>2.0.0-SNAPSHOT</lutece.library-utils.version>
-		<lutece.module-forms-breadcrumbaccordion.version>2.0.0-SNAPSHOT</lutece.module-forms-breadcrumbaccordion.version>
-        <lutece.module-workflow-forms.version>3.0.0-SNAPSHOT</lutece.module-workflow-forms.version>
-        <lutece.plugin-workflow.version>7.0.0-SNAPSHOT</lutece.plugin-workflow.version>
-        <lutece.module-workflow-upload.version>2.0.0-SNAPSHOT</lutece.module-workflow-upload.version>
-        <lutece.plugin-mermaidjs.version>2.0.0-SNAPSHOT</lutece.plugin-mermaidjs.version>
-        <lutece.library-signrequest.version>4.0.0-SNAPSHOT</lutece.library-signrequest.version>
-        <lutece.library-jwt.version>3.0.0-SNAPSHOT</lutece.library-jwt.version>
-        <lutece.module-workflow-forms-automatic-assignment.version>3.0.0-SNAPSHOT</lutece.module-workflow-forms-automatic-assignment.version>
-        <lutece.module-workflow-formstopdf.version>2.0.0-SNAPSHOT</lutece.module-workflow-formstopdf.version>
-        <lutece.module-forms-userassignment.version>3.0.0-SNAPSHOT</lutece.module-forms-userassignment.version>
-        <lutece.module-accesscontrol-forms.version>2.0.0-SNAPSHOT</lutece.module-accesscontrol-forms.version>
-        <lutece.module-forms-documentproducer.version>2.0.0-SNAPSHOT</lutece.module-forms-documentproducer.version>
-        <lutece.module-forms-unittree.version>3.0.0-SNAPSHOT</lutece.module-forms-unittree.version>
-        <lutece.plugin-unittree.version>4.0.0-SNAPSHOT</lutece.plugin-unittree.version>
-        <lutece.module-unittree-notification.version>2.0.0-SNAPSHOT</lutece.module-unittree-notification.version>
-        <lutece.module-workflow-unittree.version>3.0.0-SNAPSHOT</lutece.module-workflow-unittree.version>
-        <lutece.module-workflow-unittree-userassignment.version>2.0.0-SNAPSHOT</lutece.module-workflow-unittree-userassignment.version>
-        <lutece.plugin-userassignment.version>2.0.0-SNAPSHOT</lutece.plugin-userassignment.version>
-        <lutece.module-workflow-userassignment.version>3.0.0-SNAPSHOT</lutece.module-workflow-userassignment.version>
-        <lutece.module-notifygru-forms.version>2.0.0-SNAPSHOT</lutece.module-notifygru-forms.version>
-        <lutece.plugin-modulenotifygrumappingmanager.version>3.0.0-SNAPSHOT</lutece.plugin-modulenotifygrumappingmanager.version>
-        <lutece.plugin-accesscontrol.version>2.0.0-SNAPSHOT</lutece.plugin-accesscontrol.version>
-        <lutece.module-workflow-alertforms.version>3.0.0-SNAPSHOT</lutece.module-workflow-alertforms.version>
-        <lutece.module-workflow-notifygru-alert.version>3.0.0-SNAPSHOT</lutece.module-workflow-notifygru-alert.version>
+        <lutece.plugin-forms.version>4.0.0</lutece.plugin-forms.version>
+        <lutece.library-utils.version>2.0.0</lutece.library-utils.version>
+		<lutece.module-forms-breadcrumbaccordion.version>2.0.0</lutece.module-forms-breadcrumbaccordion.version>
+        <lutece.module-workflow-forms.version>3.0.0</lutece.module-workflow-forms.version>
+        <lutece.plugin-workflow.version>7.0.0</lutece.plugin-workflow.version>
+        <lutece.module-workflow-upload.version>2.0.0</lutece.module-workflow-upload.version>
+        <lutece.plugin-mermaidjs.version>2.0.0</lutece.plugin-mermaidjs.version>
+        <lutece.library-signrequest.version>4.0.0</lutece.library-signrequest.version>
+        <lutece.library-jwt.version>3.0.0</lutece.library-jwt.version>
+        <lutece.module-workflow-forms-automatic-assignment.version>3.0.0</lutece.module-workflow-forms-automatic-assignment.version>
+        <lutece.module-workflow-formstopdf.version>2.0.0</lutece.module-workflow-formstopdf.version>
+        <lutece.module-forms-userassignment.version>3.0.0</lutece.module-forms-userassignment.version>
+        <lutece.module-accesscontrol-forms.version>2.0.0</lutece.module-accesscontrol-forms.version>
+        <lutece.module-forms-documentproducer.version>2.0.0</lutece.module-forms-documentproducer.version>
+        <lutece.module-forms-unittree.version>3.0.0</lutece.module-forms-unittree.version>
+        <lutece.plugin-unittree.version>4.0.0</lutece.plugin-unittree.version>
+        <lutece.module-unittree-notification.version>2.0.0</lutece.module-unittree-notification.version>
+        <lutece.module-workflow-unittree.version>3.0.0</lutece.module-workflow-unittree.version>
+        <lutece.module-workflow-unittree-userassignment.version>2.0.0</lutece.module-workflow-unittree-userassignment.version>
+        <lutece.plugin-userassignment.version>2.0.0</lutece.plugin-userassignment.version>
+        <lutece.module-workflow-userassignment.version>3.0.0</lutece.module-workflow-userassignment.version>
+        <lutece.module-notifygru-forms.version>2.0.0</lutece.module-notifygru-forms.version>
+        <lutece.plugin-modulenotifygrumappingmanager.version>3.0.0</lutece.plugin-modulenotifygrumappingmanager.version>
+        <lutece.plugin-accesscontrol.version>2.0.0</lutece.plugin-accesscontrol.version>
+        <lutece.module-workflow-alertforms.version>3.0.0</lutece.module-workflow-alertforms.version>
+        <lutece.module-workflow-notifygru-alert.version>3.0.0</lutece.module-workflow-notifygru-alert.version>
         <!-- Address-->
-        <lutece.plugin-address.version>2.0.0-SNAPSHOT</lutece.plugin-address.version>
-        <lutece.module-address-autocomplete.version>2.0.0-SNAPSHOT</lutece.module-address-autocomplete.version>
-        <lutece.module-genericattributes-address.version>3.0.0-SNAPSHOT</lutece.module-genericattributes-address.version>
-        <lutece.plugin-carto.version>2.0.0-SNAPSHOT</lutece.plugin-carto.version>
-        <lutece.module-genericattributes-cartography.version>2.0.0-SNAPSHOT</lutece.module-genericattributes-cartography.version>
-        <lutece.plugin-leaflet.version>2.0.0-SNAPSHOT</lutece.plugin-leaflet.version>
+        <lutece.plugin-address.version>2.0.0</lutece.plugin-address.version>
+        <lutece.module-address-autocomplete.version>2.0.0</lutece.module-address-autocomplete.version>
+        <lutece.module-genericattributes-address.version>3.0.0</lutece.module-genericattributes-address.version>
+        <lutece.plugin-carto.version>2.0.0</lutece.plugin-carto.version>
+        <lutece.module-genericattributes-cartography.version>2.0.0</lutece.module-genericattributes-cartography.version>
+        <lutece.plugin-leaflet.version>2.0.0</lutece.plugin-leaflet.version>
         <!-- GRU-->
-        <lutece.module-workflow-notifygru.version>3.0.0-SNAPSHOT</lutece.module-workflow-notifygru.version>
-        <lutece.library-notifygru.version>2.0.0-SNAPSHOT</lutece.library-notifygru.version>
-        <lutece.library-grubusiness.version>2.0.0-SNAPSHOT</lutece.library-grubusiness.version>
+        <lutece.module-workflow-notifygru.version>3.0.0</lutece.module-workflow-notifygru.version>
+        <lutece.library-notifygru.version>2.0.0</lutece.library-notifygru.version>
+        <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
         
         <!-- Lutece appointment
         <lutece.plugin-appointment.version>6.1.0</lutece.plugin-appointment.version>
@@ -131,53 +131,61 @@
         -->
 
         <!--  Lutece Editorial  -->
-        <lutece.plugin-html.version>6.0.0-SNAPSHOT</lutece.plugin-html.version>
-        <lutece.plugin-htmlpage.version>6.0.0-SNAPSHOT</lutece.plugin-htmlpage.version>
-        <lutece.plugin-contact.version>6.0.0-SNAPSHOT</lutece.plugin-contact.version>
-        <lutece.plugin-menus.version>3.0.0-SNAPSHOT</lutece.plugin-menus.version>
-        <lutece.plugin-blog.version>4.0.0-SNAPSHOT</lutece.plugin-blog.version>
-        <lutece.plugin-document.version>6.0.0-SNAPSHOT</lutece.plugin-document.version>
-        <lutece.plugin-library.version>6.0.0-SNAPSHOT</lutece.plugin-library.version>
+        <lutece.plugin-html.version>6.0.0</lutece.plugin-html.version>
+        <lutece.plugin-htmlpage.version>6.0.0</lutece.plugin-htmlpage.version>
+        <lutece.plugin-contact.version>6.0.0</lutece.plugin-contact.version>
+        <lutece.plugin-menus.version>3.0.0</lutece.plugin-menus.version>
+        <lutece.plugin-blog.version>4.0.0</lutece.plugin-blog.version>
+        <lutece.plugin-document.version>6.0.0</lutece.plugin-document.version>
+        <lutece.plugin-library.version>6.0.0</lutece.plugin-library.version>
         <!--Authentification-->
-		<lutece.plugin-mylutece.version>5.0.0-SNAPSHOT</lutece.plugin-mylutece.version>
-		<lutece.module-mylutece-database.version>7.0.0-SNAPSHOT</lutece.module-mylutece-database.version>
-		<lutece.module-mylutece-oauth2.version>3.0.0-SNAPSHOT</lutece.module-mylutece-oauth2.version>
-		<lutece.plugin-oauth2.version>3.0.0-SNAPSHOT</lutece.plugin-oauth2.version>
-		<lutece.plugin-adminauthenticationwsso.version>3.0.0-SNAPSHOT</lutece.plugin-adminauthenticationwsso.version>
-		<lutece.plugin-myluteceaccessrules.version>2.0.0-SNAPSHOT</lutece.plugin-myluteceaccessrules.version>
-		<lutece.plugin-profiles.version>5.0.0-SNAPSHOT</lutece.plugin-profiles.version>
+		<lutece.plugin-mylutece.version>5.0.0</lutece.plugin-mylutece.version>
+		<lutece.mylutece-users.version>2.0.0</lutece.mylutece-users.version>
+		<lutece.plugin-automatic-roleprovider.version>2.0.0</lutece.plugin-automatic-roleprovider.version>
+		<lutece.module-mylutece-database.version>7.0.0</lutece.module-mylutece-database.version>
+		<lutece.module-mylutece-oauth2.version>3.0.0</lutece.module-mylutece-oauth2.version>
+		<lutece.plugin-oauth2.version>3.0.0</lutece.plugin-oauth2.version>
+		<lutece.plugin-termofservice.version>2.0.0</lutece.plugin-termofservice.version>
+		<lutece.plugin-adminauthenticationwsso.version>3.0.0</lutece.plugin-adminauthenticationwsso.version>
+		<lutece.plugin-myluteceaccessrules.version>2.0.0</lutece.plugin-myluteceaccessrules.version>
+		<lutece.plugin-profiles.version>5.0.0</lutece.plugin-profiles.version>
 		<!--ELK-->
-		<lutece.library-elastic.version>2.0.0-SNAPSHOT</lutece.library-elastic.version>
-		<lutece.plugin-elasticdata.version>3.0.0-SNAPSHOT</lutece.plugin-elasticdata.version>
-		<lutece.module-elasticdata-forms.version>2.0.0-SNAPSHOT</lutece.module-elasticdata-forms.version>
+		<lutece.library-elastic.version>2.0.0</lutece.library-elastic.version>
+		<lutece.plugin-elasticdata.version>3.0.0</lutece.plugin-elasticdata.version>
+		<lutece.module-elasticdata-forms.version>2.0.0</lutece.module-elasticdata-forms.version>
+		<!--Kibana -->
+		<lutece.plugin-kibana.version>3.0.0</lutece.plugin-kibana.version>
+		<lutece.module-kibana-formsplugin-kibana.version>2.0.0</lutece.module-kibana-formsplugin-kibana.version>
 		<!-- Others -->
-		<lutece.plugin-referencelist.version>2.0.0-SNAPSHOT</lutece.plugin-referencelist.version>
-		<lutece.plugin-genericattributes.version>3.0.0-SNAPSHOT</lutece.plugin-genericattributes.version>
-		<lutece.plugin-asynchronousupload.version>2.0.0-SNAPSHOT</lutece.plugin-asynchronousupload.version>
-		<lutece.plugin-regularexpression.version>5.0.0-SNAPSHOT</lutece.plugin-regularexpression.version>
-		<lutece.plugin-filegenerator.version>3.0.0-SNAPSHOT</lutece.plugin-filegenerator.version>
-		<lutece.plugin-htmltopdf.version>2.0.0-SNAPSHOT</lutece.plugin-htmltopdf.version>
-		<lutece.plugin-extend.version>2.0.0-SNAPSHOT</lutece.plugin-extend.version>
-        <lutece.plugin-galleryimage.version>2.0.0-SNAPSHOT</lutece.plugin-galleryimage.version>
-        <lutece.library-httpaccess.version>4.0.0-SNAPSHOT</lutece.library-httpaccess.version>
-        <lutece.library-core-utils.version>1.0.0-SNAPSHOT</lutece.library-core-utils.version>
-        <lutece.plugin-liquibase.version>2.0.0-SNAPSHOT</lutece.plugin-liquibase.version>
-        <lutece.library-sql-utils.version>2.0.0-SNAPSHOT</lutece.library-sql-utils.version>
-        <lutece.configsource-vault.version>2.0.0-SNAPSHOT</lutece.configsource-vault.version>
+		<lutece.plugin-referencelist.version>2.0.0</lutece.plugin-referencelist.version>
+		<lutece.plugin-genericattributes.version>3.0.0</lutece.plugin-genericattributes.version>
+		<lutece.plugin-asynchronousupload.version>2.0.0</lutece.plugin-asynchronousupload.version>
+		<lutece.plugin-regularexpression.version>5.0.0</lutece.plugin-regularexpression.version>
+		<lutece.plugin-filegenerator.version>3.0.0</lutece.plugin-filegenerator.version>
+		<lutece.plugin-htmltopdf.version>2.0.0</lutece.plugin-htmltopdf.version>
+		<lutece.plugin-extend.version>2.0.0</lutece.plugin-extend.version>
+        <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
+        <lutece.library-httpaccess.version>4.0.0</lutece.library-httpaccess.version>
+        <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
+        <lutece.plugin-liquibase.version>2.0.0</lutece.plugin-liquibase.version>
+        <lutece.library-sql-utils.version>2.0.1</lutece.library-sql-utils.version>
+        <lutece.configsource-vault.version>2.0.0</lutece.configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0-SNAPSHOT</lutece.plugin-quartz-scheduler.version>
-        <lutece.plugin-systeminfo.version>4.0.0-SNAPSHOT</lutece.plugin-systeminfo.version>
-        <lutece.plugin-rest.version>4.0.0-SNAPSHOT</lutece.plugin-rest.version>
-        <lutece.plugin-sitelabels.version>3.0.0-SNAPSHOT</lutece.plugin-sitelabels.version>
-        <lutece.module-forms-cartography.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography.version>
-        <lutece.module-forms-cartography-explorer.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography-explorer.version>
-        <lutece.module-cartography-solr.version>2.0.0-SNAPSHOT</lutece.module-cartography-solr.version>
-        <lutece.module-forms-solr.version>2.0.0-SNAPSHOT</lutece.module-forms-solr.version>
-        <lutece.plugin-solr.version>5.0.0-SNAPSHOT</lutece.plugin-solr.version>
-    	<lutece.plugin-parser.version>2.0.0-SNAPSHOT</lutece.plugin-parser.version>
-        <lutece.plugin-matomo.version>2.0.0-SNAPSHOT</lutece.plugin-matomo.version>
-    	<lutece.plugin-captcha.version>3.0.0-SNAPSHOT</lutece.plugin-captcha.version>
+        <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
+        <lutece.plugin-rest.version>4.0.0</lutece.plugin-rest.version>
+        <lutece.plugin-sitelabels.version>3.0.0</lutece.plugin-sitelabels.version>
+        <lutece.module-forms-cartography.version>2.0.0</lutece.module-forms-cartography.version>
+        <!--
+		 <lutece.module-forms-cartography-explorer.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography-explorer.version>
+        -->
+        <lutece.module-cartography-solr.version>2.0.0</lutece.module-cartography-solr.version>
+        <lutece.module-forms-solr.version>2.0.0</lutece.module-forms-solr.version>
+        <lutece.plugin-solr.version>5.0.0</lutece.plugin-solr.version>
+    	<lutece.plugin-parser.version>2.0.0</lutece.plugin-parser.version>
+        <lutece.plugin-matomo.version>2.0.0</lutece.plugin-matomo.version>
+    	<lutece.plugin-captcha.version>3.0.0</lutece.plugin-captcha.version>
    		<lutece.module-captcha-captchetat.version>1.0.0-SNAPSHOT</lutece.module-captcha-captchetat.version>
-    	<lutece.plugin-verifybackurl.version>2.0.0-SNAPSHOT</lutece.plugin-verifybackurl.version>
+    	<lutece.plugin-verifybackurl.version>2.0.0</lutece.plugin-verifybackurl.version>
     </properties>
 
 

@@ -262,6 +262,18 @@
 			</dependency>
 			<dependency>
 				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>mylutece-users</artifactId>
+				<type>lutece-plugin</type>
+				<version>${lutece.mylutece-users.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-automatic-roleprovider</artifactId>
+				<type>lutece-plugin</type>
+				<version>${lutece.plugin-automatic-roleprovider.version}</version>
+			</dependency>		
+			<dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
 				<artifactId>module-mylutece-database</artifactId>
 				<version>${lutece.module-mylutece-database.version}</version>
 				<type>lutece-plugin</type>
@@ -277,6 +289,12 @@
 				<artifactId>plugin-oauth2</artifactId>
 				<type>lutece-plugin</type>
 				<version>${lutece.plugin-oauth2.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>fr.paris.lutece.plugins</groupId>
+				<artifactId>plugin-termofservice</artifactId>
+				<type>lutece-plugin</type>
+				<version>${lutece.plugin-termofservice.version}</version>
 			</dependency> 			
 		    <dependency>
 				<groupId>fr.paris.lutece.plugins</groupId>
@@ -584,12 +602,12 @@
 	            <type>lutece-plugin</type>
 	            <version>${lutece.module-forms-cartography.version}</version>
 	        </dependency>
-	        <dependency>
+	       <!-- <dependency>
 				<groupId>fr.paris.lutece.plugins</groupId>
 				<artifactId>module-forms-cartography-explorer</artifactId>
 				<type>lutece-plugin</type>
 	            <version>${lutece.module-forms-cartography-explorer.version}</version>				
-			</dependency> 
+			</dependency> -->
 			<dependency>
 				<groupId>fr.paris.lutece.plugins</groupId>
 				<artifactId>module-forms-solr</artifactId>
@@ -618,7 +636,21 @@
 	            <type>lutece-plugin</type>
 	            <version>${lutece.plugin-elasticdata.version}</version>
 	        </dependency>
-
+ 			<!-- ================================================== -->
+            <!-- Kibana                                           -->
+            <!-- ================================================== -->
+            <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-kibana</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.plugin-kibana.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-kibana-forms</artifactId>
+	            <type>lutece-plugin</type>
+	            <version>${lutece.module-kibana-formsplugin-kibana.version}</version>
+	        </dependency>
 	        <!-- ================================================== -->
 	        <!-- Captcha & Securite                                  -->
 	        <!-- ================================================== -->
