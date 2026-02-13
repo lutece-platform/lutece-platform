@@ -476,6 +476,12 @@ Dry-Run     : ${params.DRY_RUN}
                                 appendReport("Starter Released: ${starter} ${env.COMPUTED_RELEASE_VERSION}")
                             } catch (Throwable e) {
                                 appendReport("FAILED Starter: ${starter} — ${e.message}")
+                                try {
+                                    rollbackStarter(starter)
+                                    appendReport("ROLLBACK OK: ${starter}")
+                                } catch (Throwable re) {
+                                    appendReport("ROLLBACK FAILED: ${starter} — manual intervention required: ${re.message}")
+                                }
                                 error("Failed to release ${starter}: ${e.message}")
                             }
                         }
@@ -509,8 +515,19 @@ Dry-Run     : ${params.DRY_RUN}
                         }
                     }
 
-                    releaseStarter('lutece-starter')
-                    appendReport("Starter Released: lutece-starter ${env.COMPUTED_RELEASE_VERSION}")
+                    try {
+                        releaseStarter('lutece-starter')
+                        appendReport("Starter Released: lutece-starter ${env.COMPUTED_RELEASE_VERSION}")
+                    } catch (Throwable e) {
+                        appendReport("FAILED Starter: lutece-starter — ${e.message}")
+                        try {
+                            rollbackStarter('lutece-starter')
+                            appendReport("ROLLBACK OK: lutece-starter")
+                        } catch (Throwable re) {
+                            appendReport("ROLLBACK FAILED: lutece-starter — manual intervention required: ${re.message}")
+                        }
+                        error("Failed to release lutece-starter: ${e.message}")
+                    }
                 }
             }
         }
@@ -527,8 +544,19 @@ Dry-Run     : ${params.DRY_RUN}
             }
             steps {
                 script {
-                    releaseStarter('lutece-bom')
-                    appendReport("BOM Released: lutece-bom ${env.COMPUTED_RELEASE_VERSION}")
+                    try {
+                        releaseStarter('lutece-bom')
+                        appendReport("BOM Released: lutece-bom ${env.COMPUTED_RELEASE_VERSION}")
+                    } catch (Throwable e) {
+                        appendReport("FAILED: lutece-bom — ${e.message}")
+                        try {
+                            rollbackStarter('lutece-bom')
+                            appendReport("ROLLBACK OK: lutece-bom")
+                        } catch (Throwable re) {
+                            appendReport("ROLLBACK FAILED: lutece-bom — manual intervention required: ${re.message}")
+                        }
+                        error("Failed to release lutece-bom: ${e.message}")
+                    }
                 }
             }
         }
@@ -1010,12 +1038,13 @@ def releasePlugin(Map plugin) {
         """
 
         if (isRc) {
-            // 5-RC. Deploy from develop (NO merge to master)
-            sh """
-                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true
-            """
+            // 5-RC. Push branch + tag to Git (prepare)
+            sh "git push origin ${plugin.branch} --tags"
 
-            // 6-RC. Restore original SNAPSHOT version on develop
+            // 6-RC. Deploy to Nexus (perform)
+            sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true"
+
+            // 7-RC. Restore original SNAPSHOT version on develop
             sh """
                 mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
                 for xmlFile in webapp/WEB-INF/plugins/*.xml; do
@@ -1024,18 +1053,20 @@ def releasePlugin(Map plugin) {
                 done
                 git add -A
                 git commit -m "chore: restore SNAPSHOT after RC ${plugin.artifactId}-${plugin.releaseVersion}"
-                git push origin ${plugin.branch} --tags
+                git push origin ${plugin.branch}
             """
         } else {
-            // 5. Merge to master, push, deploy
+            // 5. Merge to master + push with tags (prepare)
             sh """
                 git checkout master || git checkout -b master origin/master
                 git merge ${plugin.branch} -m "Merge ${plugin.branch} for release ${tagName}"
-                git push origin master
-                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true
+                git push origin master --tags
             """
 
-            // 6. Return to develop, next SNAPSHOT
+            // 6. Deploy to Nexus (perform)
+            sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true"
+
+            // 7. Return to develop, next SNAPSHOT
             sh """
                 git checkout ${plugin.branch}
                 mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
@@ -1045,7 +1076,7 @@ def releasePlugin(Map plugin) {
                 done
                 git add -A
                 git commit -m "chore: prepare next development iteration ${plugin.artifactId}-${plugin.nextSnapshot}"
-                git push origin ${plugin.branch} --tags
+                git push origin ${plugin.branch}
             """
         }
     }
@@ -1108,11 +1139,11 @@ def rollbackPlugin(Map plugin) {
 /**
  * Releases a starter or BOM module within this monorepo.
  *
- * Stable release:
- *   Tag → merge to master → deploy → return to develop
+ * Follows the same approach as mvn release:prepare + release:perform:
+ *   1. Tag + push to Git (prepare)
+ *   2. Deploy to Nexus (perform)
  *
- * RC release:
- *   Tag → deploy from develop (NO merge to master) → stay on develop
+ * This ensures that if the git push fails, nothing is deployed to Nexus.
  */
 def releaseStarter(String starterName) {
     def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
@@ -1124,47 +1155,68 @@ def releaseStarter(String starterName) {
         echo "[DRY-RUN] Would release ${starterName}"
         echo "[DRY-RUN]   Tag: ${tagName}"
         if (isRc) {
-            echo "[DRY-RUN]   RC: deploy from develop (no merge to master)"
+            echo "[DRY-RUN]   RC: tag + push, then deploy from develop (no merge to master)"
         } else {
-            echo "[DRY-RUN]   Deploy: mvn deploy -pl ${starterName} -am -DperformRelease=true"
+            echo "[DRY-RUN]   Stable: tag + merge to master + push, then deploy"
         }
         return
     }
 
-    // Tag on develop
-    sh """
-        git tag -a ${tagName} -m "Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}"
-    """
+    // ── Phase 1: prepare (tag + push) ──
+    sh "git tag -a ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
 
     if (isRc) {
-        // RC: deploy from develop, no merge to master
-        sh """
-            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true
-        """
-        sh """
-            git push origin develop --tags
-        """
+        // RC: push tag from develop, no merge to master
+        sh "git push origin develop --tags"
     } else {
-        // Stable: merge to master
-        sh """
-            git checkout master
-            git merge develop -m "Merge develop for release ${tagName}"
-            git push origin master
-        """
-
-        // Deploy only this module (and its dependencies within the reactor)
-        sh """
-            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true
-        """
-
-        // Return to develop
-        sh """
-            git checkout develop
-            git push origin develop --tags
-        """
+        // Stable: merge to master, push master + tags, return to develop
+        sh "git checkout master"
+        sh "git merge develop -m \"Merge develop for release ${tagName}\""
+        sh "git push origin master --tags"
+        sh "git checkout develop"
     }
 
+    // ── Phase 2: perform (deploy to Nexus) ──
+    sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true"
+
     echo "Released ${starterName} ${env.COMPUTED_RELEASE_VERSION} successfully."
+}
+
+/**
+ * Rolls back a failed starter release within the monorepo.
+ *
+ * - Deletes the local and remote git tag
+ * - Ensures we are back on the develop branch
+ * - Warns about Nexus artifacts (manual cleanup required)
+ */
+def rollbackStarter(String starterName) {
+    def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
+
+    echo "=== Rolling back ${starterName} ==="
+
+    if (params.DRY_RUN) {
+        echo "[DRY-RUN] Would rollback ${starterName}"
+        return
+    }
+
+    // Delete tag (local + remote)
+    try {
+        sh """
+            git tag -d ${tagName} || true
+            git push origin :refs/tags/${tagName} || true
+        """
+    } catch (Throwable e) {
+        echo "WARNING: Could not delete tag ${tagName}: ${e.message}"
+    }
+
+    // Ensure we are back on develop
+    try {
+        sh "git checkout develop"
+    } catch (Throwable e) {
+        echo "WARNING: Could not checkout develop: ${e.message}"
+    }
+
+    echo "WARNING: If ${starterName} was already deployed to Nexus, the artifact must be deleted manually."
 }
 
 /**
