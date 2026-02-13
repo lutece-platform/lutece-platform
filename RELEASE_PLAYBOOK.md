@@ -152,7 +152,7 @@ Stage 5  ► Validate Release Readiness
              Verifie qu'aucun SNAPSHOT ne subsiste
 
 Stage 6  ► Release Specialized Starters
-             forms, appointment, editorial — en parallele
+             forms, appointment, editorial — en parallele (prepare/perform/promote)
 
 Stage 7  ► Release lutece-starter
              Apres validation des 3 starters
@@ -174,7 +174,8 @@ Stage 10 ► Release Report
   la vitesse et les rate-limits de l'API GitHub
 - Les mises a jour du POM parent utilisent `sed` (plus rapide que
   90 invocations `mvn versions:set-property`)
-- Rollback automatique en cas d'echec d'un plugin
+- Pattern **prepare / perform / promote** : master n'est merge qu'apres
+  le succes du deploy Nexus — rollback simple, sans force push
 
 ---
 
@@ -309,7 +310,7 @@ Deroulement :
 3. Release les plugins en batches paralleles de 5
 4. Met a jour le POM parent avec les versions release
 5. Verifie qu'aucun SNAPSHOT ne subsiste
-6. Release le forms-starter (tag, merge master, deploy)
+6. Release le forms-starter (tag, push, deploy, puis merge master)
 7. Prepare la prochaine version SNAPSHOT
 
 ### 6.4 — Release complete (all)
@@ -553,7 +554,7 @@ sur master, deploy depuis develop). Voir
 
 **Actions :**
 - Valide que les 3 starters specialises sont en version release
-- Release `lutece-starter` (tag, merge master, deploy)
+- Release `lutece-starter` (tag, push, deploy, puis merge master)
 
 **Prerequis :** ce stage ne s'execute que si `lutece-starter` est dans
 la liste des cibles et que les Stages 6 est termine.
@@ -644,19 +645,39 @@ git commit -m "release: plugin-forms-4.0.0"
 git tag -a plugin-forms-4.0.0 -m "Release plugin-forms 4.0.0"
 ```
 
-### Etape 5 — Merge sur master et deploy
+### Etape 5 — Prepare (push branch + tag)
+
+```bash
+git push origin develop --tags
+```
+
+Le tag et le commit de release sont pousses sur `develop` **avant** tout
+deploy. C'est l'equivalent de `mvn release:prepare`.
+
+### Etape 6 — Perform (deploy sur Nexus)
+
+```bash
+mvn clean deploy -DskipTests -DperformRelease=true
+```
+
+Le deploy s'effectue depuis la branche `develop` (le tag reference le bon
+commit). C'est l'equivalent de `mvn release:perform`.
+
+> **Si le deploy echoue ici**, le rollback est simple : supprimer le tag
+> et revert le commit sur develop. Master n'a pas ete touche.
+
+### Etape 7 — Promote (merge sur master)
 
 ```bash
 git checkout master
 git merge develop -m "Merge develop for release plugin-forms-4.0.0"
 git push origin master
-mvn clean deploy -P release -DskipTests
 ```
 
-Le deploy utilise le profil Maven `release` et s'effectue depuis la
-branche `master`.
+Le merge sur master n'a lieu **qu'apres le succes du deploy sur Nexus**.
+C'est la phase de promotion.
 
-### Etape 6 — Prochaine iteration
+### Etape 8 — Prochaine iteration
 
 ```bash
 git checkout develop
@@ -668,17 +689,37 @@ for xmlFile in webapp/WEB-INF/plugins/*.xml; do
 done
 git add -A
 git commit -m "chore: prepare next development iteration plugin-forms-4.0.1-SNAPSHOT"
-git push origin develop --tags
+git push origin develop
 ```
+
+### Pattern Prepare / Perform / Promote
+
+Ce processus suit le meme pattern que `mvn release:prepare` + `mvn release:perform` :
+
+```
+ Phase 1 — PREPARE     tag + push sur develop (si echec → rien sur Nexus, rien sur master)
+       ↓
+ Phase 2 — PERFORM     deploy sur Nexus (si echec → rollback = revert commit + supprimer tag)
+       ↓
+ Phase 3 — PROMOTE     merge sur master (seulement apres succes du deploy)
+       ↓
+ Phase 4 — ITERATE     next SNAPSHOT sur develop
+```
+
+**Avantage :** master n'est jamais touche avant le succes du deploy.
+Le rollback ne necessite **jamais** de `git reset --hard` ni de
+`git push --force`.
 
 ### Resume visuel (release stable)
 
 ```
-develop:  ──[SNAPSHOT]──► tests ──► version:set ──► commit+tag ──────────────► version:set(SNAPSHOT+1) ──► push
-                                                        │
-master:   ─────────────────────────────────────── merge ├──► push ──► deploy
-                                                        │
-tags:     ───────────────────────────────── plugin-forms-4.0.0
+develop:  ──[SNAPSHOT]──► tests ──► version:set ──► commit+tag ──► push ──────────────► version:set(SNAPSHOT+1) ──► push
+                                                        │                     │
+nexus:    ──────────────────────────────────────────────────── deploy ─────────┤
+                                                        │                     │
+master:   ──────────────────────────────────────────────────────────── merge ──┤
+                                                        │                     │
+tags:     ──────────────────────────────── plugin-forms-4.0.0 ────────────────┘
 ```
 
 ### Variante RC — Release d'un plugin en Release Candidate
@@ -717,16 +758,22 @@ git commit -m "release: plugin-forms-4.0.0-RC1"
 git tag -a plugin-forms-4.0.0-RC1 -m "Release Candidate plugin-forms 4.0.0-RC1"
 ```
 
-#### Etape 5 — Deploy depuis develop (pas de merge sur master)
+#### Etape 5 — Prepare (push branch + tag)
 
 ```bash
-mvn clean deploy -P release -DskipTests
+git push origin develop --tags
+```
+
+#### Etape 6 — Perform (deploy depuis develop)
+
+```bash
+mvn clean deploy -DskipTests -DperformRelease=true
 ```
 
 Le deploy s'effectue **directement depuis la branche `develop`**.
-Aucun merge sur `master` n'est effectue.
+Aucun merge sur `master` n'est effectue (pas de phase promote en RC).
 
-#### Etape 6 — Restauration de la version SNAPSHOT d'origine
+#### Etape 7 — Restauration de la version SNAPSHOT d'origine
 
 ```bash
 mvn versions:set -DnewVersion=4.0.0-SNAPSHOT -DgenerateBackupPoms=false
@@ -737,7 +784,7 @@ for xmlFile in webapp/WEB-INF/plugins/*.xml; do
 done
 git add -A
 git commit -m "chore: restore SNAPSHOT after RC plugin-forms-4.0.0-RC1"
-git push origin develop --tags
+git push origin develop
 ```
 
 > **Important :** contrairement a la release stable, le numero de patch
@@ -748,11 +795,13 @@ git push origin develop --tags
 ### Resume visuel (mode RC)
 
 ```
-develop:  ──[SNAPSHOT]──► tests ──► version:set(RC) ──► commit+tag ──► deploy ──► version:set(SNAPSHOT) ──► push
-                                                                                      │
-master:   ───────────────────────────────────────── (inchange)                         │
-                                                                                      │
-tags:     ──────────────────────────────── plugin-forms-4.0.0-RC1 ────────────────────┘
+develop:  ──[SNAPSHOT]──► tests ──► version:set(RC) ──► commit+tag ──► push ──────────► version:set(SNAPSHOT) ──► push
+                                                            │              │
+nexus:    ─────────────────────────────────────────────────────── deploy ──┘
+                                                            │
+master:   ─────────────────────────────────────── (inchange) │
+                                                            │
+tags:     ──────────────────────────────── plugin-forms-4.0.0-RC1
 ```
 
 ---
@@ -760,63 +809,73 @@ tags:     ───────────────────────�
 ## 9. Processus de release d'un starter
 
 Les starters etant des modules du monorepo, leur release est plus simple
-(pas de clone, pas de tests) :
+(pas de clone, pas de tests). Le meme pattern **prepare / perform / promote**
+est applique.
 
-### Etape 1 — Tag
+### Etape 1 — Prepare (tag + push)
 
 ```bash
 git tag -a forms-starter-8.0.0 -m "Release forms-starter 8.0.0"
+git push origin develop --tags
 ```
 
-### Etape 2 — Merge sur master
+Le tag est cree et pousse sur `develop` avant tout deploy.
+
+### Etape 2 — Perform (deploy du module)
 
 ```bash
-git checkout master
-git merge develop -m "Merge develop for release forms-starter-8.0.0"
-git push origin master
-```
-
-### Etape 3 — Deploy du module seul
-
-```bash
-mvn clean deploy -pl forms-starter -am -P release -DskipTests
+mvn clean deploy -pl forms-starter -am -DskipTests -DperformRelease=true
 ```
 
 L'option `-pl forms-starter -am` permet de deployer uniquement ce module
 (et ses dependances dans le reactor) sans toucher aux autres.
 
-### Etape 4 — Retour sur develop
+> **Si le deploy echoue ici**, le rollback est simple : supprimer le tag.
+> Master n'a pas ete touche.
+
+### Etape 3 — Promote (merge sur master)
 
 ```bash
+git checkout master
+git merge develop -m "Merge develop for release forms-starter-8.0.0"
+git push origin master
 git checkout develop
-git push origin develop --tags
+```
+
+Le merge sur master n'a lieu **qu'apres le succes du deploy sur Nexus**.
+
+### Resume visuel (release stable d'un starter)
+
+```
+develop:  ──► tag ──► push ────────────────────────────────►
+                         │              │              │
+nexus:    ──────────────────── deploy ──┤              │
+                         │              │              │
+master:   ──────────────────────────── merge ──► push ─┘
+                         │
+tags:     ── forms-starter-8.0.0
 ```
 
 ### Variante RC — Release d'un starter en Release Candidate
 
-En mode RC, le processus des starters est adapte de la meme maniere que
-les plugins : pas de merge sur master, deploy depuis develop.
+En mode RC, le processus des starters est adapte : pas de merge sur master
+(pas de phase promote), deploy depuis develop.
 
-#### Etape 1 — Tag RC
+#### Etape 1 — Prepare (tag + push)
 
 ```bash
 git tag -a forms-starter-8.0.0-RC1 -m "Release Candidate forms-starter 8.0.0-RC1"
+git push origin develop --tags
 ```
 
-#### Etape 2 — Deploy depuis develop (pas de merge sur master)
+#### Etape 2 — Perform (deploy depuis develop)
 
 ```bash
-mvn clean deploy -pl forms-starter -am -P release -DskipTests
+mvn clean deploy -pl forms-starter -am -DskipTests -DperformRelease=true
 ```
 
 Le deploy s'effectue **directement depuis la branche `develop`**.
-La branche `master` reste inchangee.
-
-#### Etape 3 — Push des tags
-
-```bash
-git push origin develop --tags
-```
+La branche `master` reste inchangee (pas de phase promote en RC).
 
 > **Note :** en mode RC, il n'y a pas de retour a SNAPSHOT pour les starters
 > individuellement — c'est le Stage 9 qui restaure la version globale.
@@ -825,36 +884,65 @@ git push origin develop --tags
 
 ## 10. Gestion des erreurs et rollback
 
+### Principe : Prepare / Perform / Promote elimine les rollbacks dangereux
+
+Grace au pattern **prepare / perform / promote**, la branche `master`
+n'est **jamais touchee avant le succes du deploy Nexus**. Cela signifie
+qu'en cas d'echec, le rollback est toujours simple et sur :
+
+```
+ Echec a la phase PREPARE (push Git)  →  Rien sur Nexus, rien sur master
+                                          Rollback : supprimer le tag local
+
+ Echec a la phase PERFORM (deploy)    →  Tag pousse, mais master intact
+                                          Rollback : revert commit + supprimer le tag
+
+ Echec a la phase PROMOTE (merge)     →  Nexus OK, tag OK, master non merge
+                                          Action : relancer le merge manuellement
+```
+
+**Jamais de `git reset --hard` ni de `git push --force`.**
+
 ### Rollback automatique des plugins
 
 En cas d'echec lors de la release d'un plugin, la pipeline execute
-automatiquement un rollback en 3 etapes :
+automatiquement un rollback en 2 etapes :
 
-1. **Reset master** : annule le merge
-   ```bash
-   git checkout master
-   git reset --hard HEAD~1
-   git push origin master --force
-   ```
-
-2. **Reset develop** : annule le commit de version release
+1. **Revert du commit de release sur develop** :
    ```bash
    git checkout develop
-   git reset --hard HEAD~1
-   git push origin develop --force
+   git revert HEAD --no-edit
+   git push origin develop
    ```
 
-3. **Suppression du tag** :
+2. **Suppression du tag** (local + remote) :
    ```bash
    git tag -d plugin-forms-4.0.0
    git push origin :refs/tags/plugin-forms-4.0.0
    ```
 
+> **Note :** master n'est pas concerne car le merge n'a lieu qu'apres
+> le succes du deploy (phase promote).
+
+### Rollback automatique des starters
+
+Pour les starters, le rollback est encore plus simple car il n'y a pas
+de commit de version (les starters utilisent `${revision}` du parent) :
+
+1. **Suppression du tag** (local + remote) :
+   ```bash
+   git tag -d forms-starter-8.0.0
+   git push origin :refs/tags/forms-starter-8.0.0
+   ```
+
+2. **Retour sur la branche develop** :
+   ```bash
+   git checkout develop
+   ```
+
 ### Echec du rollback
 
-Si le rollback lui-meme echoue (par exemple, si le push a deja ete
-effectue et que d'autres commits ont ete ajoutes entre-temps), le rapport
-indiquera :
+Si le rollback lui-meme echoue, le rapport indiquera :
 
 ```
 ROLLBACK FAILED: plugin-forms — manual intervention required: <message>
@@ -866,9 +954,9 @@ Dans ce cas, une **intervention manuelle** est necessaire.
 
 | Situation | Comportement |
 |-----------|-------------|
-| 1 plugin echoue dans un batch | Rollback du plugin, les autres continuent. Pipeline `UNSTABLE`. |
+| 1 plugin echoue dans un batch | Rollback du plugin (revert + tag delete), les autres continuent. Pipeline `UNSTABLE`. |
 | Plusieurs plugins echouent | Chaque plugin est rollback individuellement. Pipeline `UNSTABLE`. |
-| Un starter echoue | Pipeline `FAILURE`. Les plugins deja releasees ne sont pas rollback (la release des plugins est valide). |
+| Un starter echoue | Rollback du starter (tag delete). Pipeline `FAILURE`. Les plugins deja releasees ne sont pas rollback. |
 | Validation SNAPSHOT echoue | Pipeline `UNSTABLE`. Les starters ne seront pas deployes si la validation echoue. |
 
 ### Reprendre apres un echec
@@ -1120,7 +1208,8 @@ restaure la version SNAPSHOT sur develop.
 | `resolveGitHubRepo` | `(String artifactId) → Map` | Resout org + repo + branche sur GitHub |
 | `resolveDevBranch` | `(String org, String repo) → String` | Resout la branche de developpement |
 | `releasePlugin` | `(Map plugin) → void` | Workflow complet de release d'un plugin |
-| `rollbackPlugin` | `(Map plugin) → void` | Annulation d'une release echouee |
-| `releaseStarter` | `(String name) → void` | Release d'un module du monorepo |
+| `rollbackPlugin` | `(Map plugin) → void` | Revert du commit + suppression du tag |
+| `releaseStarter` | `(String name) → void` | Release d'un module du monorepo (prepare/perform/promote) |
+| `rollbackStarter` | `(String name) → void` | Suppression du tag + retour sur develop |
 | `appendReport` | `(String line) → void` | Ajoute une ligne au rapport |
 | `generateReleaseReport` | `() → void` | Genere le rapport final de release |
