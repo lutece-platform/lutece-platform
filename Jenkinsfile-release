@@ -10,15 +10,14 @@ pipeline {
     agent any
 
     options {
-        timestamps()
         buildDiscarder(logRotator(numToKeepStr: '20'))
         timeout(time: 4, unit: 'HOURS')
         disableConcurrentBuilds()
     }
 
     tools {
-        maven 'Maven-3'
-        jdk 'JDK-17'
+        maven 'Maven 3.8.5'
+        jdk 'temurin-17-jdk'
     }
 
     parameters {
@@ -99,7 +98,7 @@ pipeline {
 
                     // Read current version from root pom
                     def pomContent = readFile('pom.xml')
-                    def currentVersion = (pomContent =~ /<artifactId>lutece-parent<\/artifactId>\s*\n\s*<version>([^<]+)<\/version>/)[0][1]
+                    def currentVersion = (pomContent =~ '<artifactId>lutece-parent</artifactId>\\s*\\n\\s*<version>([^<]+)</version>')[0][1]
                     echo "Current project version: ${currentVersion}"
 
                     // Store the original SNAPSHOT version (used to restore after RC)
@@ -108,7 +107,7 @@ pipeline {
                     // Compute base release version (without RC suffix)
                     def baseVersion
                     if (params.RELEASE_VERSION?.trim()) {
-                        baseVersion = params.RELEASE_VERSION.trim().replaceAll(/-RC\\d+$/, '')
+                        baseVersion = params.RELEASE_VERSION.trim().replaceAll('-RC-?\\d+$', '')
                     } else {
                         baseVersion = currentVersion.replace('-SNAPSHOT', '')
                     }
@@ -116,7 +115,7 @@ pipeline {
 
                     // Compute final release version (with RC suffix if applicable)
                     if (env.IS_RC == 'true') {
-                        env.COMPUTED_RELEASE_VERSION = "${baseVersion}-RC${env.RC_NUM}"
+                        env.COMPUTED_RELEASE_VERSION = "${baseVersion}-RC-${env.RC_NUM.padLeft(2, '0')}"
                     } else {
                         env.COMPUTED_RELEASE_VERSION = baseVersion
                     }
@@ -194,7 +193,7 @@ Dry-Run     : ${params.DRY_RUN}
                     def rcNum = env.RC_NUM
                     def pluginListJson = groovy.json.JsonOutput.toJson(filtered.collect { plugin ->
                         def baseVer = plugin.version.replace('-SNAPSHOT', '')
-                        def relVer = isRc ? "${baseVer}-RC${rcNum}" : baseVer
+                        def relVer = isRc ? "${baseVer}-RC-${rcNum.padLeft(2, '0')}" : baseVer
                         def nextVer = isRc ? plugin.version : computeNextSnapshot(baseVer)
                         [
                             propertyName: plugin.propertyName,
@@ -319,13 +318,13 @@ Dry-Run     : ${params.DRY_RUN}
 
                     // Update <revision> property
                     updatedPom = updatedPom.replaceAll(
-                        /(<revision>)[^<]+(SNAPSHOT)(<\/revision>)/,
+                        '(<revision>)[^<]+(SNAPSHOT)(</revision>)',
                         "\$1${env.COMPUTED_RELEASE_VERSION}\$3"
                     )
 
                     // Update project version
                     updatedPom = updatedPom.replaceAll(
-                        /(<artifactId>lutece-parent<\/artifactId>\s*\n\s*<version>)[^<]+(<\/version>)/,
+                        '(<artifactId>lutece-parent</artifactId>\\s*\\n\\s*<version>)[^<]+(</version>)',
                         "\$1${env.COMPUTED_RELEASE_VERSION}\$2"
                     )
 
@@ -336,7 +335,7 @@ Dry-Run     : ${params.DRY_RUN}
 
                         resolvedPlugins.each { plugin ->
                             if (releasedList.contains(plugin.artifactId)) {
-                                def propPattern = /(<${plugin.propertyName}>)[^<]+(-SNAPSHOT<\/${plugin.propertyName}>)/
+                                def propPattern = "(<${plugin.propertyName}>)[^<]+(-SNAPSHOT</${plugin.propertyName}>)"
                                 def propReplacement = "\$1${plugin.releaseVersion}\$2".replace('-SNAPSHOT', '')
                                 // Use sed for reliability with special chars in property names
                                 def sedExpr = "s|<${plugin.propertyName}>${plugin.currentVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|g"
@@ -700,7 +699,7 @@ def resolveStartersToRelease(String target) {
  */
 def parseSnapshotPlugins(String pomContent) {
     def plugins = []
-    def matcher = pomContent =~ /<(lutece\.[a-zA-Z0-9._-]+\.version)>([^<]*-SNAPSHOT)<\//
+    def matcher = pomContent =~ '<(lutece\\.[a-zA-Z0-9._-]+\\.version)>([^<]*-SNAPSHOT)</'
     while (matcher.find()) {
         def propertyName = matcher.group(1)
         def version = matcher.group(2)
@@ -750,7 +749,7 @@ def filterPluginsForStarters(List allPlugins, List starters) {
         if (pomPath && fileExists(pomPath)) {
             def content = readFile(pomPath)
             // Extract all ${lutece.*.version} references
-            def refMatcher = content =~ /\$\{(lutece\.[a-zA-Z0-9._-]+\.version)\}/
+            def refMatcher = content =~ '\\$\\{(lutece\\.[a-zA-Z0-9._-]+\\.version)\\}'
             while (refMatcher.find()) {
                 referencedProperties.add(refMatcher.group(1))
             }
@@ -764,7 +763,7 @@ def filterPluginsForStarters(List allPlugins, List starters) {
             def pomPath = starterPomMap[sub]
             if (pomPath && fileExists(pomPath)) {
                 def content = readFile(pomPath)
-                def refMatcher = content =~ /\$\{(lutece\.[a-zA-Z0-9._-]+\.version)\}/
+                def refMatcher = content =~ '\\$\\{(lutece\\.[a-zA-Z0-9._-]+\\.version)\\}'
                 while (refMatcher.find()) {
                     referencedProperties.add(refMatcher.group(1))
                 }
@@ -917,7 +916,7 @@ def releasePlugin(Map plugin) {
         // 2. Check packaging and run tests
         if (!params.SKIP_TESTS) {
             def pluginPom = readFile('pom.xml')
-            def packagingMatch = pluginPom =~ /<packaging>([^<]+)<\/packaging>/
+            def packagingMatch = pluginPom =~ '<packaging>([^<]+)</packaging>'
             def packaging = packagingMatch ? packagingMatch[0][1] : 'jar'
 
             if (packaging in ['lutece-plugin', 'lutece-core']) {
