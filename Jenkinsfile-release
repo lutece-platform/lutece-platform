@@ -76,6 +76,16 @@ pipeline {
             defaultValue: 'maven_settings_default',
             description: 'ID du Config File Provider pour le settings.xml Maven.'
         )
+        string(
+            name: 'GIT_USER_NAME',
+            defaultValue: 'ryahiaoui',
+            description: 'Nom utilisateur pour les commits git de la release.'
+        )
+        string(
+            name: 'GIT_USER_EMAIL',
+            defaultValue: 'rafik.yahiaoui@paris.fr',
+            description: 'Email utilisateur pour les commits git de la release.'
+        )
     }
 
     environment {
@@ -110,6 +120,10 @@ pipeline {
                     }
                     env.MAVEN_SETTINGS_XML = "${WORKSPACE}/maven-settings.xml"
                     echo "Maven settings provisioned: ${env.MAVEN_SETTINGS_XML}"
+
+                    // Configure git identity for commits in main workspace
+                    sh "git config user.email '${params.GIT_USER_EMAIL}'"
+                    sh "git config user.name '${params.GIT_USER_NAME}'"
 
                     // Read current version from root pom
                     def pomContent = readFile('pom.xml')
@@ -951,8 +965,8 @@ def releasePlugin(Map plugin) {
         // 1. Clone
         def repoUrl = "https://${GITHUB_TOKEN}@github.com/${plugin.org}/${plugin.repoName}.git"
         sh "git clone -b ${plugin.branch} --single-branch ${repoUrl} ."
-        sh "git config user.email 'jenkins@lutece.paris.fr'"
-        sh "git config user.name 'Jenkins Release Bot'"
+        sh "git config user.email '${params.GIT_USER_EMAIL}'"
+        sh "git config user.name '${params.GIT_USER_NAME}'"
 
         // 2. Check packaging and run tests
         if (!params.SKIP_TESTS) {
