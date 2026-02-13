@@ -730,7 +730,9 @@ def resolveStartersToRelease(String target) {
  */
 def parseSnapshotPlugins(String pomContent) {
     def plugins = []
-    def matcher = pomContent =~ '<(lutece\\.[a-zA-Z0-9._-]+\\.version)>([^<]*-SNAPSHOT)</'
+    // Strip XML comments before scanning to avoid detecting commented-out properties
+    def cleanContent = pomContent.replaceAll('(?s)<!--.*?-->', '')
+    def matcher = cleanContent =~ '<(lutece\\.[a-zA-Z0-9._-]+\\.version)>([^<]*-SNAPSHOT)</'
     while (matcher.find()) {
         def propertyName = matcher.group(1)
         def version = matcher.group(2)
