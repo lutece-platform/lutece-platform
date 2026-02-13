@@ -479,6 +479,9 @@ Dry-Run     : ${params.DRY_RUN}
                                 appendReport("Starter Released: ${starter} ${env.COMPUTED_RELEASE_VERSION}")
                             } catch (Throwable e) {
                                 appendReport("FAILED Starter: ${starter} — ${e.message}")
+                                appendReport("  -> Si le tag existe deja : git push origin :refs/tags/${starter}-${env.COMPUTED_RELEASE_VERSION}")
+                                appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
+                                appendReport("  -> Puis relancer le build")
                                 try {
                                     rollbackStarter(starter)
                                     appendReport("ROLLBACK OK: ${starter}")
@@ -523,6 +526,9 @@ Dry-Run     : ${params.DRY_RUN}
                         appendReport("Starter Released: lutece-starter ${env.COMPUTED_RELEASE_VERSION}")
                     } catch (Throwable e) {
                         appendReport("FAILED Starter: lutece-starter — ${e.message}")
+                        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-starter-${env.COMPUTED_RELEASE_VERSION}")
+                        appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
+                        appendReport("  -> Puis relancer le build")
                         try {
                             rollbackStarter('lutece-starter')
                             appendReport("ROLLBACK OK: lutece-starter")
@@ -552,6 +558,9 @@ Dry-Run     : ${params.DRY_RUN}
                         appendReport("BOM Released: lutece-bom ${env.COMPUTED_RELEASE_VERSION}")
                     } catch (Throwable e) {
                         appendReport("FAILED: lutece-bom — ${e.message}")
+                        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-bom-${env.COMPUTED_RELEASE_VERSION}")
+                        appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
+                        appendReport("  -> Puis relancer le build")
                         try {
                             rollbackStarter('lutece-bom')
                             appendReport("ROLLBACK OK: lutece-bom")
@@ -1155,7 +1164,7 @@ def releaseStarter(String starterName) {
     }
 
     // ── Phase 1: prepare (tag + push tag only — develop already pushed in Stage 4) ──
-    sh "git tag -fa ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
+    sh "git tag -a ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
     sh "git push origin ${tagName}"
 
     // ── Phase 2: perform (deploy to Nexus) ──
