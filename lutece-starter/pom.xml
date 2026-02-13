@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>lutece-starter</artifactId>
-    <name>Lutece Platform</name>
+    <name>Lutece Platform starters</name>
     <description>Lutece Platform</description>
 
     <properties>
