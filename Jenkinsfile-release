@@ -130,7 +130,7 @@ pipeline {
 
                     // Set remote URL with GitHub token for push operations
                     withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
-                        sh "git remote set-url origin https://${GITHUB_TOKEN}@github.com/lutece-platform/lutece.git"
+                        sh 'git remote set-url origin https://$GITHUB_TOKEN@github.com/lutece-platform/lutece.git'
                     }
 
                     // Read current version from root pom
@@ -923,11 +923,13 @@ def resolveGitHubRepo(String artifactId) {
         def orgs = [env.GITHUB_ORG_PLATFORM, env.GITHUB_ORG_PUBLIC]
 
         for (org in orgs) {
+            env.SEARCH_ORG = org
+            env.SEARCH_ARTIFACT = artifactId
             def searchJson = sh(
-                script: """curl -s \
-                    -H 'Authorization: token ${GITHUB_TOKEN}' \
-                    -H 'Accept: application/vnd.github.v3+json' \
-                    'https://api.github.com/search/repositories?q=org:${org}+${artifactId}+in:name&per_page=10'""",
+                script: 'curl -s \
+                    -H "Authorization: token ${GITHUB_TOKEN}" \
+                    -H "Accept: application/vnd.github.v3+json" \
+                    "https://api.github.com/search/repositories?q=org:${SEARCH_ORG}+${SEARCH_ARTIFACT}+in:name&per_page=10"',
                 returnStdout: true
             ).trim()
 
@@ -958,10 +960,12 @@ def resolveGitHubRepo(String artifactId) {
 def resolveDevBranch(String org, String repoName) {
     // Note: cette fonction est appelée depuis resolveGitHubRepo
     // qui fournit deja le contexte withCredentials(GITHUB_TOKEN)
+    env.BRANCH_ORG = org
+    env.BRANCH_REPO = repoName
     def branchesJson = sh(
-        script: """curl -s \
-            -H 'Authorization: token ${GITHUB_TOKEN}' \
-            'https://api.github.com/repos/${org}/${repoName}/branches?per_page=100'""",
+        script: 'curl -s \
+            -H "Authorization: token ${GITHUB_TOKEN}" \
+            "https://api.github.com/repos/${BRANCH_ORG}/${BRANCH_REPO}/branches?per_page=100"',
         returnStdout: true
     ).trim()
 
@@ -1011,10 +1015,14 @@ def releasePlugin(Map plugin) {
     withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
     dir(workDir) {
         // 1. Clone
-        def repoUrl = "https://${GITHUB_TOKEN}@github.com/${plugin.org}/${plugin.repoName}.git"
-        sh "git clone -b ${plugin.branch} --single-branch ${repoUrl} ."
-        sh "git config user.email '${params.GIT_USER_EMAIL}'"
-        sh "git config user.name '${params.GIT_USER_NAME}'"
+        env.PLUGIN_BRANCH = plugin.branch
+        env.PLUGIN_ORG = plugin.org
+        env.PLUGIN_REPO = plugin.repoName
+        sh 'git clone -b ${PLUGIN_BRANCH} --single-branch https://${GITHUB_TOKEN}@github.com/${PLUGIN_ORG}/${PLUGIN_REPO}.git .'
+        env.GIT_AUTHOR_EMAIL = params.GIT_USER_EMAIL
+        env.GIT_AUTHOR_NAME = params.GIT_USER_NAME
+        sh 'git config user.email "${GIT_AUTHOR_EMAIL}"'
+        sh 'git config user.name "${GIT_AUTHOR_NAME}"'
 
         // 2. Check packaging and run tests
         if (!params.SKIP_TESTS) {
