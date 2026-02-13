@@ -406,7 +406,7 @@ Dry-Run     : ${params.DRY_RUN}
                         }
 
                         sh """
-                            git add -A
+                            git add pom.xml */pom.xml
                             git commit -m "release: update versions to ${env.COMPUTED_RELEASE_VERSION}"
                         """
                     } else {
@@ -619,7 +619,7 @@ Dry-Run     : ${params.DRY_RUN}
                             "chore: restore SNAPSHOT after RC ${env.COMPUTED_RELEASE_VERSION}" :
                             "chore: prepare next development iteration ${env.COMPUTED_NEXT_SNAPSHOT}"
                         sh """
-                            git add -A
+                            git add pom.xml */pom.xml
                             git commit -m "${commitMsg}"
                             git push origin develop --tags
                         """
@@ -1034,7 +1034,7 @@ def releasePlugin(Map plugin) {
         sh """
             git add -A
             git commit -m "release: ${tagName}"
-            git tag -a ${tagName} -m "Release ${plugin.artifactId} ${plugin.releaseVersion}"
+            git tag -fa ${tagName} -m "Release ${plugin.artifactId} ${plugin.releaseVersion}"
         """
 
         // ── Phase 1: prepare (push branch + tag) ──
@@ -1152,7 +1152,7 @@ def releaseStarter(String starterName) {
     }
 
     // ── Phase 1: prepare (tag + push) ──
-    sh "git tag -a ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
+    sh "git tag -fa ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
     sh "git push origin develop --tags"
 
     // ── Phase 2: perform (deploy to Nexus) ──
