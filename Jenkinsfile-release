@@ -125,6 +125,14 @@ pipeline {
                     sh "git config user.email '${params.GIT_USER_EMAIL}'"
                     sh "git config user.name '${params.GIT_USER_NAME}'"
 
+                    // Create local develop branch (Jenkins SCM checkout leaves us in detached HEAD)
+                    sh "git checkout -b develop"
+
+                    // Set remote URL with GitHub token for push operations
+                    withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
+                        sh "git remote set-url origin https://${GITHUB_TOKEN}@github.com/lutece-platform/lutece.git"
+                    }
+
                     // Read current version from root pom
                     def pomContent = readFile('pom.xml')
                     def currentVersion = (pomContent =~ '<artifactId>lutece-parent</artifactId>\\s*\\n\\s*<version>([^<]+)</version>')[0][1]
