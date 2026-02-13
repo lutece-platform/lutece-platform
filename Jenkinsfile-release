@@ -66,11 +66,19 @@ pipeline {
             defaultValue: '1',
             description: 'Numéro de la Release Candidate (1, 2, 3...). Utilisé uniquement si RC_BUILD = true.'
         )
+        string(
+            name: 'GITHUB_CREDENTIAL_ID',
+            defaultValue: 'github-token',
+            description: 'ID du credential Jenkins contenant le token GitHub (type: Secret text).'
+        )
+        string(
+            name: 'MAVEN_SETTINGS_ID',
+            defaultValue: 'maven_settings_default',
+            description: 'ID du Config File Provider pour le settings.xml Maven.'
+        )
     }
 
     environment {
-        GITHUB_TOKEN        = credentials('github-token-lutece')
-        MAVEN_SETTINGS_XML  = credentials('maven-settings-lutece')
         GITHUB_ORG_PLATFORM = 'lutece-platform'
         GITHUB_ORG_PUBLIC   = 'lutece-secteur-public'
         RELEASE_REPORT      = "${WORKSPACE}/release-report.txt"
@@ -95,6 +103,13 @@ pipeline {
                     echo " Dry-Run : ${params.DRY_RUN}"
                     echo " RC Build: ${env.IS_RC}${env.IS_RC == 'true' ? ' (RC' + env.RC_NUM + ')' : ''}"
                     echo "=========================================="
+
+                    // Provision Maven settings.xml from Config File Provider
+                    configFileProvider([configFile(fileId: params.MAVEN_SETTINGS_ID, variable: 'MVN_SETTINGS_TMP')]) {
+                        sh "cp \${MVN_SETTINGS_TMP} ${WORKSPACE}/maven-settings.xml"
+                    }
+                    env.MAVEN_SETTINGS_XML = "${WORKSPACE}/maven-settings.xml"
+                    echo "Maven settings provisioned: ${env.MAVEN_SETTINGS_XML}"
 
                     // Read current version from root pom
                     def pomContent = readFile('pom.xml')
@@ -590,60 +605,74 @@ Dry-Run     : ${params.DRY_RUN}
     post {
         success {
             script {
-                def report = readFile(env.RELEASE_REPORT)
                 try {
+                    def report = fileExists(env.RELEASE_REPORT) ? readFile(env.RELEASE_REPORT) : 'No report generated.'
                     def rcInfo = env.IS_RC == 'true' ? '\nType: Release Candidate' : ''
-                    slackSend(
-                        channel: '#lutece-releases',
-                        color: 'good',
-                        message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS*
+                    try {
+                        slackSend(
+                            channel: '#lutece-releases',
+                            color: 'good',
+                            message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS*
 Target: ${params.RELEASE_TARGET}${rcInfo}
 Dry-Run: ${params.DRY_RUN}
 ${params.DRY_RUN ? '(Simulation only — no changes were pushed)' : ''}
 <${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
-                    )
+                        )
+                    } catch (Exception e) {
+                        echo "Slack notification skipped: ${e.message}"
+                    }
+                    try {
+                        emailext(
+                            subject: "Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS",
+                            body: report,
+                            recipientProviders: [culprits(), requestor()]
+                        )
+                    } catch (Exception e) {
+                        echo "Email notification skipped: ${e.message}"
+                    }
                 } catch (Exception e) {
-                    echo "Slack notification skipped: ${e.message}"
-                }
-                try {
-                    emailext(
-                        subject: "Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS",
-                        body: report,
-                        recipientProviders: [culprits(), requestor()]
-                    )
-                } catch (Exception e) {
-                    echo "Email notification skipped: ${e.message}"
+                    echo "Post-success actions skipped: ${e.message}"
                 }
             }
         }
         failure {
             script {
-                def report = readFile(env.RELEASE_REPORT)
                 try {
-                    slackSend(
-                        channel: '#lutece-releases',
-                        color: 'danger',
-                        message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION} — FAILED*
+                    def report = fileExists(env.RELEASE_REPORT) ? readFile(env.RELEASE_REPORT) : 'No report generated — pipeline failed early.'
+                    try {
+                        slackSend(
+                            channel: '#lutece-releases',
+                            color: 'danger',
+                            message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION ?: 'UNKNOWN'} — FAILED*
 Target: ${params.RELEASE_TARGET}
 Check the report for rollback actions required.
 <${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
-                    )
+                        )
+                    } catch (Exception e) {
+                        echo "Slack notification skipped: ${e.message}"
+                    }
+                    try {
+                        emailext(
+                            subject: "Lutece Release ${env.COMPUTED_RELEASE_VERSION ?: 'UNKNOWN'} — FAILED",
+                            body: report,
+                            recipientProviders: [culprits(), requestor()]
+                        )
+                    } catch (Exception e) {
+                        echo "Email notification skipped: ${e.message}"
+                    }
                 } catch (Exception e) {
-                    echo "Slack notification skipped: ${e.message}"
-                }
-                try {
-                    emailext(
-                        subject: "Lutece Release ${env.COMPUTED_RELEASE_VERSION} — FAILED",
-                        body: report,
-                        recipientProviders: [culprits(), requestor()]
-                    )
-                } catch (Exception e) {
-                    echo "Email notification skipped: ${e.message}"
+                    echo "Post-failure actions skipped: ${e.message}"
                 }
             }
         }
         always {
-            cleanWs(deleteDirs: true, patterns: [[pattern: 'plugin-releases/**', type: 'INCLUDE']])
+            script {
+                try {
+                    cleanWs(deleteDirs: true, patterns: [[pattern: 'plugin-releases/**', type: 'INCLUDE']])
+                } catch (Exception e) {
+                    echo "Workspace cleanup skipped: ${e.message}"
+                }
+            }
         }
     }
 }
@@ -810,45 +839,50 @@ def resolveGitHubRepo(String artifactId) {
         // Ajouter ici d'autres cas speciaux si necessaire
     ]
 
-    // 1. Check overrides first
-    if (REPO_OVERRIDES.containsKey(artifactId)) {
-        def override = REPO_OVERRIDES[artifactId]
-        def org = override[0]
-        def repoName = override[1]
-        def branch = resolveDevBranch(org, repoName)
-        echo "Resolved (override): ${artifactId} -> ${org}/${repoName} (${branch})"
-        return [org: org, repoName: repoName, branch: branch]
-    }
+    def result = null
 
-    // 2. Search via GitHub API
-    def orgs = [env.GITHUB_ORG_PLATFORM, env.GITHUB_ORG_PUBLIC]
+    withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
+        // 1. Check overrides first
+        if (REPO_OVERRIDES.containsKey(artifactId)) {
+            def override = REPO_OVERRIDES[artifactId]
+            def org = override[0]
+            def repoName = override[1]
+            def branch = resolveDevBranch(org, repoName)
+            echo "Resolved (override): ${artifactId} -> ${org}/${repoName} (${branch})"
+            result = [org: org, repoName: repoName, branch: branch]
+            return
+        }
 
-    for (org in orgs) {
-        def searchJson = sh(
-            script: """curl -s \
-                -H 'Authorization: token ${env.GITHUB_TOKEN}' \
-                -H 'Accept: application/vnd.github.v3+json' \
-                'https://api.github.com/search/repositories?q=org:${org}+${artifactId}+in:name&per_page=10'""",
-            returnStdout: true
-        ).trim()
+        // 2. Search via GitHub API
+        def orgs = [env.GITHUB_ORG_PLATFORM, env.GITHUB_ORG_PUBLIC]
 
-        def searchResult = new groovy.json.JsonSlurper().parseText(searchJson)
-        if (searchResult.total_count > 0) {
-            // Find the repo whose name ends with the artifactId
-            // (handles the lutece-{category}-{artifactId} prefix convention)
-            def match = searchResult.items.find { repo ->
-                repo.name == artifactId || repo.name.endsWith("-${artifactId}")
-            }
-            if (match) {
-                def branch = resolveDevBranch(org, match.name)
-                echo "Resolved: ${artifactId} -> ${org}/${match.name} (${branch})"
-                return [org: org, repoName: match.name, branch: branch]
+        for (org in orgs) {
+            def searchJson = sh(
+                script: """curl -s \
+                    -H 'Authorization: token ${GITHUB_TOKEN}' \
+                    -H 'Accept: application/vnd.github.v3+json' \
+                    'https://api.github.com/search/repositories?q=org:${org}+${artifactId}+in:name&per_page=10'""",
+                returnStdout: true
+            ).trim()
+
+            def searchResult = new groovy.json.JsonSlurper().parseText(searchJson)
+            if (searchResult.total_count > 0) {
+                def match = searchResult.items.find { repo ->
+                    repo.name == artifactId || repo.name.endsWith("-${artifactId}")
+                }
+                if (match) {
+                    def branch = resolveDevBranch(org, match.name)
+                    echo "Resolved: ${artifactId} -> ${org}/${match.name} (${branch})"
+                    result = [org: org, repoName: match.name, branch: branch]
+                    return
+                }
             }
         }
+
+        echo "WARNING: Repository not found for artifactId: ${artifactId}"
     }
 
-    echo "WARNING: Repository not found for artifactId: ${artifactId}"
-    return null
+    return result
 }
 
 /**
@@ -856,9 +890,11 @@ def resolveGitHubRepo(String artifactId) {
  * Priority: develop > develop_core8 > develop8 > develop8.x > main > master
  */
 def resolveDevBranch(String org, String repoName) {
+    // Note: cette fonction est appelée depuis resolveGitHubRepo
+    // qui fournit deja le contexte withCredentials(GITHUB_TOKEN)
     def branchesJson = sh(
         script: """curl -s \
-            -H 'Authorization: token ${env.GITHUB_TOKEN}' \
+            -H 'Authorization: token ${GITHUB_TOKEN}' \
             'https://api.github.com/repos/${org}/${repoName}/branches?per_page=100'""",
         returnStdout: true
     ).trim()
@@ -888,7 +924,6 @@ def resolveDevBranch(String org, String repoName) {
  */
 def releasePlugin(Map plugin) {
     def workDir = "${env.PLUGIN_WORK_DIR}/${plugin.artifactId}"
-    def repoUrl = "https://${env.GITHUB_TOKEN}@github.com/${plugin.org}/${plugin.repoName}.git"
     def tagName = "${plugin.artifactId}-${plugin.releaseVersion}"
     def isRc = env.IS_RC == 'true'
 
@@ -907,8 +942,10 @@ def releasePlugin(Map plugin) {
         return
     }
 
+    withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
     dir(workDir) {
         // 1. Clone
+        def repoUrl = "https://${GITHUB_TOKEN}@github.com/${plugin.org}/${plugin.repoName}.git"
         sh "git clone -b ${plugin.branch} --single-branch ${repoUrl} ."
         sh "git config user.email 'jenkins@lutece.paris.fr'"
         sh "git config user.name 'Jenkins Release Bot'"
@@ -986,6 +1023,7 @@ def releasePlugin(Map plugin) {
             """
         }
     }
+    } // withCredentials
 
     echo "Released ${plugin.artifactId} ${plugin.releaseVersion} successfully."
 }
