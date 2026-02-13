@@ -193,8 +193,8 @@ sont disponibles :
 | `SKIP_PLUGIN_RELEASES` | boolean  | `false` | Sauter la release des plugins (utile si deja faite manuellement). |
 | `SKIP_TESTS`           | boolean  | `false` | Sauter les tests des plugins (non recommande). |
 | `PLUGIN_WHITELIST`     | string   | *(vide)* | Liste d'artifactIds a releaser, separes par des virgules. Si vide, tous les plugins SNAPSHOT de la cible seront releasees. |
-| `RC_BUILD`             | boolean  | `false` | Release Candidate : cree une version `X.Y.Z-RCn`. Pas de merge sur master, retour au SNAPSHOT courant apres deploy. |
-| `RC_NUMBER`            | string   | `1`     | Numero de la Release Candidate (1, 2, 3...). Utilise uniquement si `RC_BUILD = true`. |
+| `RC_BUILD`             | boolean  | `false` | Release Candidate : cree une version `X.Y.Z-RC-NN` (zero-padded). Pas de merge sur master, retour au SNAPSHOT courant apres deploy. |
+| `RC_NUMBER`            | string   | `1`     | Numero de la Release Candidate (1, 2, 3...). Formate avec zero-padding : `1` → `RC-01`, `2` → `RC-02`. Utilise uniquement si `RC_BUILD = true`. |
 
 ### Valeurs de RELEASE_TARGET
 
@@ -203,7 +203,7 @@ sont disponibles :
 | `forms-starter`       | Plugins du forms-starter, puis forms-starter |
 | `appointment-starter` | Plugins de l'appointment-starter, puis appointment-starter |
 | `editorial-starter`   | Plugins de l'editorial-starter, puis editorial-starter |
-| `lutece-starter`      | **Tous les plugins** des 3 starters + plugins supplementaires, puis les 3 starters en parallele, puis lutece-starter |
+| `lutece-starter`      | Uniquement lutece-starter (suppose que les 3 starters specialises et leurs plugins sont deja releases) |
 | `lutece-bom`          | Uniquement le BOM (suppose que tout le reste est deja release) |
 | `all`                 | **Tout** : plugins + 3 starters + lutece-starter + BOM |
 
@@ -233,16 +233,16 @@ le parametre `RC_BUILD = true`.
 
 ```
 Version SNAPSHOT courante : 8.0.0-SNAPSHOT
-RC_NUMBER = 1             → version RC = 8.0.0-RC1
-RC_NUMBER = 2             → version RC = 8.0.0-RC2
+RC_NUMBER = 1             → version RC = 8.0.0-RC-01
+RC_NUMBER = 2             → version RC = 8.0.0-RC-02
 ```
 
 **Differences entre RC et release stable :**
 
 | Aspect | Release stable | Release Candidate |
 |--------|---------------|-------------------|
-| Version | `8.0.0` | `8.0.0-RC1` |
-| Tag | `plugin-forms-8.0.0` | `plugin-forms-8.0.0-RC1` |
+| Version | `8.0.0` | `8.0.0-RC-01` |
+| Tag | `plugin-forms-8.0.0` | `plugin-forms-8.0.0-RC-01` |
 | Merge sur master | Oui | **Non** |
 | Deploy depuis | `master` | `develop` |
 | Apres deploy | Version → `8.0.1-SNAPSHOT` (increment patch) | Version → `8.0.0-SNAPSHOT` (restauration, pas d'increment) |
@@ -252,9 +252,9 @@ RC_NUMBER = 2             → version RC = 8.0.0-RC2
 ```
  develop
     │
-    ├── RC1: 8.0.0-SNAPSHOT → 8.0.0-RC1 → deploy → 8.0.0-SNAPSHOT
+    ├── RC1: 8.0.0-SNAPSHOT → 8.0.0-RC-01 → deploy → 8.0.0-SNAPSHOT
     │        (corrections...)
-    ├── RC2: 8.0.0-SNAPSHOT → 8.0.0-RC2 → deploy → 8.0.0-SNAPSHOT
+    ├── RC2: 8.0.0-SNAPSHOT → 8.0.0-RC-02 → deploy → 8.0.0-SNAPSHOT
     │        (validation OK)
     └── Stable: 8.0.0-SNAPSHOT → 8.0.0 → merge master → deploy → 8.0.1-SNAPSHOT
 ```
@@ -352,7 +352,7 @@ DRY_RUN        = false
 > **Attention :** les tests existent pour une raison. Ne sauter les tests
 > qu'en cas d'urgence absolue et apres validation manuelle.
 
-### 6.7 — Premiere Release Candidate (RC1)
+### 6.7 — Premiere Release Candidate (RC-01)
 
 ```
 RELEASE_TARGET = all
@@ -362,15 +362,15 @@ DRY_RUN        = false
 ```
 
 Deroulement :
-1. Chaque plugin SNAPSHOT est release en version `X.Y.Z-RC1`
+1. Chaque plugin SNAPSHOT est release en version `X.Y.Z-RC-01`
 2. Deploy depuis `develop` (pas de merge sur `master`)
-3. Tag : `plugin-forms-4.0.0-RC1`, `forms-starter-8.0.0-RC1`, etc.
+3. Tag : `plugin-forms-4.0.0-RC-01`, `forms-starter-8.0.0-RC-01`, etc.
 4. Apres deploy, chaque composant revient a sa version SNAPSHOT d'origine
 5. On peut continuer a developper sur `develop`
 
 ### 6.8 — Deuxieme RC apres corrections
 
-Apres corrections de bugs detectes sur la RC1 :
+Apres corrections de bugs detectes sur la RC-01 :
 
 ```
 RELEASE_TARGET = all
@@ -379,7 +379,7 @@ RC_NUMBER      = 2
 DRY_RUN        = false
 ```
 
-Meme processus, versions `X.Y.Z-RC2`. Les tags RC1 restent en place.
+Meme processus, versions `X.Y.Z-RC-02`. Les tags RC-01 restent en place.
 
 ### 6.9 — Release stable apres validation de la RC
 
@@ -422,7 +422,7 @@ Seuls les plugins du `forms-starter` seront en RC.
 
 | Variable | Release stable | Release Candidate |
 |----------|---------------|-------------------|
-| `COMPUTED_RELEASE_VERSION` | `8.0.0` | `8.0.0-RC1` |
+| `COMPUTED_RELEASE_VERSION` | `8.0.0` | `8.0.0-RC-01` |
 | `COMPUTED_NEXT_SNAPSHOT` | `8.0.1-SNAPSHOT` | `8.0.0-SNAPSHOT` (identique a la version d'origine) |
 | `ORIGINAL_SNAPSHOT_VERSION` | *(non utilisee)* | `8.0.0-SNAPSHOT` (sauvegardee pour restauration) |
 | `BASE_RELEASE_VERSION` | *(non utilisee)* | `8.0.0` (version sans suffixe RC) |
@@ -432,7 +432,10 @@ Seuls les plugins du `forms-starter` seront en RC.
 | Cible            | Starters resolus |
 |------------------|-----------------|
 | `forms-starter`  | `forms-starter` |
-| `lutece-starter` | `forms-starter, appointment-starter, editorial-starter, lutece-starter` |
+| `appointment-starter` | `appointment-starter` |
+| `editorial-starter` | `editorial-starter` |
+| `lutece-starter` | `lutece-starter` |
+| `lutece-bom`     | `lutece-bom` |
 | `all`            | `forms-starter, appointment-starter, editorial-starter, lutece-starter, lutece-bom` |
 
 ### Stage 1 — Detect SNAPSHOT Plugins
@@ -507,7 +510,7 @@ Batch 2: [module-workflow-forms, plugin-address, ...]
 plugins du batch continuent normalement. Le pipeline passe en etat
 `UNSTABLE` mais ne s'arrete pas.
 
-**En mode RC :** chaque plugin est release en version `X.Y.Z-RCn` au lieu
+**En mode RC :** chaque plugin est release en version `X.Y.Z-RC-NN` au lieu
 de `X.Y.Z`. Le deploy s'effectue depuis `develop` (pas de merge sur master)
 et la version SNAPSHOT d'origine est restauree apres le deploy. Voir
 [section 8](#8-processus-de-release-dun-plugin) pour le detail du processus RC.
@@ -742,11 +745,11 @@ mvn lutece:exploded antrun:run -Dlutece-test-hsql test
 #### Etape 3 — Version RC
 
 ```bash
-mvn versions:set -DnewVersion=4.0.0-RC1 -DgenerateBackupPoms=false
+mvn versions:set -DnewVersion=4.0.0-RC-01 -DgenerateBackupPoms=false
 # Mise a jour du descripteur XML
 for xmlFile in webapp/WEB-INF/plugins/*.xml; do
     [ -f "$xmlFile" ] || continue
-    sed -i 's|<version>[^<]*</version>|<version>4.0.0-RC1</version>|' "$xmlFile"
+    sed -i 's|<version>[^<]*</version>|<version>4.0.0-RC-01</version>|' "$xmlFile"
 done
 ```
 
@@ -754,8 +757,8 @@ done
 
 ```bash
 git add -A
-git commit -m "release: plugin-forms-4.0.0-RC1"
-git tag -a plugin-forms-4.0.0-RC1 -m "Release Candidate plugin-forms 4.0.0-RC1"
+git commit -m "release: plugin-forms-4.0.0-RC-01"
+git tag -fa plugin-forms-4.0.0-RC-01 -m "Release Candidate plugin-forms 4.0.0-RC-01"
 ```
 
 #### Etape 5 — Prepare (push branch + tag)
@@ -783,7 +786,7 @@ for xmlFile in webapp/WEB-INF/plugins/*.xml; do
     sed -i 's|<version>[^<]*</version>|<version>4.0.0-SNAPSHOT</version>|' "$xmlFile"
 done
 git add -A
-git commit -m "chore: restore SNAPSHOT after RC plugin-forms-4.0.0-RC1"
+git commit -m "chore: restore SNAPSHOT after RC plugin-forms-4.0.0-RC-01"
 git push origin develop
 ```
 
@@ -801,7 +804,7 @@ nexus:    ───────────────────────�
                                                             │
 master:   ─────────────────────────────────────── (inchange) │
                                                             │
-tags:     ──────────────────────────────── plugin-forms-4.0.0-RC1
+tags:     ──────────────────────────────── plugin-forms-4.0.0-RC-01
 ```
 
 ---
@@ -815,20 +818,26 @@ est applique.
 ### Etape 1 — Prepare (tag + push)
 
 ```bash
+# Supprime le tag local s'il existe (idempotence pour les re-runs)
+git tag -d forms-starter-8.0.0 2>/dev/null || true
 git tag -a forms-starter-8.0.0 -m "Release forms-starter 8.0.0"
-git push origin develop --tags
+git push origin forms-starter-8.0.0
 ```
 
-Le tag est cree et pousse sur `develop` avant tout deploy.
+Le tag est cree et pousse avant tout deploy. Seul le tag est pousse
+(la branche develop a deja ete poussee au Stage 4).
 
 ### Etape 2 — Perform (deploy du module)
 
 ```bash
-mvn clean deploy -pl forms-starter -am -DskipTests -DperformRelease=true
+# Install le module et ses dependances reactor (sans deployer sur Nexus)
+mvn clean install -pl forms-starter -am -DskipTests -DperformRelease=true
+# Deploy uniquement le module cible (sans -am pour eviter de re-deployer les dependances)
+mvn deploy -pl forms-starter -DskipTests -DperformRelease=true
 ```
 
-L'option `-pl forms-starter -am` permet de deployer uniquement ce module
-(et ses dependances dans le reactor) sans toucher aux autres.
+Le deploy est separe en deux commandes pour eviter que `-am` ne re-deploie
+des modules deja publies sur Nexus (ce qui provoquerait une erreur 400).
 
 > **Si le deploy echoue ici**, le rollback est simple : supprimer le tag.
 > Master n'a pas ete touche.
@@ -864,14 +873,16 @@ En mode RC, le processus des starters est adapte : pas de merge sur master
 #### Etape 1 — Prepare (tag + push)
 
 ```bash
-git tag -a forms-starter-8.0.0-RC1 -m "Release Candidate forms-starter 8.0.0-RC1"
-git push origin develop --tags
+git tag -d forms-starter-8.0.0-RC-01 2>/dev/null || true
+git tag -a forms-starter-8.0.0-RC-01 -m "Release Candidate forms-starter 8.0.0-RC-01"
+git push origin forms-starter-8.0.0-RC-01
 ```
 
 #### Etape 2 — Perform (deploy depuis develop)
 
 ```bash
-mvn clean deploy -pl forms-starter -am -DskipTests -DperformRelease=true
+mvn clean install -pl forms-starter -am -DskipTests -DperformRelease=true
+mvn deploy -pl forms-starter -DskipTests -DperformRelease=true
 ```
 
 Le deploy s'effectue **directement depuis la branche `develop`**.
@@ -1127,10 +1138,10 @@ Si necessaire, creer une branche de release temporaire et adapter le script.
 
 **R:** La Release Candidate (RC) est une pre-release pour validation. Les
 differences principales sont :
-- La version porte le suffixe `-RCn` (ex: `8.0.0-RC1`)
+- La version porte le suffixe `-RC-NN` (ex: `8.0.0-RC-01`)
 - Aucun merge sur `master` — le deploy s'effectue depuis `develop`
 - Apres le deploy, la version SNAPSHOT d'origine est restauree (pas d'increment)
-- On peut lancer plusieurs RC successives (RC1, RC2, RC3...) avant la release stable
+- On peut lancer plusieurs RC successives (RC-01, RC-02, RC-03...) avant la release stable
 
 ### Q: Peut-on faire une RC sur un seul starter ?
 
@@ -1162,9 +1173,9 @@ deploy, puis passage en version SNAPSHOT suivante (avec increment du patch).
 la release stable. Exemple apres un cycle complet :
 
 ```
-plugin-forms-4.0.0-RC1    (tag RC1)
-plugin-forms-4.0.0-RC2    (tag RC2)
-plugin-forms-4.0.0        (tag stable)
+plugin-forms-4.0.0-RC-01    (tag RC-01)
+plugin-forms-4.0.0-RC-02    (tag RC-02)
+plugin-forms-4.0.0          (tag stable)
 ```
 
 ### Q: Que se passe-t-il si une RC echoue ?
