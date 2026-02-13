@@ -623,7 +623,7 @@ Dry-Run     : ${params.DRY_RUN}
                         sh """
                             git add pom.xml */pom.xml
                             git commit -m "${commitMsg}"
-                            git push origin develop --tags
+                            git push origin develop
                         """
                     }
 
@@ -1158,7 +1158,10 @@ def releaseStarter(String starterName) {
     sh "git push origin ${tagName}"
 
     // ── Phase 2: perform (deploy to Nexus) ──
-    sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true"
+    // Build the module and its reactor dependencies (install only), then deploy ONLY the target module.
+    // Using -am with deploy would re-deploy already-published dependencies → Nexus 400 Bad Request.
+    sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean install -pl ${starterName} -am -DskipTests -DperformRelease=true"
+    sh "mvn -s ${env.MAVEN_SETTINGS_XML} deploy -pl ${starterName} -DskipTests -DperformRelease=true"
 
     // ── Phase 3: promote (merge to master — stable only) ──
     if (!isRc) {
