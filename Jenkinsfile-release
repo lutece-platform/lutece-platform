@@ -774,7 +774,7 @@ def resolveStartersToRelease(String target) {
         case 'editorial-starter':
             return 'editorial-starter'
         case 'lutece-starter':
-            return 'forms-starter,appointment-starter,editorial-starter,lutece-starter'
+            return 'lutece-starter'
         case 'lutece-bom':
             return 'lutece-bom'
         case 'all':
@@ -1164,6 +1164,8 @@ def releaseStarter(String starterName) {
     }
 
     // ── Phase 1: prepare (tag + push tag only — develop already pushed in Stage 4) ──
+    // Delete local tag if it exists (git fetch --tags brings back remote tags on re-runs)
+    sh "git tag -d ${tagName} 2>/dev/null || true"
     sh "git tag -a ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
     sh "git push origin ${tagName}"
 
