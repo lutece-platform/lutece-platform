@@ -206,7 +206,7 @@ Dry-Run     : ${params.DRY_RUN}
                     // Stable mode: version = X.Y.Z, next = X.Y.(Z+1)-SNAPSHOT
                     def isRc = env.IS_RC == 'true'
                     def rcNum = env.RC_NUM
-                    def pluginListJson = groovy.json.JsonOutput.toJson(filtered.collect { plugin ->
+                    def pluginList = filtered.collect { plugin ->
                         def baseVer = plugin.version.replace('-SNAPSHOT', '')
                         def relVer = isRc ? "${baseVer}-RC-${rcNum.padLeft(2, '0')}" : baseVer
                         def nextVer = isRc ? plugin.version : computeNextSnapshot(baseVer)
@@ -217,8 +217,9 @@ Dry-Run     : ${params.DRY_RUN}
                             releaseVersion: relVer,
                             nextSnapshot: nextVer
                         ]
-                    })
-                    env.SNAPSHOT_PLUGINS_JSON = pluginListJson
+                    }
+                    writeJSON file: "${WORKSPACE}/snapshot-plugins.json", json: pluginList
+                    env.SNAPSHOT_PLUGINS_JSON = readFile("${WORKSPACE}/snapshot-plugins.json")
 
                     appendReport("SNAPSHOT Plugins Detected: ${filtered.size()}")
                     filtered.each { appendReport("  - ${it.artifactId} : ${it.version}") }
@@ -236,7 +237,7 @@ Dry-Run     : ${params.DRY_RUN}
             }
             steps {
                 script {
-                    def plugins = new groovy.json.JsonSlurper().parseText(env.SNAPSHOT_PLUGINS_JSON)
+                    def plugins = readJSON text: env.SNAPSHOT_PLUGINS_JSON
                     def resolved = []
 
                     plugins.each { plugin ->
@@ -253,7 +254,8 @@ Dry-Run     : ${params.DRY_RUN}
                         }
                     }
 
-                    env.RESOLVED_PLUGINS_JSON = groovy.json.JsonOutput.toJson(resolved)
+                    writeJSON file: "${WORKSPACE}/resolved-plugins.json", json: resolved
+                    env.RESOLVED_PLUGINS_JSON = readFile("${WORKSPACE}/resolved-plugins.json")
                     env.RESOLVED_PLUGIN_COUNT = "${resolved.size()}"
                     echo "Resolved ${resolved.size()} / ${plugins.size()} plugin repos"
                 }
@@ -271,7 +273,7 @@ Dry-Run     : ${params.DRY_RUN}
             }
             steps {
                 script {
-                    def plugins = new groovy.json.JsonSlurper().parseText(env.RESOLVED_PLUGINS_JSON)
+                    def plugins = readJSON text: env.RESOLVED_PLUGINS_JSON
                     def batchSize = 5
                     def batches = plugins.collate(batchSize)
                     def failedPlugins = []
@@ -286,14 +288,14 @@ Dry-Run     : ${params.DRY_RUN}
                                 try {
                                     releasePlugin(plugin)
                                     releasedPlugins.add(plugin.artifactId)
-                                } catch (Exception e) {
+                                } catch (Throwable e) {
                                     echo "FAILED: ${plugin.artifactId} — ${e.message}"
                                     failedPlugins.add([artifactId: plugin.artifactId, error: e.message])
                                     appendReport("FAILED: ${plugin.artifactId} — ${e.message}")
                                     try {
                                         rollbackPlugin(plugin)
                                         appendReport("ROLLBACK OK: ${plugin.artifactId}")
-                                    } catch (Exception re) {
+                                    } catch (Throwable re) {
                                         appendReport("ROLLBACK FAILED: ${plugin.artifactId} — manual intervention required: ${re.message}")
                                     }
                                 }
@@ -345,7 +347,7 @@ Dry-Run     : ${params.DRY_RUN}
 
                     // Update all SNAPSHOT plugin properties
                     if (!params.SKIP_PLUGIN_RELEASES) {
-                        def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? new groovy.json.JsonSlurper().parseText(env.RESOLVED_PLUGINS_JSON) : []
+                        def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? readJSON text: env.RESOLVED_PLUGINS_JSON : []
                         def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
 
                         resolvedPlugins.each { plugin ->
@@ -450,7 +452,7 @@ Dry-Run     : ${params.DRY_RUN}
                             try {
                                 releaseStarter(starter)
                                 appendReport("Starter Released: ${starter} ${env.COMPUTED_RELEASE_VERSION}")
-                            } catch (Exception e) {
+                            } catch (Throwable e) {
                                 appendReport("FAILED Starter: ${starter} — ${e.message}")
                                 error("Failed to release ${starter}: ${e.message}")
                             }
@@ -542,7 +544,7 @@ Dry-Run     : ${params.DRY_RUN}
 
                         // Update all released plugin properties
                         if (env.RESOLVED_PLUGINS_JSON) {
-                            def resolvedPlugins = new groovy.json.JsonSlurper().parseText(env.RESOLVED_PLUGINS_JSON)
+                            def resolvedPlugins = readJSON text: env.RESOLVED_PLUGINS_JSON
                             def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
 
                             resolvedPlugins.each { plugin ->
@@ -618,7 +620,7 @@ Dry-Run: ${params.DRY_RUN}
 ${params.DRY_RUN ? '(Simulation only — no changes were pushed)' : ''}
 <${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
                         )
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         echo "Slack notification skipped: ${e.message}"
                     }
                     try {
@@ -627,10 +629,10 @@ ${params.DRY_RUN ? '(Simulation only — no changes were pushed)' : ''}
                             body: report,
                             recipientProviders: [culprits(), requestor()]
                         )
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         echo "Email notification skipped: ${e.message}"
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     echo "Post-success actions skipped: ${e.message}"
                 }
             }
@@ -648,7 +650,7 @@ Target: ${params.RELEASE_TARGET}
 Check the report for rollback actions required.
 <${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
                         )
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         echo "Slack notification skipped: ${e.message}"
                     }
                     try {
@@ -657,10 +659,10 @@ Check the report for rollback actions required.
                             body: report,
                             recipientProviders: [culprits(), requestor()]
                         )
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         echo "Email notification skipped: ${e.message}"
                     }
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     echo "Post-failure actions skipped: ${e.message}"
                 }
             }
@@ -669,7 +671,7 @@ Check the report for rollback actions required.
             script {
                 try {
                     cleanWs(deleteDirs: true, patterns: [[pattern: 'plugin-releases/**', type: 'INCLUDE']])
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     echo "Workspace cleanup skipped: ${e.message}"
                 }
             }
@@ -865,7 +867,7 @@ def resolveGitHubRepo(String artifactId) {
                 returnStdout: true
             ).trim()
 
-            def searchResult = new groovy.json.JsonSlurper().parseText(searchJson)
+            def searchResult = readJSON text: searchJson
             if (searchResult.total_count > 0) {
                 def match = searchResult.items.find { repo ->
                     repo.name == artifactId || repo.name.endsWith("-${artifactId}")
@@ -899,7 +901,7 @@ def resolveDevBranch(String org, String repoName) {
         returnStdout: true
     ).trim()
 
-    def branches = new groovy.json.JsonSlurper().parseText(branchesJson)
+    def branches = readJSON text: branchesJson
     def branchNames = branches.collect { it.name }
 
     def priorities = ['develop', 'develop_core8', 'develop8', 'develop8.x']
@@ -1052,7 +1054,7 @@ def rollbackPlugin(Map plugin) {
                 git reset --hard HEAD~1
                 git push origin master --force
             """
-        } catch (Exception e) {
+        } catch (Throwable e) {
             echo "WARNING: Could not reset master for ${plugin.artifactId}: ${e.message}"
         }
 
@@ -1063,7 +1065,7 @@ def rollbackPlugin(Map plugin) {
                 git reset --hard HEAD~1
                 git push origin ${plugin.branch} --force
             """
-        } catch (Exception e) {
+        } catch (Throwable e) {
             echo "WARNING: Could not reset ${plugin.branch} for ${plugin.artifactId}: ${e.message}"
         }
 
@@ -1073,7 +1075,7 @@ def rollbackPlugin(Map plugin) {
                 git tag -d ${tagName} || true
                 git push origin :refs/tags/${tagName} || true
             """
-        } catch (Exception e) {
+        } catch (Throwable e) {
             echo "WARNING: Could not delete tag ${tagName}: ${e.message}"
         }
     }
