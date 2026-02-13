@@ -147,7 +147,7 @@
 
         <!-- Authentification -->
         <lutece.plugin-mylutece.version>5.0.0</lutece.plugin-mylutece.version>
-        <lutece.mylutece-users.version>2.0.0</lutece.mylutece-users.version>
+        <lutece.module-mylutece-users.version>2.0.0</lutece.module-mylutece-users.version>
         <lutece.plugin-automaticroleprovider.version>2.0.0</lutece.plugin-automaticroleprovider.version>
         <lutece.module-mylutece-database.version>7.0.0</lutece.module-mylutece-database.version>
         <lutece.module-mylutece-oauth2.version>3.0.0</lutece.module-mylutece-oauth2.version>
@@ -179,7 +179,7 @@
         <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
         <lutece.plugin-liquibase.version>2.0.0</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.0.1</lutece.library-sql-utils.version>
-        <lutece.configsource-vault.version>2.0.0</lutece.configsource-vault.version>
+        <lutece.library-configsource-vault.version>2.0.0</lutece.library-configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0-SNAPSHOT</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.0.0</lutece.plugin-rest.version>

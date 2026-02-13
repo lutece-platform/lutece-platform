@@ -103,13 +103,6 @@
                 <version>${lutece.library-lutece-resources.version}</version>
                 <type>jar</type>
             </dependency>
-            <!-- The library-lutece-unit-testing dependency is already defined in the global POM -->
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>library-lutece-unit-testing</artifactId>
-                <type>jar</type>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>library-utils</artifactId>
@@ -264,11 +257,11 @@
                 <type>lutece-plugin</type>
             </dependency>
             <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>mylutece-users</artifactId>
-                <version>${lutece.mylutece-users.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-mylutece-users</artifactId>
+	            <version>${lutece.module-mylutece-users.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-automaticroleprovider</artifactId>
@@ -493,12 +486,6 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>library-configsource-vault</artifactId>
-                <version>${lutece.configsource-vault.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-systeminfo</artifactId>
                 <version>${lutece.plugin-systeminfo.version}</version>
                 <type>lutece-plugin</type>
@@ -507,13 +494,6 @@
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-matomo</artifactId>
                 <version>${lutece.plugin-matomo.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-            <!-- Remplace la gestion des daemons par quartz-scheduler pour les environnements en cluster -->
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>plugin-quartz-scheduler</artifactId>
-                <version>${lutece.plugin-quartz-scheduler.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
             <dependency>
@@ -676,6 +656,33 @@
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-verifybackurl</artifactId>
                 <version>${lutece.plugin-verifybackurl.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+
+            <!-- ================================================== -->
+            <!-- Hors starters : artefacts geres par le BOM mais    -->
+            <!-- non inclus dans aucun starter (test, optionnel,    -->
+            <!-- ou pas encore pret pour la release)                -->
+            <!-- ================================================== -->
+            <!-- Dependance de test heritee du global POM (pas de version ici) -->
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>library-lutece-unit-testing</artifactId>
+                <type>jar</type>
+                <scope>test</scope>
+            </dependency>
+            <!-- Configuration externalisee via HashiCorp Vault (optionnel) -->
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>library-configsource-vault</artifactId>
+                <version>${lutece.library-configsource-vault.version}</version>
+                <type>jar</type>
+            </dependency>
+            <!-- Remplacement des daemons par Quartz pour les environnements en cluster (SNAPSHOT) -->
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-quartz-scheduler</artifactId>
+                <version>${lutece.plugin-quartz-scheduler.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
         </dependencies>

@@ -17,15 +17,15 @@
     </properties>
 
     <dependencies>
-        <!-- Core Profile -->
+        <!-- ================================================== -->
+        <!-- Core & Libraries                                   -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece</groupId>
             <artifactId>lutece-core</artifactId>
             <version>${lutece.core.version}</version>
             <type>lutece-core</type>
         </dependency>
-
-        <!-- Core libraries -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-lucene</artifactId>
@@ -68,8 +68,18 @@
             <version>${lutece.library-freemarker.version}</version>
             <type>jar</type>
         </dependency>
-
-        <!-- Liquibase -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-signrequest</artifactId>
+            <version>${lutece.library-signrequest.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-jwt</artifactId>
+            <version>${lutece.library-jwt.version}</version>
+            <type>jar</type>
+        </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-liquibase</artifactId>
@@ -77,7 +87,9 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Editorial Profile -->
+        <!-- ================================================== -->
+        <!-- Editorial                                          -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-html</artifactId>
@@ -139,7 +151,9 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- From v7 editorial-starter -->
+        <!-- ================================================== -->
+        <!-- Plugins utilitaires                                -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-rest</artifactId>
@@ -163,18 +177,6 @@
             <artifactId>plugin-sitelabels</artifactId>
             <version>${lutece.plugin-sitelabels.version}</version>
             <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>library-signrequest</artifactId>
-            <version>${lutece.library-signrequest.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>library-jwt</artifactId>
-            <version>${lutece.library-jwt.version}</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

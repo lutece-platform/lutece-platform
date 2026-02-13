@@ -17,15 +17,15 @@
     </properties>
 
     <dependencies>
-        <!-- Core Profile -->
+        <!-- ================================================== -->
+        <!-- Core & Libraries                                   -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece</groupId>
             <artifactId>lutece-core</artifactId>
             <version>${lutece.core.version}</version>
             <type>lutece-core</type>
         </dependency>
-
-        <!-- Core libraries -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-lucene</artifactId>
@@ -68,8 +68,6 @@
             <version>${lutece.library-freemarker.version}</version>
             <type>jar</type>
         </dependency>
-
-        <!-- Liquibase -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-liquibase</artifactId>
@@ -77,7 +75,10 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Appointment Profile
+        <!-- ================================================== -->
+        <!-- Appointment                                        -->
+        <!-- ================================================== -->
+        <!--
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-appointment</artifactId>

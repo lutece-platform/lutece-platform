@@ -17,14 +17,15 @@
     </properties>
 
     <dependencies>
-        <!-- Core Profile -->
+        <!-- ================================================== -->
+        <!-- Core & Libraries                                   -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece</groupId>
             <artifactId>lutece-core</artifactId>
             <version>${lutece.core.version}</version>
             <type>lutece-core</type>
         </dependency>
-
         <!-- This one is NOT in test scope -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
@@ -32,8 +33,6 @@
             <version>${lutece.library-lutece-unit-testing-common.version}</version>
             <type>jar</type>
         </dependency>
-
-        <!-- Core libraries -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-lucene</artifactId>
@@ -94,8 +93,46 @@
             <version>${lutece.library-utils.version}</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-core-utils</artifactId>
+            <version>${lutece.library-core-utils.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-httpaccess</artifactId>
+            <version>${lutece.library-httpaccess.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-signrequest</artifactId>
+            <version>${lutece.library-signrequest.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-jwt</artifactId>
+            <version>${lutece.library-jwt.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.tools</groupId>
+            <artifactId>library-sql-utils</artifactId>
+            <version>${lutece.library-sql-utils.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-liquibase</artifactId>
+            <version>${lutece.plugin-liquibase.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
 
-        <!-- Forms Profile -->
+        <!-- ================================================== -->
+        <!-- Forms                                              -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-forms</artifactId>
@@ -157,7 +194,9 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Address -->
+        <!-- ================================================== -->
+        <!-- Address & Cartography                              -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-address</artifactId>
@@ -176,14 +215,10 @@
             <version>${lutece.module-genericattributes-address.version}</version>
             <type>lutece-plugin</type>
         </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-rest</artifactId>
-            <version>${lutece.plugin-rest.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
 
-        <!-- GRU -->
+        <!-- ================================================== -->
+        <!-- GRU (Gestion de la Relation Usager)                -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-modulenotifygrumappingmanager</artifactId>
@@ -221,7 +256,65 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Others -->
+        <!-- ================================================== -->
+        <!-- Workflow                                           -->
+        <!-- ================================================== -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-workflow</artifactId>
+            <version>${lutece.plugin-workflow.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-upload</artifactId>
+            <version>${lutece.module-workflow-upload.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+
+        <!-- ================================================== -->
+        <!-- Unittree & User Assignment                         -->
+        <!-- ================================================== -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-unittree</artifactId>
+            <version>${lutece.plugin-unittree.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-unittree-notification</artifactId>
+            <version>${lutece.module-unittree-notification.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-unittree</artifactId>
+            <version>${lutece.module-workflow-unittree.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-unittree-userassignment</artifactId>
+            <version>${lutece.module-workflow-unittree-userassignment.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-userassignment</artifactId>
+            <version>${lutece.plugin-userassignment.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-userassignment</artifactId>
+            <version>${lutece.module-workflow-userassignment.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+
+        <!-- ================================================== -->
+        <!-- Plugins utilitaires                                -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-referencelist</artifactId>
@@ -266,78 +359,10 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>library-core-utils</artifactId>
-            <version>${lutece.library-core-utils.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-liquibase</artifactId>
-            <version>${lutece.plugin-liquibase.version}</version>
+            <artifactId>plugin-rest</artifactId>
+            <version>${lutece.plugin-rest.version}</version>
             <type>lutece-plugin</type>
         </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.tools</groupId>
-            <artifactId>library-sql-utils</artifactId>
-            <version>${lutece.library-sql-utils.version}</version>
-            <type>jar</type>
-        </dependency>
-
-        <!-- Workflow -->
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-workflow</artifactId>
-            <version>${lutece.plugin-workflow.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-upload</artifactId>
-            <version>${lutece.module-workflow-upload.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-
-        <!-- Unittree -->
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-unittree</artifactId>
-            <version>${lutece.plugin-unittree.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-unittree-notification</artifactId>
-            <version>${lutece.module-unittree-notification.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-unittree</artifactId>
-            <version>${lutece.module-workflow-unittree.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-unittree-userassignment</artifactId>
-            <version>${lutece.module-workflow-unittree-userassignment.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-
-        <!-- User Assignment -->
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-userassignment</artifactId>
-            <version>${lutece.plugin-userassignment.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-userassignment</artifactId>
-            <version>${lutece.module-workflow-userassignment.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-
-        <!-- Utilities -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-profiles</artifactId>
@@ -361,26 +386,6 @@
             <artifactId>plugin-sitelabels</artifactId>
             <version>${lutece.plugin-sitelabels.version}</version>
             <type>lutece-plugin</type>
-        </dependency>
-
-        <!-- Libraries -->
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>library-httpaccess</artifactId>
-            <version>${lutece.library-httpaccess.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>library-signrequest</artifactId>
-            <version>${lutece.library-signrequest.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>library-jwt</artifactId>
-            <version>${lutece.library-jwt.version}</version>
-            <type>jar</type>
         </dependency>
     </dependencies>
 </project>

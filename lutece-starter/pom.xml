@@ -17,23 +17,21 @@
     </properties>
 
     <dependencies>
-        <!-- Forms starter -->
+        <!-- ================================================== -->
+        <!-- Starters                                           -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.starters</groupId>
             <artifactId>forms-starter</artifactId>
             <version>${lutece.forms-starter.version}</version>
             <type>jar</type>
         </dependency>
-
-        <!-- Appointment starter -->
         <dependency>
             <groupId>fr.paris.lutece.starters</groupId>
             <artifactId>appointment-starter</artifactId>
             <version>${lutece.appointment-starter.version}</version>
             <type>jar</type>
         </dependency>
-
-        <!-- Editorial starter -->
         <dependency>
             <groupId>fr.paris.lutece.starters</groupId>
             <artifactId>editorial-starter</artifactId>
@@ -41,7 +39,9 @@
             <type>jar</type>
         </dependency>
 
-        <!-- Authentification Plugins -->
+        <!-- ================================================== -->
+        <!-- Authentification                                   -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-mylutece</artifactId>
@@ -50,8 +50,8 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>mylutece-users</artifactId>
-            <version>${lutece.mylutece-users.version}</version>
+            <artifactId>module-mylutece-users</artifactId>
+            <version>${lutece.module-mylutece-users.version}</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
@@ -92,18 +92,14 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>library-configsource-vault</artifactId>
-            <version>${lutece.library-configsource-vault.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-matomo</artifactId>
-            <version>${lutece.plugin-matomo.version}</version>
+            <artifactId>plugin-myluteceaccessrules</artifactId>
+            <version>${lutece.plugin-myluteceaccessrules.version}</version>
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Cartography -->
+        <!-- ================================================== -->
+        <!-- Address & Cartography                              -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-genericattributes-cartography</artifactId>
@@ -116,14 +112,10 @@
             <version>${lutece.plugin-leaflet.version}</version>
             <type>lutece-plugin</type>
         </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-myluteceaccessrules</artifactId>
-            <version>${lutece.plugin-myluteceaccessrules.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
 
-        <!-- Solr -->
+        <!-- ================================================== -->
+        <!-- Solr                                               -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-solr</artifactId>
@@ -163,7 +155,9 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Elasticsearch -->
+        <!-- ================================================== -->
+        <!-- Elasticsearch                                      -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-elastic</artifactId>
@@ -183,7 +177,9 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Kibana -->
+        <!-- ================================================== -->
+        <!-- Kibana                                             -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-kibana</artifactId>
@@ -197,7 +193,9 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Captcha & Securite -->
+        <!-- ================================================== -->
+        <!-- Captcha & Securite                                 -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-captcha</artifactId>
@@ -217,7 +215,9 @@
             <type>lutece-plugin</type>
         </dependency>
 
-        <!-- Extend -->
+        <!-- ================================================== -->
+        <!-- Extend                                             -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-extend-rating</artifactId>
@@ -228,6 +228,16 @@
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-extend-feedback</artifactId>
             <version>${lutece.module-extend-feedback.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+
+        <!-- ================================================== -->
+        <!-- Plugins utilitaires                                -->
+        <!-- ================================================== -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-matomo</artifactId>
+            <version>${lutece.plugin-matomo.version}</version>
             <type>lutece-plugin</type>
         </dependency>
     </dependencies>
