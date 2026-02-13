@@ -1223,7 +1223,8 @@ def rollbackStarter(String starterName) {
  * Appends a line to the release report file.
  */
 def appendReport(String line) {
-    sh "echo '${line.replace("'", "\\'")}' >> ${env.RELEASE_REPORT}"
+    def safe = line.replace("'", "'\\''")
+    sh "printf '%s\\n' '${safe}' >> ${env.RELEASE_REPORT}"
 }
 
 /**
