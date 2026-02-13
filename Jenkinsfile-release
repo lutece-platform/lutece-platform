@@ -990,7 +990,7 @@ def releasePlugin(Map plugin) {
         if (isRc) {
             // 5-RC. Deploy from develop (NO merge to master)
             sh """
-                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests
+                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true
             """
 
             // 6-RC. Restore original SNAPSHOT version on develop
@@ -1010,7 +1010,7 @@ def releasePlugin(Map plugin) {
                 git checkout master || git checkout -b master origin/master
                 git merge ${plugin.branch} -m "Merge ${plugin.branch} for release ${tagName}"
                 git push origin master
-                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests
+                mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true
             """
 
             // 6. Return to develop, next SNAPSHOT
@@ -1104,7 +1104,7 @@ def releaseStarter(String starterName) {
         if (isRc) {
             echo "[DRY-RUN]   RC: deploy from develop (no merge to master)"
         } else {
-            echo "[DRY-RUN]   Deploy: mvn deploy -pl ${starterName} -am"
+            echo "[DRY-RUN]   Deploy: mvn deploy -pl ${starterName} -am -DperformRelease=true"
         }
         return
     }
@@ -1117,7 +1117,7 @@ def releaseStarter(String starterName) {
     if (isRc) {
         // RC: deploy from develop, no merge to master
         sh """
-            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests
+            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true
         """
         sh """
             git push origin develop --tags
@@ -1132,7 +1132,7 @@ def releaseStarter(String starterName) {
 
         // Deploy only this module (and its dependencies within the reactor)
         sh """
-            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests
+            mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -pl ${starterName} -am -DskipTests -DperformRelease=true
         """
 
         // Return to develop
