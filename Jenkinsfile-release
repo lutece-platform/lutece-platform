@@ -237,7 +237,7 @@ Dry-Run     : ${params.DRY_RUN}
             }
             steps {
                 script {
-                    def plugins = readJSON text: env.SNAPSHOT_PLUGINS_JSON
+                    def plugins = readJSON(text: env.SNAPSHOT_PLUGINS_JSON)
                     def resolved = []
 
                     plugins.each { plugin ->
@@ -273,7 +273,7 @@ Dry-Run     : ${params.DRY_RUN}
             }
             steps {
                 script {
-                    def plugins = readJSON text: env.RESOLVED_PLUGINS_JSON
+                    def plugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
                     def batchSize = 5
                     def batches = plugins.collate(batchSize)
                     def failedPlugins = []
@@ -347,7 +347,7 @@ Dry-Run     : ${params.DRY_RUN}
 
                     // Update all SNAPSHOT plugin properties
                     if (!params.SKIP_PLUGIN_RELEASES) {
-                        def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? readJSON text: env.RESOLVED_PLUGINS_JSON : []
+                        def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? readJSON(text: env.RESOLVED_PLUGINS_JSON) : []
                         def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
 
                         resolvedPlugins.each { plugin ->
@@ -544,7 +544,7 @@ Dry-Run     : ${params.DRY_RUN}
 
                         // Update all released plugin properties
                         if (env.RESOLVED_PLUGINS_JSON) {
-                            def resolvedPlugins = readJSON text: env.RESOLVED_PLUGINS_JSON
+                            def resolvedPlugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
                             def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
 
                             resolvedPlugins.each { plugin ->
@@ -867,7 +867,7 @@ def resolveGitHubRepo(String artifactId) {
                 returnStdout: true
             ).trim()
 
-            def searchResult = readJSON text: searchJson
+            def searchResult = readJSON(text: searchJson)
             if (searchResult.total_count > 0) {
                 def match = searchResult.items.find { repo ->
                     repo.name == artifactId || repo.name.endsWith("-${artifactId}")
@@ -901,7 +901,7 @@ def resolveDevBranch(String org, String repoName) {
         returnStdout: true
     ).trim()
 
-    def branches = readJSON text: branchesJson
+    def branches = readJSON(text: branchesJson)
     def branchNames = branches.collect { it.name }
 
     def priorities = ['develop', 'develop_core8', 'develop8', 'develop8.x']
