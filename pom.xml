@@ -77,13 +77,13 @@
         <lutece.lutece-starter.version>${revision}</lutece.lutece-starter.version>
 
         <!-- Lutece core -->
-        <lutece.core.version>8.0.0</lutece.core.version>
+        <lutece.core.version>8.0.1-SNAPSHOT</lutece.core.version>
         <lutece.library-lutece-unit-testing-common.version>1.0.0</lutece.library-lutece-unit-testing-common.version>
         <lutece.library-lucene.version>6.0.0</lutece.library-lucene.version>
-        <lutece.library-user-api.version>1.0.1</lutece.library-user-api.version>
-        <lutece.library-rbac-api.version>1.0.0</lutece.library-rbac-api.version>
-        <lutece.library-workflow-core.version>4.0.0</lutece.library-workflow-core.version>
-        <lutece.library-workgroup-api.version>1.0.0</lutece.library-workgroup-api.version>
+        <lutece.library-user-api.version>2.0.0-SNAPSHOT</lutece.library-user-api.version>
+        <lutece.library-rbac-api.version>2.0.0-SNAPSHOT</lutece.library-rbac-api.version>
+        <lutece.library-workflow-core.version>4.0.1-SNAPSHOT</lutece.library-workflow-core.version>
+        <lutece.library-workgroup-api.version>2.0.0-SNAPSHOT</lutece.library-workgroup-api.version>
         <lutece.library-jmx-api.version>1.0.0</lutece.library-jmx-api.version>
         <lutece.library-priority-extension.version>1.0.0</lutece.library-priority-extension.version>
         <lutece.library-freemarker.version>2.0.0</lutece.library-freemarker.version>
@@ -92,7 +92,7 @@
         <lutece.module-extend-feedback.version>3.0.0</lutece.module-extend-feedback.version>
 
         <!-- Lutece forms -->
-        <lutece.plugin-forms.version>4.0.0</lutece.plugin-forms.version>
+        <lutece.plugin-forms.version>4.0.1-SNAPSHOT</lutece.plugin-forms.version>
         <lutece.library-utils.version>2.0.0</lutece.library-utils.version>
         <lutece.module-forms-breadcrumbaccordion.version>2.0.0</lutece.module-forms-breadcrumbaccordion.version>
         <lutece.module-workflow-forms.version>3.0.0</lutece.module-workflow-forms.version>
@@ -102,14 +102,14 @@
         <lutece.library-signrequest.version>4.0.0</lutece.library-signrequest.version>
         <lutece.library-jwt.version>3.0.0</lutece.library-jwt.version>
         <lutece.module-workflow-forms-automatic-assignment.version>3.0.0</lutece.module-workflow-forms-automatic-assignment.version>
-        <lutece.module-workflow-formstopdf.version>2.0.0</lutece.module-workflow-formstopdf.version>
+        <lutece.module-workflow-formstopdf.version>2.0.1-SNAPSHOT</lutece.module-workflow-formstopdf.version>
         <lutece.module-forms-userassignment.version>3.0.0</lutece.module-forms-userassignment.version>
         <lutece.module-accesscontrol-forms.version>2.0.0</lutece.module-accesscontrol-forms.version>
         <lutece.module-forms-documentproducer.version>2.0.0</lutece.module-forms-documentproducer.version>
-        <lutece.module-forms-unittree.version>3.0.0</lutece.module-forms-unittree.version>
+        <lutece.module-forms-unittree.version>3.0.1-SNAPSHOT</lutece.module-forms-unittree.version>
         <lutece.plugin-unittree.version>4.0.0</lutece.plugin-unittree.version>
-        <lutece.module-unittree-notification.version>2.0.0</lutece.module-unittree-notification.version>
-        <lutece.module-workflow-unittree.version>3.0.0</lutece.module-workflow-unittree.version>
+        <lutece.module-unittree-notification.version>2.0.1-SNAPSHOT</lutece.module-unittree-notification.version>
+        <lutece.module-workflow-unittree.version>3.0.1-SNAPSHOT</lutece.module-workflow-unittree.version>
         <lutece.module-workflow-unittree-userassignment.version>2.0.0</lutece.module-workflow-unittree-userassignment.version>
         <lutece.plugin-userassignment.version>2.0.0</lutece.plugin-userassignment.version>
         <lutece.module-workflow-userassignment.version>3.0.0</lutece.module-workflow-userassignment.version>
@@ -169,7 +169,7 @@
 
         <!-- Others -->
         <lutece.plugin-referencelist.version>2.0.0</lutece.plugin-referencelist.version>
-        <lutece.plugin-genericattributes.version>3.0.0</lutece.plugin-genericattributes.version>
+        <lutece.plugin-genericattributes.version>3.0.1-SNAPSHOT</lutece.plugin-genericattributes.version>
         <lutece.plugin-asynchronousupload.version>2.0.0</lutece.plugin-asynchronousupload.version>
         <lutece.plugin-regularexpression.version>5.0.0</lutece.plugin-regularexpression.version>
         <lutece.plugin-filegenerator.version>3.0.0</lutece.plugin-filegenerator.version>
