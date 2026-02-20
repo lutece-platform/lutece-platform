@@ -132,10 +132,10 @@
         <lutece.library-notifygru.version>2.0.0</lutece.library-notifygru.version>
         <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
 
-        <!-- Lutece appointment
-        <lutece.plugin-appointment.version>6.1.0</lutece.plugin-appointment.version>
-        <lutece.module-workflow-appointment.version>4.0.0</lutece.module-workflow-appointment.version>
-        -->
+        <!-- Lutece appointment-->
+        <lutece.plugin-appointment.version>4.0.0-SNAPSHOT</lutece.plugin-appointment.version>
+        <!-- <lutece.module-workflow-appointment.version>4.0.0</lutece.module-workflow-appointment.version> -->
+        
 
         <!-- Lutece Editorial -->
         <lutece.plugin-html.version>6.0.0</lutece.plugin-html.version>
