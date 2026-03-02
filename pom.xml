@@ -166,7 +166,7 @@
         <lutece.plugin-regularexpression.version>5.0.0</lutece.plugin-regularexpression.version>
         <lutece.plugin-filegenerator.version>3.0.0</lutece.plugin-filegenerator.version>
         <lutece.plugin-htmltopdf.version>2.0.0</lutece.plugin-htmltopdf.version>
-        <lutece.plugin-extend.version>2.0.0</lutece.plugin-extend.version>
+        <lutece.plugin-extend.version>2.0.1-SNAPSHOT</lutece.plugin-extend.version>
         <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
         <lutece.library-httpaccess.version>4.0.0</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
@@ -176,7 +176,7 @@
         <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.0.0</lutece.plugin-rest.version>
-        <lutece.plugin-sitelabels.version>3.0.0</lutece.plugin-sitelabels.version>
+        <lutece.plugin-sitelabels.version>3.0.1-SNAPSHOT</lutece.plugin-sitelabels.version>
         <lutece.module-forms-cartography.version>2.0.0</lutece.module-forms-cartography.version>
         <!--
         <lutece.module-forms-cartography-explorer.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography-explorer.version>
