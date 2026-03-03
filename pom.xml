@@ -151,7 +151,7 @@
         <lutece.module-mylutece-users.version>2.0.0</lutece.module-mylutece-users.version>
         <lutece.plugin-automaticroleprovider.version>2.0.0</lutece.plugin-automaticroleprovider.version>
         <lutece.module-mylutece-database.version>7.0.0</lutece.module-mylutece-database.version>
-        <lutece.module-mylutece-oauth2.version>3.0.0</lutece.module-mylutece-oauth2.version>
+        <lutece.module-mylutece-oauth2.version>3.0.1-SNAPSHOT</lutece.module-mylutece-oauth2.version>
         <lutece.plugin-oauth2.version>3.0.0</lutece.plugin-oauth2.version>
         <lutece.plugin-termofservice.version>2.0.0</lutece.plugin-termofservice.version>
         <lutece.plugin-adminauthenticationwsso.version>3.0.0</lutece.plugin-adminauthenticationwsso.version>
