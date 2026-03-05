@@ -41,9 +41,6 @@
     </modules>
 
     <properties>
-        <revision>8.0.0-SNAPSHOT</revision>
-        <lutece.version>${revision}</lutece.version>
-
         <parent.deploy.skip>true</parent.deploy.skip>
         <bom.deploy.skip>false</bom.deploy.skip>
         <forms.deploy.skip>false</forms.deploy.skip>
@@ -66,15 +63,12 @@
 <p align="left">Copyright &#169; 2018, 2025 Eclipse Foundation.<br>Use is subject to <a href="{@docRoot}/doc-files/speclicense.html" target="_top">license terms</a>.]]></apidocs.bottom>
         -->
 
-        <!-- For independent releases set a previous release version e.g.,
-            mvn -Drevision=8.0.0-RC3 -Dlutece.forms-starter.version=8.0.0 ...
-        -->
-
-        <!-- LUTECE PROFILES VERSION -->
-        <lutece.forms-starter.version>${revision}</lutece.forms-starter.version>
-        <lutece.appointment-starter.version>${revision}</lutece.appointment-starter.version>
-        <lutece.editorial-starter.version>${revision}</lutece.editorial-starter.version>
-        <lutece.lutece-starter.version>${revision}</lutece.lutece-starter.version>
+        <!-- LUTECE PROFILES VERSION — each starter/BOM has its own version for independent releases -->
+        <lutece.forms-starter.version>8.0.0-SNAPSHOT</lutece.forms-starter.version>
+        <lutece.appointment-starter.version>8.0.0-SNAPSHOT</lutece.appointment-starter.version>
+        <lutece.editorial-starter.version>8.0.0-SNAPSHOT</lutece.editorial-starter.version>
+        <lutece.lutece-starter.version>8.0.0-SNAPSHOT</lutece.lutece-starter.version>
+        <lutece.lutece-bom.version>8.0.0-SNAPSHOT</lutece.lutece-bom.version>
 
         <!-- Lutece core -->
         <lutece.core.version>8.0.1-SNAPSHOT</lutece.core.version>
@@ -131,11 +125,9 @@
         <lutece.module-workflow-notifygru.version>3.0.0</lutece.module-workflow-notifygru.version>
         <lutece.library-notifygru.version>2.0.0</lutece.library-notifygru.version>
         <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
-
-        <!-- Lutece appointment-->
+        <!-- Lutece appointment -->
         <lutece.plugin-appointment.version>4.0.0-SNAPSHOT</lutece.plugin-appointment.version>
-        <!-- <lutece.module-workflow-appointment.version>4.0.0</lutece.module-workflow-appointment.version> -->
-        
+        <lutece.module-workflow-appointment.version>4.0.0-SNAPSHOT</lutece.module-workflow-appointment.version>
 
         <!-- Lutece Editorial -->
         <lutece.plugin-html.version>6.0.0</lutece.plugin-html.version>

@@ -135,13 +135,37 @@ pipeline {
 
                     // Read current version from root pom
                     def pomContent = readFile('pom.xml')
-                    def currentVersion = (pomContent =~ '<artifactId>lutece-parent</artifactId>\\s*\\n\\s*<version>([^<]+)</version>')[0][1]
+                    def currentVersion
+                    if (isSingleModuleRelease()) {
+                        // Single module: read the module-specific version property
+                        def versionProp = starterVersionProperty(params.RELEASE_TARGET)
+                        def propMatcher = pomContent =~ "<${versionProp}>([^<]+)</${versionProp}>"
+                        if (propMatcher.find()) {
+                            currentVersion = propMatcher[0][1]
+                        } else {
+                            error("Could not find property <${versionProp}> in root pom.xml")
+                        }
+                        echo "Single module release: ${params.RELEASE_TARGET}"
+                        echo "Version property: ${versionProp}"
+                    } else {
+                        // All: read the parent version (lutece-parent) for display/reporting
+                        currentVersion = (pomContent =~ '<artifactId>lutece-parent</artifactId>\\s*\\n\\s*<version>([^<]+)</version>')[0][1]
+
+                        // Build per-module version map (each module may have its own version)
+                        def versionMap = readModuleVersionMap(pomContent)
+                        writeJSON file: "${WORKSPACE}/module-versions.json", json: versionMap
+                        env.MODULE_VERSIONS_JSON = readFile("${WORKSPACE}/module-versions.json")
+                        echo "Per-module versions:"
+                        versionMap.each { mod, info ->
+                            echo "  ${mod}: ${info.current} -> ${info.releaseVersion} -> ${info.next}"
+                        }
+                    }
                     echo "Current project version: ${currentVersion}"
 
-                    // Store the original SNAPSHOT version (used to restore after RC)
+                    // Store the original SNAPSHOT version (used for single-module releases and parent POM)
                     env.ORIGINAL_SNAPSHOT_VERSION = currentVersion
 
-                    // Compute base release version (without RC suffix)
+                    // Compute base release version (without RC suffix) — used for single-module releases
                     def baseVersion
                     if (params.RELEASE_VERSION?.trim()) {
                         baseVersion = params.RELEASE_VERSION.trim().replaceAll('-RC-?\\d+$', '')
@@ -151,6 +175,7 @@ pipeline {
                     env.BASE_RELEASE_VERSION = baseVersion
 
                     // Compute final release version (with RC suffix if applicable)
+                    // For single-module: used directly. For 'all': used only for parent POM and reporting.
                     if (env.IS_RC == 'true') {
                         env.COMPUTED_RELEASE_VERSION = "${baseVersion}-RC-${env.RC_NUM.padLeft(2, '0')}"
                     } else {
@@ -350,73 +375,107 @@ Dry-Run     : ${params.DRY_RUN}
             steps {
                 script {
                     echo "Updating root pom.xml with release versions..."
-
                     def pomFile = 'pom.xml'
-                    def pomContent = readFile(pomFile)
-                    def updatedPom = pomContent
+                    def singleModule = isSingleModuleRelease()
 
-                    // Update <revision> property
-                    updatedPom = updatedPom.replaceAll(
-                        '(<revision>)[^<]+(SNAPSHOT)(</revision>)',
-                        "\$1${env.COMPUTED_RELEASE_VERSION}\$3"
-                    )
+                    if (singleModule) {
+                        // ── Single module release: only update the target module's version property ──
+                        def versionProp = starterVersionProperty(params.RELEASE_TARGET)
+                        echo "Single module: updating only <${versionProp}>"
 
-                    // Update project version
-                    updatedPom = updatedPom.replaceAll(
-                        '(<artifactId>lutece-parent</artifactId>\\s*\\n\\s*<version>)[^<]+(</version>)',
-                        "\$1${env.COMPUTED_RELEASE_VERSION}\$2"
-                    )
+                        if (!params.SKIP_PLUGIN_RELEASES) {
+                            def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? readJSON(text: env.RESOLVED_PLUGINS_JSON) : []
+                            def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
 
-                    // Update all SNAPSHOT plugin properties
-                    if (!params.SKIP_PLUGIN_RELEASES) {
-                        def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? readJSON(text: env.RESOLVED_PLUGINS_JSON) : []
-                        def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
-
-                        resolvedPlugins.each { plugin ->
-                            if (releasedList.contains(plugin.artifactId)) {
-                                def propPattern = "(<${plugin.propertyName}>)[^<]+(-SNAPSHOT</${plugin.propertyName}>)"
-                                def propReplacement = "\$1${plugin.releaseVersion}\$2".replace('-SNAPSHOT', '')
-                                // Use sed for reliability with special chars in property names
-                                def sedExpr = "s|<${plugin.propertyName}>${plugin.currentVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|g"
-                                if (params.DRY_RUN) {
-                                    echo "[DRY-RUN] Would update ${plugin.propertyName}: ${plugin.currentVersion} -> ${plugin.releaseVersion}"
-                                } else {
-                                    sh "sed -i '${sedExpr}' ${pomFile}"
+                            resolvedPlugins.each { plugin ->
+                                if (releasedList.contains(plugin.artifactId)) {
+                                    def sedExpr = "s|<${plugin.propertyName}>${plugin.currentVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|g"
+                                    if (params.DRY_RUN) {
+                                        echo "[DRY-RUN] Would update ${plugin.propertyName}: ${plugin.currentVersion} -> ${plugin.releaseVersion}"
+                                    } else {
+                                        sh "sed -i '${sedExpr}' ${pomFile}"
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // Also update all remaining SNAPSHOT properties that match the project version pattern
-                    if (!params.DRY_RUN) {
-                        // Update <revision>
-                        sh "sed -i 's|<revision>${env.COMPUTED_RELEASE_VERSION}-SNAPSHOT</revision>|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|g' ${pomFile}"
-                        sh "sed -i 's|<revision>8.0.0-SNAPSHOT</revision>|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|g' ${pomFile}"
+                        if (!params.DRY_RUN) {
+                            // Update only the target module's version property
+                            sh "sed -i 's|<${versionProp}>${env.ORIGINAL_SNAPSHOT_VERSION}</${versionProp}>|<${versionProp}>${env.COMPUTED_RELEASE_VERSION}</${versionProp}>|g' ${pomFile}"
 
-                        // Update the project version
-                        sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_RELEASE_VERSION}</version>|}' ${pomFile}"
+                            sh """
+                                git add pom.xml
+                                git diff --cached --quiet && echo 'Version already at ${env.COMPUTED_RELEASE_VERSION} — nothing to commit' || git commit -m "release: update ${params.RELEASE_TARGET} version to ${env.COMPUTED_RELEASE_VERSION}"
+                            """
+                            sh "git push origin develop"
+                        } else {
+                            echo "[DRY-RUN] Would update <${versionProp}> to ${env.COMPUTED_RELEASE_VERSION}"
+                        }
 
-                        // Update child module parent versions
-                        def modules = ['lutece-bom', 'forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter']
-                        modules.each { mod ->
-                            def modPom = "${mod}/pom.xml"
-                            if (fileExists(modPom)) {
-                                sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_RELEASE_VERSION}</version>|}' ${modPom}"
+                    } else {
+                        // ── Release all: update all module version properties (per-module versions), parent version ──
+                        def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
+
+                        // Update all SNAPSHOT plugin properties
+                        if (!params.SKIP_PLUGIN_RELEASES) {
+                            def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? readJSON(text: env.RESOLVED_PLUGINS_JSON) : []
+                            def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
+
+                            resolvedPlugins.each { plugin ->
+                                if (releasedList.contains(plugin.artifactId)) {
+                                    def sedExpr = "s|<${plugin.propertyName}>${plugin.currentVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|g"
+                                    if (params.DRY_RUN) {
+                                        echo "[DRY-RUN] Would update ${plugin.propertyName}: ${plugin.currentVersion} -> ${plugin.releaseVersion}"
+                                    } else {
+                                        sh "sed -i '${sedExpr}' ${pomFile}"
+                                    }
+                                }
                             }
                         }
 
-                        // Commit only if there are actual changes (idempotent for re-runs)
-                        sh """
-                            git add pom.xml */pom.xml
-                            git diff --cached --quiet && echo 'Versions already at ${env.COMPUTED_RELEASE_VERSION} — nothing to commit' || git commit -m "release: update versions to ${env.COMPUTED_RELEASE_VERSION}"
-                        """
-                        // Push version commit to develop now (before starters create tags in parallel)
-                        sh "git push origin develop"
-                    } else {
-                        echo "[DRY-RUN] Would update POM parent and module versions to ${env.COMPUTED_RELEASE_VERSION}"
+                        if (!params.DRY_RUN) {
+                            // Update the parent POM version (lutece-parent itself)
+                            sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_RELEASE_VERSION}</version>|}' ${pomFile}"
+
+                            // Update each module's version property using its OWN current version as match pattern
+                            moduleVersions.each { mod, info ->
+                                sh "sed -i 's|<${info.property}>${info.current}</${info.property}>|<${info.property}>${info.releaseVersion}</${info.property}>|g' ${pomFile}"
+                                echo "Updated ${info.property}: ${info.current} -> ${info.releaseVersion}"
+                            }
+
+                            // Update child module parent versions
+                            def modules = ['lutece-bom', 'forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter']
+                            modules.each { mod ->
+                                def modPom = "${mod}/pom.xml"
+                                if (fileExists(modPom)) {
+                                    sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_RELEASE_VERSION}</version>|}' ${modPom}"
+                                }
+                            }
+
+                            // Commit only if there are actual changes (idempotent for re-runs)
+                            sh """
+                                git add pom.xml */pom.xml
+                                git diff --cached --quiet && echo 'Versions already at release — nothing to commit' || git commit -m "release: update versions for release"
+                            """
+                            // Push version commit to develop now (before starters create tags in parallel)
+                            sh "git push origin develop"
+                        } else {
+                            echo "[DRY-RUN] Would update POM parent and per-module versions:"
+                            moduleVersions.each { mod, info ->
+                                echo "[DRY-RUN]   ${info.property}: ${info.current} -> ${info.releaseVersion}"
+                            }
+                        }
                     }
 
-                    appendReport("POM Parent Updated: versions set to ${env.COMPUTED_RELEASE_VERSION}")
+                    if (singleModule) {
+                        appendReport("POM Updated: ${params.RELEASE_TARGET} version set to ${env.COMPUTED_RELEASE_VERSION}")
+                    } else {
+                        def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
+                        appendReport("POM Updated: per-module versions:")
+                        moduleVersions.each { mod, info ->
+                            appendReport("  ${mod}: ${info.current} -> ${info.releaseVersion}")
+                        }
+                    }
                 }
             }
         }
@@ -432,11 +491,12 @@ Dry-Run     : ${params.DRY_RUN}
                     def pomContent = readFile('pom.xml')
                     def remainingSnapshots = parseSnapshotPlugins(pomContent)
 
-                    // Exclude the revision property itself and starter cross-references
-                    def ignoredProps = ['revision', 'lutece.version',
-                                        'lutece.forms-starter.version',
+                    // Exclude starter/BOM version properties (they have their own release lifecycle)
+                    def ignoredProps = ['lutece.forms-starter.version',
                                         'lutece.appointment-starter.version',
-                                        'lutece.editorial-starter.version']
+                                        'lutece.editorial-starter.version',
+                                        'lutece.lutece-starter.version',
+                                        'lutece.lutece-bom.version']
                     def violations = remainingSnapshots.findAll { !ignoredProps.contains(it.propertyName) }
 
                     if (violations.size() > 0) {
@@ -474,12 +534,13 @@ Dry-Run     : ${params.DRY_RUN}
                     def parallelSteps = [:]
                     specializedStarters.each { starter ->
                         parallelSteps[starter] = {
+                            def starterVersion = getModuleReleaseVersion(starter)
                             try {
                                 releaseStarter(starter)
-                                appendReport("Starter Released: ${starter} ${env.COMPUTED_RELEASE_VERSION}")
+                                appendReport("Starter Released: ${starter} ${starterVersion}")
                             } catch (Throwable e) {
                                 appendReport("FAILED Starter: ${starter} — ${e.message}")
-                                appendReport("  -> Si le tag existe deja : git push origin :refs/tags/${starter}-${env.COMPUTED_RELEASE_VERSION}")
+                                appendReport("  -> Si le tag existe deja : git push origin :refs/tags/${starter}-${starterVersion}")
                                 appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
                                 appendReport("  -> Puis relancer le build")
                                 try {
@@ -516,17 +577,17 @@ Dry-Run     : ${params.DRY_RUN}
                     def starterRefs = ['forms-starter', 'appointment-starter', 'editorial-starter']
                     starterRefs.each { ref ->
                         if (luteceStarterPom.contains('SNAPSHOT') && luteceStarterPom.contains(ref)) {
-                            // Check the actual version property — they use ${revision} or ${lutece.*-starter.version}
-                            echo "Note: ${ref} version resolved via \${revision} or parent property"
+                            echo "Note: ${ref} version resolved via \${lutece.${ref}.version} parent property"
                         }
                     }
 
+                    def lsVersion = getModuleReleaseVersion('lutece-starter')
                     try {
                         releaseStarter('lutece-starter')
-                        appendReport("Starter Released: lutece-starter ${env.COMPUTED_RELEASE_VERSION}")
+                        appendReport("Starter Released: lutece-starter ${lsVersion}")
                     } catch (Throwable e) {
                         appendReport("FAILED Starter: lutece-starter — ${e.message}")
-                        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-starter-${env.COMPUTED_RELEASE_VERSION}")
+                        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-starter-${lsVersion}")
                         appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
                         appendReport("  -> Puis relancer le build")
                         try {
@@ -553,12 +614,13 @@ Dry-Run     : ${params.DRY_RUN}
             }
             steps {
                 script {
+                    def bomVersion = getModuleReleaseVersion('lutece-bom')
                     try {
                         releaseStarter('lutece-bom')
-                        appendReport("BOM Released: lutece-bom ${env.COMPUTED_RELEASE_VERSION}")
+                        appendReport("BOM Released: lutece-bom ${bomVersion}")
                     } catch (Throwable e) {
                         appendReport("FAILED: lutece-bom — ${e.message}")
-                        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-bom-${env.COMPUTED_RELEASE_VERSION}")
+                        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-bom-${bomVersion}")
                         appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
                         appendReport("  -> Puis relancer le build")
                         try {
@@ -580,6 +642,7 @@ Dry-Run     : ${params.DRY_RUN}
             steps {
                 script {
                     def isRc = env.IS_RC == 'true'
+                    def singleModule = isSingleModuleRelease()
 
                     if (isRc) {
                         echo "RC Mode: restoring original SNAPSHOT version ${env.ORIGINAL_SNAPSHOT_VERSION}"
@@ -589,52 +652,94 @@ Dry-Run     : ${params.DRY_RUN}
                     }
 
                     if (params.DRY_RUN) {
-                        if (isRc) {
-                            echo "[DRY-RUN] Would restore POM parent to ${env.ORIGINAL_SNAPSHOT_VERSION}"
+                        if (singleModule) {
+                            def versionProp = starterVersionProperty(params.RELEASE_TARGET)
+                            echo "[DRY-RUN] Would set <${versionProp}> to ${isRc ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT}"
                         } else {
-                            echo "[DRY-RUN] Would set all versions to ${env.COMPUTED_NEXT_SNAPSHOT}"
+                            def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
+                            echo "[DRY-RUN] Would restore per-module versions:"
+                            moduleVersions.each { mod, info ->
+                                def nextVer = isRc ? info.current : info.next
+                                echo "[DRY-RUN]   ${info.property}: ${info.releaseVersion} -> ${nextVer}"
+                            }
                         }
                     } else {
                         def pomFile = 'pom.xml'
                         def targetVersion = isRc ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT
 
-                        // Update <revision>
-                        sh "sed -i 's|<revision>${env.COMPUTED_RELEASE_VERSION}</revision>|<revision>${targetVersion}</revision>|g' ${pomFile}"
+                        if (singleModule) {
+                            // ── Single module: only update the target module's version property ──
+                            def versionProp = starterVersionProperty(params.RELEASE_TARGET)
+                            sh "sed -i 's|<${versionProp}>${env.COMPUTED_RELEASE_VERSION}</${versionProp}>|<${versionProp}>${targetVersion}</${versionProp}>|g' ${pomFile}"
 
-                        // Update project version
-                        sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${targetVersion}</version>|}' ${pomFile}"
+                            // Update released plugin properties for this module
+                            if (env.RESOLVED_PLUGINS_JSON) {
+                                def resolvedPlugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
+                                def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
 
-                        // Update all released plugin properties
-                        if (env.RESOLVED_PLUGINS_JSON) {
-                            def resolvedPlugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
-                            def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
-
-                            resolvedPlugins.each { plugin ->
-                                if (releasedList.contains(plugin.artifactId)) {
-                                    // RC: restore original SNAPSHOT | Stable: set next SNAPSHOT
-                                    def nextVer = isRc ? plugin.currentVersion : plugin.nextSnapshot
-                                    sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${nextVer}</${plugin.propertyName}>|g' ${pomFile}"
+                                resolvedPlugins.each { plugin ->
+                                    if (releasedList.contains(plugin.artifactId)) {
+                                        def nextVer = isRc ? plugin.currentVersion : plugin.nextSnapshot
+                                        sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${nextVer}</${plugin.propertyName}>|g' ${pomFile}"
+                                    }
                                 }
                             }
-                        }
 
-                        // Update child module parent versions
-                        def modules = ['lutece-bom', 'forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter']
-                        modules.each { mod ->
-                            def modPom = "${mod}/pom.xml"
-                            if (fileExists(modPom)) {
-                                sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${targetVersion}</version>|}' ${modPom}"
+                            def commitMsg = isRc ?
+                                "chore: restore SNAPSHOT for ${params.RELEASE_TARGET} after RC ${env.COMPUTED_RELEASE_VERSION}" :
+                                "chore: prepare next development iteration ${params.RELEASE_TARGET} ${targetVersion}"
+                            sh """
+                                git add pom.xml
+                                git diff --cached --quiet && echo 'Version already at target — nothing to commit' || git commit -m "${commitMsg}"
+                                git push origin develop
+                            """
+
+                        } else {
+                            // ── Release all: update all module properties (per-module versions), parent version ──
+                            def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
+
+                            // Update parent POM version
+                            def parentTarget = isRc ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT
+                            sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${parentTarget}</version>|}' ${pomFile}"
+
+                            // Update each module's version property using its OWN release version as match pattern
+                            moduleVersions.each { mod, info ->
+                                def nextVer = isRc ? info.current : info.next
+                                sh "sed -i 's|<${info.property}>${info.releaseVersion}</${info.property}>|<${info.property}>${nextVer}</${info.property}>|g' ${pomFile}"
+                                echo "Restored ${info.property}: ${info.releaseVersion} -> ${nextVer}"
                             }
-                        }
 
-                        def commitMsg = isRc ?
-                            "chore: restore SNAPSHOT after RC ${env.COMPUTED_RELEASE_VERSION}" :
-                            "chore: prepare next development iteration ${env.COMPUTED_NEXT_SNAPSHOT}"
-                        sh """
-                            git add pom.xml */pom.xml
-                            git diff --cached --quiet && echo 'Versions already at target — nothing to commit' || git commit -m "${commitMsg}"
-                            git push origin develop
-                        """
+                            // Update all released plugin properties
+                            if (env.RESOLVED_PLUGINS_JSON) {
+                                def resolvedPlugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
+                                def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
+
+                                resolvedPlugins.each { plugin ->
+                                    if (releasedList.contains(plugin.artifactId)) {
+                                        def nextVer = isRc ? plugin.currentVersion : plugin.nextSnapshot
+                                        sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${nextVer}</${plugin.propertyName}>|g' ${pomFile}"
+                                    }
+                                }
+                            }
+
+                            // Update child module parent versions
+                            def modules = ['lutece-bom', 'forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter']
+                            modules.each { mod ->
+                                def modPom = "${mod}/pom.xml"
+                                if (fileExists(modPom)) {
+                                    sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${parentTarget}</version>|}' ${modPom}"
+                                }
+                            }
+
+                            def commitMsg = isRc ?
+                                "chore: restore SNAPSHOT after RC" :
+                                "chore: prepare next development iteration"
+                            sh """
+                                git add pom.xml */pom.xml
+                                git diff --cached --quiet && echo 'Versions already at target — nothing to commit' || git commit -m "${commitMsg}"
+                                git push origin develop
+                            """
+                        }
                     }
 
                     appendReport(isRc ?
@@ -744,6 +849,81 @@ Check the report for rollback actions required.
 // ========================================================================
 // Helper Functions
 // ========================================================================
+
+/**
+ * Returns the POM property name that holds the version for a given starter/BOM module.
+ * Example: "forms-starter" -> "lutece.forms-starter.version"
+ */
+def starterVersionProperty(String starterName) {
+    return "lutece.${starterName}.version"
+}
+
+/**
+ * Checks whether the RELEASE_TARGET is a single module (not 'all').
+ */
+def isSingleModuleRelease() {
+    return params.RELEASE_TARGET != 'all'
+}
+
+/**
+ * Reads all 5 module version properties from root pom.xml and builds a version map.
+ * Each entry contains: current (SNAPSHOT), release, next (next SNAPSHOT).
+ *
+ * Used by 'all' mode to handle modules with heterogeneous versions.
+ *
+ * @param pomContent  Root pom.xml content as String
+ * @return Map keyed by module name (e.g. 'forms-starter') with version details
+ */
+def readModuleVersionMap(String pomContent) {
+    def modules = ['forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter', 'lutece-bom']
+    def isRc = env.IS_RC == 'true'
+    def rcNum = env.RC_NUM
+
+    def versionMap = [:]
+    modules.each { mod ->
+        def prop = starterVersionProperty(mod)
+        def matcher = pomContent =~ "<${prop}>([^<]+)</${prop}>"
+        if (matcher.find()) {
+            def current = matcher[0][1]
+            def base = current.replace('-SNAPSHOT', '')
+            def release = isRc ? "${base}-RC-${rcNum.padLeft(2, '0')}" : base
+            def next = isRc ? current : computeNextSnapshot(base)
+            versionMap[mod] = [
+                property     : prop,
+                current      : current,
+                releaseVersion: release,
+                next         : next
+            ]
+        } else {
+            echo "WARNING: Could not find property <${prop}> in root pom.xml"
+        }
+    }
+    return versionMap
+}
+
+/**
+ * Returns the release version for a given module.
+ *
+ * For 'all' mode: looks up the module's version from the per-module version map.
+ * For single-module mode: returns env.COMPUTED_RELEASE_VERSION.
+ *
+ * @param moduleName  Module name (e.g. 'forms-starter', 'lutece-bom')
+ * @return The release version string for this module
+ */
+def getModuleReleaseVersion(String moduleName) {
+    if (isSingleModuleRelease()) {
+        return env.COMPUTED_RELEASE_VERSION
+    }
+    // 'all' mode: read from per-module version map
+    def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
+    def info = moduleVersions[moduleName]
+    if (info) {
+        return info.releaseVersion
+    }
+    // Fallback (should never happen for known modules)
+    echo "WARNING: No per-module version found for ${moduleName}, falling back to COMPUTED_RELEASE_VERSION"
+    return env.COMPUTED_RELEASE_VERSION
+}
 
 /**
  * Computes the next SNAPSHOT version by incrementing the patch number.
@@ -1155,16 +1335,21 @@ def rollbackPlugin(Map plugin) {
  * Master is never touched before deploy succeeds → simple rollback (tag delete only).
  */
 def releaseStarter(String starterName) {
-    def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
+    def moduleVersion = getModuleReleaseVersion(starterName)
+    def tagName = "${starterName}-${moduleVersion}"
     def isRc = env.IS_RC == 'true'
 
-    echo "=== Releasing ${starterName} ${env.COMPUTED_RELEASE_VERSION}${isRc ? ' (RC)' : ''} ==="
+    echo "=== Releasing ${starterName} ${moduleVersion}${isRc ? ' (RC)' : ''} ==="
+
+    def singleModule = isSingleModuleRelease()
 
     if (params.DRY_RUN) {
         echo "[DRY-RUN] Would release ${starterName}"
         echo "[DRY-RUN]   Tag: ${tagName}"
         if (isRc) {
             echo "[DRY-RUN]   RC: tag + push, then deploy from develop"
+        } else if (singleModule) {
+            echo "[DRY-RUN]   Single module: tag + push, then deploy (no merge to master)"
         } else {
             echo "[DRY-RUN]   Stable: tag + push, then deploy, then merge to master"
         }
@@ -1174,7 +1359,7 @@ def releaseStarter(String starterName) {
     // ── Phase 1: prepare (tag + push tag only — develop already pushed in Stage 4) ──
     // Delete local tag if it exists (git fetch --tags brings back remote tags on re-runs)
     sh "git tag -d ${tagName} 2>/dev/null || true"
-    sh "git tag -a ${tagName} -m \"Release ${starterName} ${env.COMPUTED_RELEASE_VERSION}\""
+    sh "git tag -a ${tagName} -m \"Release ${starterName} ${moduleVersion}\""
     sh "git push origin ${tagName}"
 
     // ── Phase 2: perform (deploy to Nexus) ──
@@ -1183,15 +1368,16 @@ def releaseStarter(String starterName) {
     sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean install -pl ${starterName} -am -DskipTests -DperformRelease=true"
     sh "mvn -s ${env.MAVEN_SETTINGS_XML} deploy -pl ${starterName} -DskipTests -DperformRelease=true"
 
-    // ── Phase 3: promote (merge to master — stable only) ──
-    if (!isRc) {
+    // ── Phase 3: promote (merge to master — stable 'all' release only) ──
+    // Skip merge for single-module releases (other modules may still be in SNAPSHOT)
+    if (!isRc && !singleModule) {
         sh "git checkout master"
         sh "git merge develop -m \"Merge develop for release ${tagName}\""
         sh "git push origin master"
         sh "git checkout develop"
     }
 
-    echo "Released ${starterName} ${env.COMPUTED_RELEASE_VERSION} successfully."
+    echo "Released ${starterName} ${moduleVersion} successfully."
 }
 
 /**
@@ -1202,7 +1388,8 @@ def releaseStarter(String starterName) {
  * - Ensure we are back on the develop branch
  */
 def rollbackStarter(String starterName) {
-    def tagName = "${starterName}-${env.COMPUTED_RELEASE_VERSION}"
+    def moduleVersion = getModuleReleaseVersion(starterName)
+    def tagName = "${starterName}-${moduleVersion}"
 
     echo "=== Rolling back ${starterName} ==="
 

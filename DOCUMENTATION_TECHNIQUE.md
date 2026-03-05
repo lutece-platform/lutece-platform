@@ -125,9 +125,26 @@ Starter complet agrégeant tous les autres starters ainsi que d'autre plugins.
 
 ### Gestion des versions
 
+Chaque module (starter/BOM) a sa propre property de version dans le POM parent,
+permettant des **releases individuelles** sans impacter les autres modules :
+
+```xml
+<properties>
+    <!-- Versions decouplees par module (chaque module peut evoluer independamment) -->
+    <lutece.forms-starter.version>8.0.0-SNAPSHOT</lutece.forms-starter.version>
+    <lutece.appointment-starter.version>8.0.0-SNAPSHOT</lutece.appointment-starter.version>
+    <lutece.editorial-starter.version>8.0.0-SNAPSHOT</lutece.editorial-starter.version>
+    <lutece.lutece-starter.version>8.0.0-SNAPSHOT</lutece.lutece-starter.version>
+    <lutece.lutece-bom.version>8.0.0-SNAPSHOT</lutece.lutece-bom.version>
+</properties>
 ```
-   
+
+Chaque module enfant declare sa version via la property parent :
+```xml
+<version>${lutece.forms-starter.version}</version>
 ```
+
+Le **flatten-maven-plugin** resout ces properties en valeurs concretes dans le POM deploye.
 
 ---
 

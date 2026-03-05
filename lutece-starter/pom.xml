@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>lutece-starter</artifactId>
+    <version>${lutece.lutece-starter.version}</version>
     <name>Lutece Platform starters</name>
     <description>Lutece Platform</description>
 

@@ -25,10 +25,46 @@ lutece/                          # Racine du projet
 
 ### Hiérarchie Maven
 
-- **POM Parent** (`lutece/pom.xml`) : définit les versions de tous les plugins/composants Lutece
+- **POM Parent** (`lutece/pom.xml`) : définit les versions de tous les plugins/composants Lutece et les versions individuelles de chaque module
 - **BOM** (`lutece-bom`) : centralise les versions des dépendances, utilisé par les consommateurs externes (PAS par les starters, pour garder de la souplesse)
-- **Starters spécialisés** (`forms-starter`, `appointment-starter`, `editorial-starter`) : héritent du POM parent, chacun agrège un sous-ensemble de plugins Lutece avec ses propres versions
+- **Starters spécialisés** (`forms-starter`, `appointment-starter`, `editorial-starter`) : héritent du POM parent, chacun a sa propre version pilotée par une property dédiée et agrège un sous-ensemble de plugins Lutece
 - **lutece-starter** : le starter complet, il **dépend des 3 autres starters** + des plugins Lutece supplémentaires qui ne sont dans aucun des starters spécialisés
+
+### Gestion des versions — Découplage par module
+
+Chaque module (starter/BOM) a sa propre property de version dans le POM parent, permettant des **releases individuelles** :
+
+```xml
+<properties>
+    <!-- Chaque module a sa propre version (independante des autres) -->
+    <lutece.forms-starter.version>8.0.0-SNAPSHOT</lutece.forms-starter.version>
+    <lutece.appointment-starter.version>8.0.0-SNAPSHOT</lutece.appointment-starter.version>
+    <lutece.editorial-starter.version>8.0.0-SNAPSHOT</lutece.editorial-starter.version>
+    <lutece.lutece-starter.version>8.0.0-SNAPSHOT</lutece.lutece-starter.version>
+    <lutece.lutece-bom.version>8.0.0-SNAPSHOT</lutece.lutece-bom.version>
+
+    <!-- 90+ versions de plugins -->
+    <lutece.core.version>8.0.0</lutece.core.version>
+    <!-- ... -->
+</properties>
+```
+
+Chaque module enfant déclare sa version via la property parent :
+
+```xml
+<!-- forms-starter/pom.xml -->
+<artifactId>forms-starter</artifactId>
+<version>${lutece.forms-starter.version}</version>
+```
+
+Le **flatten-maven-plugin** (configuré en `flattenMode=clean`) résout la property en valeur concrète dans le POM déployé sur Nexus. Le POM publié est donc autonome.
+
+Cette property sert a la fois pour :
+- La version propre du module (`<version>${lutece.forms-starter.version}</version>`)
+- La dépendance dans lutece-starter (`<dependency>...<version>${lutece.forms-starter.version}</version>`)
+- La version managée dans lutece-bom (`<dependencyManagement>`)
+
+Un seul `sed` sur cette property met tout a jour.
 
 ## 🔗 Organisations GitHub
 
@@ -42,9 +78,10 @@ Les plugins Lutece sont répartis sur **deux organisations GitHub** :
 ## 🌿 Stratégie de branches
 
 - **Branche de développement** : `develop` (sur tous les dépôts) — branche de référence pour le travail courant
-- **Branche de production** : `master` — reçoit le merge de develop lors de chaque release
-- Les releases sont préparées sur `develop`, puis mergées sur `master` avant le deploy
-- Convention de tags : `{artifactId}-{version}` (ex: `lutece-core-8.0.0`)
+- **Branche de production** : `master` — reçoit le merge de develop lors d'une release `all`
+- Les releases sont préparées sur `develop`, puis mergées sur `master` lors d'une release `all`
+- Les releases individuelles (un seul module) **ne mergent pas sur master** (les autres modules peuvent encore etre en SNAPSHOT)
+- Convention de tags : `{artifactId}-{version}` (ex: `lutece-core-8.0.0`, `forms-starter-8.0.1`)
 
 ## ☕ Stack technique
 
@@ -95,17 +132,23 @@ plugins Lutece (lutece-platform + lutece-secteur-public)
 
 ### Scénarios de release
 
-**Release d'un starter spécialisé (ex: forms-starter) :**
-1. Identifier les plugins SNAPSHOT du forms-starter
-2. Releaser ces plugins un par un
-3. Mettre à jour le POM parent
-4. Releaser le forms-starter
+**Release individuelle d'un starter (ex: `RELEASE_TARGET = forms-starter`) :**
+1. Lit `<lutece.forms-starter.version>` → `8.0.0-SNAPSHOT`
+2. Identifie et release les plugins SNAPSHOT du forms-starter
+3. Met a jour **uniquement** `<lutece.forms-starter.version>` dans le POM parent → `8.0.0`
+4. Tag `forms-starter-8.0.0`, deploy sur Nexus (pas de merge sur master)
+5. Restaure `<lutece.forms-starter.version>` → `8.0.1-SNAPSHOT`
+6. Les autres modules restent inchangés
 
-**Release du lutece-starter (complet) :**
-1. Releaser les 3 starters spécialisés (s'ils sont en SNAPSHOT)
-2. Releaser les plugins supplémentaires propres au lutece-starter
-3. Mettre à jour le POM parent
-4. Releaser le lutece-starter
+**Release complète (`RELEASE_TARGET = all`) :**
+1. Lit la version de chaque module individuellement (chaque module peut avoir sa propre version)
+2. Release tous les plugins SNAPSHOT de tous les starters
+3. Met a jour la version du parent + chaque property de module (avec sa propre version) + parent versions enfants
+4. Release les 3 starters specialises en parallele (chacun avec sa propre version)
+5. Release `lutece-starter` (avec sa propre version)
+6. Release `lutece-bom` (avec sa propre version)
+7. Merge develop sur master
+8. Restaure chaque module en SNAPSHOT (patch+1 de sa propre version)
 
 ### Détail du processus de release d'un plugin Lutece
 
@@ -259,10 +302,10 @@ git push origin develop --tags
 
 ### Validation SNAPSHOT (gate de sécurité)
 
-Avant de releaser les starters, la pipeline vérifie qu'**aucune dépendance
+Avant de releaser les starters, la pipeline verifie qu'**aucune dependance
 SNAPSHOT ne subsiste** dans le `pom.xml` racine (hors properties structurelles
-comme `revision`). Si des violations sont détectées, le pipeline passe en
-état `UNSTABLE` et les starters ne seront pas déployés.
+des modules). Si des violations sont detectees, le pipeline passe en
+etat `UNSTABLE` et les starters ne seront pas deployes.
 
 ### Rollback automatique
 
@@ -320,7 +363,8 @@ convention standard :
 
 ### Pipeline souhaitée
 
-- **Release sélective** : pouvoir choisir quel(s) starter(s) releaser
+- **Release sélective** : pouvoir choisir quel(s) starter(s) releaser individuellement
+- **Releases individuelles** : chaque module peut etre releasé indépendamment sans impacter les autres (versions découplées)
 - **Résolution automatique des dépendances** : identifier et releaser d'abord les composants SNAPSHOT d'un starter
 - **Multi-dépôt** : le pipeline doit pouvoir cloner et releaser des composants depuis les deux organisations GitHub
 - **Paramétrable** : version de release, version SNAPSHOT suivante, dry-run mode
@@ -350,9 +394,10 @@ JAVA_HOME             // JDK 17
 ## 📋 Conventions de code
 
 - **Commits** : format conventionnel — `type: description` (ex: `release: v3.2.0`, `chore: update dependencies`)
-- **Tags** : format `{artifactId}-{version}` (ex: `lutece-core-8.0.0`, `forms-starter-3.2.0`)
+- **Tags** : format `{artifactId}-{version}` (ex: `lutece-core-8.0.0`, `forms-starter-8.0.1`)
+- **Tags par release `all`** : 5 tags dans le monorepo (un par module) + un tag par plugin releasé
 - **Versioning** : SemVer (MAJOR.MINOR.PATCH)
-- **POM** : toujours utiliser `${project.version}` pour les modules internes, jamais de versions en dur
+- **POM** : chaque module utilise `${lutece.<module>.version}` pour sa version, jamais de versions en dur
 
 ## ⚠️ Points d'attention
 
@@ -366,6 +411,8 @@ JAVA_HOME             // JDK 17
 8. **Les starters n'ont pas de tests de vérification** — ils peuvent être releasés directement après mise à jour des versions
 9. **Le descripteur XML du plugin** (`webapp/WEB-INF/plugins/*.xml`) contient un tag `<version>` qui doit être synchronisé avec la version du `pom.xml` à chaque changement de version
 10. **Les Release Candidates ne touchent pas master** — le deploy RC se fait depuis `develop`, et la version SNAPSHOT d'origine est restaurée après (pas d'incrément)
+11. **Les releases individuelles ne touchent pas master** — seule une release `all` merge develop sur master (les autres modules peuvent encore etre en SNAPSHOT)
+12. **Les versions des modules sont découplées** — chaque module a sa propre property de version (`lutece.<module>.version`), ce qui permet des releases indépendantes
 
 ## 🔍 Commandes utiles
 

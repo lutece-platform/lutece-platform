@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>lutece-bom</artifactId>
+    <version>${lutece.lutece-bom.version}</version>
     <packaging>pom</packaging>
     <name>Lutece BOM</name>
     <description>Bill of Materials for Lutece</description>
@@ -238,14 +239,20 @@
                 <type>lutece-plugin</type>
             </dependency>
 
-            <!-- Appointment Profile
+            <!-- Appointment Profile -->
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-appointment</artifactId>
                 <version>${lutece.plugin-appointment.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
-            -->
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-workflow-appointment</artifactId>
+                <version>${lutece.module-workflow-appointment.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            
 
             <!-- ================================================== -->
             <!-- Authentification                                   -->

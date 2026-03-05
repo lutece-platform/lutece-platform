@@ -53,25 +53,51 @@ Plugins Lutece (90+ composants)
                       └──► lutece-bom  (dernier, reflete l'etat final)
 ```
 
-### Gestion des versions
+### Gestion des versions — Decouplage par module
 
 Les versions de tous les plugins sont centralisees dans le `pom.xml` racine
-sous forme de properties Maven :
+sous forme de properties Maven. Chaque module (starter/BOM) a sa propre
+property de version, ce qui permet des **releases individuelles** :
 
 ```xml
 <properties>
-    <revision>8.0.0-SNAPSHOT</revision>
-    <lutece.core.version>8.0.0-SNAPSHOT</lutece.core.version>
-    <lutece.plugin-forms.version>4.0.0-SNAPSHOT</lutece.plugin-forms.version>
-    <lutece.library-lucene.version>6.0.0-SNAPSHOT</lutece.library-lucene.version>
-    <!-- ... 90+ properties -->
+    <!-- Chaque module a sa propre version (independante des autres) -->
+    <lutece.forms-starter.version>8.0.0-SNAPSHOT</lutece.forms-starter.version>
+    <lutece.appointment-starter.version>8.0.0-SNAPSHOT</lutece.appointment-starter.version>
+    <lutece.editorial-starter.version>8.0.0-SNAPSHOT</lutece.editorial-starter.version>
+    <lutece.lutece-starter.version>8.0.0-SNAPSHOT</lutece.lutece-starter.version>
+    <lutece.lutece-bom.version>8.0.0-SNAPSHOT</lutece.lutece-bom.version>
+
+    <!-- 90+ versions de plugins -->
+    <lutece.core.version>8.0.0</lutece.core.version>
+    <lutece.plugin-forms.version>4.0.0</lutece.plugin-forms.version>
+    <!-- ... -->
 </properties>
 ```
 
-La property `<revision>` controle les references croisees entre modules
-(les starters specialises utilisent `${revision}` comme version parent
-et le `lutece-starter` reference les 3 starters via
-`${lutece.forms-starter.version}`, qui pointe aussi vers `${revision}`).
+Chaque module enfant declare sa version via la property parent :
+
+```xml
+<!-- forms-starter/pom.xml -->
+<artifactId>forms-starter</artifactId>
+<version>${lutece.forms-starter.version}</version>
+```
+
+La property `lutece.forms-starter.version` sert a la fois pour :
+- La version propre du module
+- La dependance dans lutece-starter
+- La version managee dans lutece-bom
+
+Le **flatten-maven-plugin** (configure en `flattenMode=clean`) resout
+la property en valeur concrete dans le POM deploye sur Nexus.
+
+**Release individuelle :** un seul `sed` sur `<lutece.forms-starter.version>`
+suffit a mettre a jour la version partout. Les autres modules restent inchanges.
+
+**Release `all` :** la pipeline construit une **carte de versions par module**
+(chaque module peut avoir une version differente). Chaque property est mise
+a jour individuellement avec sa propre version courante/release/next. Les
+parent versions dans les POMs enfants sont egalement mis a jour.
 
 ---
 
@@ -209,8 +235,11 @@ sont disponibles :
 
 ### Calcul automatique des versions
 
-Si `RELEASE_VERSION` est laisse vide, la pipeline lit la version
-du `pom.xml` racine et supprime le suffixe `-SNAPSHOT` :
+Si `RELEASE_VERSION` est laisse vide, la pipeline lit la version courante
+et supprime le suffixe `-SNAPSHOT` :
+
+- **Release individuelle** : lit `<lutece.{target}.version>` (ex: `<lutece.forms-starter.version>8.0.0-SNAPSHOT</...>` → `8.0.0`)
+- **Release `all`** : lit la version du parent `lutece-parent` pour affichage, puis construit une **carte de versions par module** en lisant chaque `<lutece.{module}.version>` individuellement (chaque module peut avoir sa propre version)
 
 ```
 8.0.0-SNAPSHOT  →  RELEASE_VERSION = 8.0.0
@@ -297,7 +326,7 @@ DRY_RUN          = false
 Cela va releaser **uniquement** `plugin-forms`, mettre a jour le POM parent
 pour ce plugin, puis releaser le forms-starter.
 
-### 6.3 — Release du forms-starter
+### 6.3 — Release individuelle du forms-starter
 
 ```
 RELEASE_TARGET = forms-starter
@@ -305,13 +334,16 @@ DRY_RUN        = false
 ```
 
 Deroulement :
-1. Detecte les ~40 plugins SNAPSHOT references par `forms-starter/pom.xml`
-2. Resout les repos GitHub pour chacun
-3. Release les plugins en batches paralleles de 5
-4. Met a jour le POM parent avec les versions release
-5. Verifie qu'aucun SNAPSHOT ne subsiste
-6. Release le forms-starter (tag, push, deploy, puis merge master)
-7. Prepare la prochaine version SNAPSHOT
+1. Lit `<lutece.forms-starter.version>` → `8.0.0-SNAPSHOT`
+2. Detecte les plugins SNAPSHOT references par `forms-starter/pom.xml`
+3. Resout les repos GitHub pour chacun
+4. Release les plugins en batches paralleles de 5
+5. Met a jour **uniquement** `<lutece.forms-starter.version>` + les properties des plugins
+6. Verifie qu'aucun SNAPSHOT ne subsiste (hors properties de modules)
+7. Release le forms-starter (tag, push, deploy — **pas de merge master**)
+8. Restaure `<lutece.forms-starter.version>` → `8.0.1-SNAPSHOT`
+
+Les autres modules (appointment-starter, editorial-starter, etc.) ne sont pas impactes.
 
 ### 6.4 — Release complete (all)
 
@@ -321,12 +353,14 @@ DRY_RUN        = false
 ```
 
 Deroulement complet :
-1. Release tous les plugins SNAPSHOT de tous les starters
-2. Met a jour le POM parent
-3. Release les 3 starters specialises en parallele
-4. Release `lutece-starter`
-5. Release `lutece-bom`
-6. Prepare la prochaine version SNAPSHOT
+1. Lit la version de chaque module individuellement (carte de versions par module)
+2. Release tous les plugins SNAPSHOT de tous les starters
+3. Met a jour chaque property de module avec sa propre version release + parent versions enfants
+4. Release les 3 starters specialises en parallele (chacun avec sa propre version)
+5. Release `lutece-starter` (avec sa propre version)
+6. Release `lutece-bom` (avec sa propre version)
+7. Merge develop sur master
+8. Prepare la prochaine version SNAPSHOT (patch+1 de chaque module individuellement)
 
 ### 6.5 — Release des starters uniquement (plugins deja releasees)
 
@@ -412,8 +446,10 @@ Seuls les plugins du `forms-starter` seront en RC.
 ### Stage 0 — Initialize
 
 **Actions :**
-- Lit la version courante depuis `pom.xml` (ex: `8.0.0-SNAPSHOT`)
-- Calcule la version release (ex: `8.0.0`)
+- Lit la version courante :
+  - **Si `RELEASE_TARGET` est un module specifique** : lit `<lutece.{target}.version>` dans le POM racine
+  - **Si `RELEASE_TARGET = all`** : lit la version du parent `lutece-parent` pour affichage, puis construit une **carte de versions par module** (`MODULE_VERSIONS_JSON`) en lisant chaque `<lutece.{module}.version>` individuellement. Chaque entree contient : version courante, version release, prochaine SNAPSHOT.
+- Calcule la version release (ex: `8.0.0`) — pour les releases individuelles et le parent POM
 - Calcule la prochaine version SNAPSHOT (ex: `8.0.1-SNAPSHOT`)
 - Resout la liste des starters a releaser en fonction de `RELEASE_TARGET`
 - Initialise le fichier de rapport
@@ -517,13 +553,21 @@ et la version SNAPSHOT d'origine est restauree apres le deploy. Voir
 
 ### Stage 4 — Update POM Parent Versions
 
-**Actions :**
-- Remplace chaque property SNAPSHOT des plugins releasees par la version
-  release via `sed`
-- Met a jour `<revision>` avec la version release
+Le comportement de ce stage depend du `RELEASE_TARGET` :
+
+**Si `RELEASE_TARGET` est un module specifique (ex: `forms-starter`) :**
+- `sed` uniquement sur `<lutece.forms-starter.version>` dans le POM racine
+- Met a jour les properties des plugins releasees (le cas echeant)
+- NE touche PAS `<revision>`, ni les parent versions des enfants, ni les autres properties de modules
+- Commit et push sur develop
+
+**Si `RELEASE_TARGET = all` :**
+- Lit la carte de versions par module (`MODULE_VERSIONS_JSON`)
 - Met a jour la `<version>` du projet `lutece-parent`
+- Met a jour chaque property de module avec sa propre version release (chaque module utilise sa version courante comme pattern de recherche `sed`, ce qui permet de gerer des versions heterogenes)
 - Met a jour la `<version>` du parent dans chaque module enfant
-- Commit sur develop
+- Remplace chaque property SNAPSHOT des plugins releasees par la version release
+- Commit et push sur develop
 
 **Pourquoi `sed` ?** Avec 90+ properties, utiliser
 `mvn versions:set-property` prendrait 90 invocations Maven (plusieurs
@@ -534,8 +578,10 @@ minutes). `sed` effectue toutes les modifications en quelques secondes.
 **Actions :**
 - Relit le `pom.xml` apres modifications
 - Verifie qu'aucune property SNAPSHOT ne subsiste
-- Ignore les properties structurelles (`revision`,
-  `lutece.forms-starter.version`, etc.)
+- Ignore les properties structurelles des modules
+  (`lutece.forms-starter.version`, `lutece.appointment-starter.version`,
+  `lutece.editorial-starter.version`, `lutece.lutece-starter.version`,
+  `lutece.lutece-bom.version`)
 - Si des violations sont detectees : pipeline `UNSTABLE` + detail dans le rapport
 
 Ce stage est un **gate de securite** : il empeche de releaser un starter
@@ -571,17 +617,31 @@ deploy depuis develop.
 
 ### Stage 9 — Prepare Next SNAPSHOT
 
-**Actions (release stable) :**
-- Met a jour `<revision>` avec la prochaine version SNAPSHOT
-- Met a jour la `<version>` du projet et de tous les modules
-- Remet chaque property plugin en SNAPSHOT (version patch+1)
-- Commit et push sur develop avec les tags
+Le comportement de ce stage depend du `RELEASE_TARGET` :
 
-**Actions (mode RC) :**
-- Restaure la version SNAPSHOT d'origine (`ORIGINAL_SNAPSHOT_VERSION`)
+**Si `RELEASE_TARGET` est un module specifique (release stable) :**
+- `sed` uniquement sur `<lutece.{target}.version>` → prochaine SNAPSHOT
+- Met a jour les properties des plugins releasees → prochaine SNAPSHOT
+- Commit et push sur develop
+
+**Si `RELEASE_TARGET` est un module specifique (mode RC) :**
+- Restaure `<lutece.{target}.version>` a la version SNAPSHOT d'origine
+- Restaure les properties des plugins releasees
+- Commit et push sur develop
+
+**Si `RELEASE_TARGET = all` (release stable) :**
+- Lit la carte de versions par module (`MODULE_VERSIONS_JSON`)
+- Met a jour la `<version>` du projet parent avec la prochaine SNAPSHOT
+- Met a jour chaque property de module avec sa propre prochaine SNAPSHOT (utilise la version release de chaque module comme pattern `sed`)
+- Met a jour la `<version>` du parent dans tous les modules enfants
+- Remet chaque property plugin en SNAPSHOT (version patch+1)
+- Commit et push sur develop
+
+**Si `RELEASE_TARGET = all` (mode RC) :**
+- Lit la carte de versions par module
+- Restaure la version du parent + chaque property de module a sa version SNAPSHOT d'origine
 - Remet chaque property plugin a sa version SNAPSHOT d'origine
-  (pas d'increment du patch, retour a l'etat avant la RC)
-- Commit et push sur develop avec les tags RC
+- Commit et push sur develop
 
 ### Stage 10 — Release Report
 
@@ -842,7 +902,7 @@ des modules deja publies sur Nexus (ce qui provoquerait une erreur 400).
 > **Si le deploy echoue ici**, le rollback est simple : supprimer le tag.
 > Master n'a pas ete touche.
 
-### Etape 3 — Promote (merge sur master)
+### Etape 3 — Promote (merge sur master — release `all` uniquement)
 
 ```bash
 git checkout master
@@ -851,9 +911,12 @@ git push origin master
 git checkout develop
 ```
 
-Le merge sur master n'a lieu **qu'apres le succes du deploy sur Nexus**.
+Le merge sur master n'a lieu **qu'apres le succes du deploy sur Nexus** et
+**uniquement lors d'une release `all`**. Les releases individuelles
+(un seul module) ne mergent pas sur master car les autres modules
+peuvent encore etre en SNAPSHOT.
 
-### Resume visuel (release stable d'un starter)
+### Resume visuel (release `all` d'un starter)
 
 ```
 develop:  ──► tag ──► push ────────────────────────────────►
@@ -863,6 +926,18 @@ nexus:    ──────────────────── deploy �
 master:   ──────────────────────────── merge ──► push ─┘
                          │
 tags:     ── forms-starter-8.0.0
+```
+
+### Resume visuel (release individuelle d'un starter)
+
+```
+develop:  ──► tag ──► push ────────────────────────────────►
+                         │              │
+nexus:    ──────────────────── deploy ──┘
+                         │
+master:   ──────────────────────── (inchange)
+                         │
+tags:     ── forms-starter-8.0.1
 ```
 
 ### Variante RC — Release d'un starter en Release Candidate
@@ -937,8 +1012,7 @@ automatiquement un rollback en 2 etapes :
 
 ### Rollback automatique des starters
 
-Pour les starters, le rollback est encore plus simple car il n'y a pas
-de commit de version (les starters utilisent `${revision}` du parent) :
+Pour les starters, le rollback est simple :
 
 1. **Suppression du tag** (local + remote) :
    ```bash
@@ -1115,6 +1189,32 @@ tests sont lents. Solutions :
 logs Jenkins. Le rapport archive (`release-report.txt`) contient aussi
 le resume des actions qui auraient ete effectuees.
 
+### Q: Comment releaser un seul starter sans toucher aux autres ?
+
+**R:** Utiliser `RELEASE_TARGET` pour cibler le module :
+
+```
+RELEASE_TARGET = forms-starter
+DRY_RUN        = false
+```
+
+La pipeline va :
+- Lire la version depuis `<lutece.forms-starter.version>`
+- Releaser les plugins SNAPSHOT du forms-starter
+- Mettre a jour uniquement `<lutece.forms-starter.version>` (pas `<revision>`)
+- Tag + deploy le forms-starter (pas de merge sur master)
+- Restaurer `<lutece.forms-starter.version>` en next SNAPSHOT
+
+Les autres modules restent inchanges.
+
+### Q: Pourquoi pas de merge sur master lors d'une release individuelle ?
+
+**R:** En release individuelle, seul un module change de version. Les autres
+modules sont toujours en SNAPSHOT. Merger develop sur master pousserait
+des versions SNAPSHOT sur la branche de production, ce qui est interdit.
+Le merge sur master n'a lieu que lors d'une release `all` ou toutes les
+versions sont en release.
+
 ### Q: Les versions calculees automatiquement ne sont pas correctes ?
 
 **R:** Specifier manuellement les versions :
@@ -1167,6 +1267,24 @@ DRY_RUN        = false
 La release stable effectuera le processus complet : merge sur master,
 deploy, puis passage en version SNAPSHOT suivante (avec increment du patch).
 
+### Q: Que se passe-t-il si les modules ont des versions differentes lors d'une release `all` ?
+
+**R:** La pipeline gere correctement les **versions heterogenes**. En mode
+`all`, le Stage 0 construit une carte de versions par module en lisant
+chaque `<lutece.{module}.version>` individuellement. Exemple :
+
+```
+forms-starter:       8.0.1-SNAPSHOT → 8.0.1 → 8.0.2-SNAPSHOT
+appointment-starter: 8.0.0-SNAPSHOT → 8.0.0 → 8.0.1-SNAPSHOT
+editorial-starter:   8.0.0-SNAPSHOT → 8.0.0 → 8.0.1-SNAPSHOT
+lutece-starter:      8.0.2-SNAPSHOT → 8.0.2 → 8.0.3-SNAPSHOT
+lutece-bom:          8.0.0-SNAPSHOT → 8.0.0 → 8.0.1-SNAPSHOT
+```
+
+Chaque module est release avec sa propre version, son propre tag, et sa
+propre prochaine SNAPSHOT. Les operations `sed` utilisent la version courante
+de chaque module comme pattern de recherche, pas une version globale unique.
+
 ### Q: Les tags RC et les tags stables coexistent-ils ?
 
 **R:** Oui. Les tags RC restent en place et ne sont pas supprimes lors de
@@ -1194,8 +1312,9 @@ restaure la version SNAPSHOT sur develop.
 | `MAVEN_SETTINGS_XML` | credentials(`maven-settings-lutece`) | Fichier settings.xml Maven |
 | `GITHUB_ORG_PLATFORM` | Jenkinsfile | `lutece-platform` |
 | `GITHUB_ORG_PUBLIC` | Jenkinsfile | `lutece-secteur-public` |
-| `COMPUTED_RELEASE_VERSION` | Calculee au Stage 0 | Version release (ex: `8.0.0`) |
-| `COMPUTED_NEXT_SNAPSHOT` | Calculee au Stage 0 | Prochaine SNAPSHOT (ex: `8.0.1-SNAPSHOT`) |
+| `COMPUTED_RELEASE_VERSION` | Calculee au Stage 0 | Version release du parent / module unique (ex: `8.0.0`). En mode `all`, utilisee pour le parent POM et l'affichage. |
+| `COMPUTED_NEXT_SNAPSHOT` | Calculee au Stage 0 | Prochaine SNAPSHOT du parent / module unique (ex: `8.0.1-SNAPSHOT`) |
+| `MODULE_VERSIONS_JSON` | Calculee au Stage 0 (mode `all` uniquement) | Carte JSON des versions par module. Chaque entree contient : `property`, `current`, `releaseVersion`, `next`. Permet de gerer des versions heterogenes entre modules. |
 | `STARTERS_TO_RELEASE` | Calculee au Stage 0 | Liste des starters cibles (CSV) |
 | `SNAPSHOT_PLUGINS_JSON` | Calculee au Stage 1 | Liste JSON des plugins SNAPSHOT |
 | `RESOLVED_PLUGINS_JSON` | Calculee au Stage 2 | Liste JSON des plugins avec info repo |
@@ -1212,6 +1331,10 @@ restaure la version SNAPSHOT sur develop.
 
 | Fonction | Signature | Description |
 |----------|-----------|-------------|
+| `starterVersionProperty` | `(String name) → String` | Retourne le nom de la property POM pour un module (ex: `forms-starter` → `lutece.forms-starter.version`) |
+| `isSingleModuleRelease` | `() → boolean` | `true` si `RELEASE_TARGET != 'all'` |
+| `readModuleVersionMap` | `(String pomContent) → Map` | Lit les 5 properties de version des modules et construit une carte `{module: {property, current, releaseVersion, next}}`. Utilisee en mode `all` pour gerer les versions heterogenes. |
+| `getModuleReleaseVersion` | `(String moduleName) → String` | Retourne la version release d'un module. En mode `all` : consulte `MODULE_VERSIONS_JSON`. En mode individuel : retourne `COMPUTED_RELEASE_VERSION`. |
 | `computeNextSnapshot` | `(String version) → String` | `8.0.0` → `8.0.1-SNAPSHOT` |
 | `resolveStartersToRelease` | `(String target) → String` | Resolution en cascade des starters cibles |
 | `parseSnapshotPlugins` | `(String pomContent) → List<Map>` | Extrait les properties SNAPSHOT du POM |
@@ -1220,7 +1343,7 @@ restaure la version SNAPSHOT sur develop.
 | `resolveDevBranch` | `(String org, String repo) → String` | Resout la branche de developpement |
 | `releasePlugin` | `(Map plugin) → void` | Workflow complet de release d'un plugin |
 | `rollbackPlugin` | `(Map plugin) → void` | Revert du commit + suppression du tag |
-| `releaseStarter` | `(String name) → void` | Release d'un module du monorepo (prepare/perform/promote) |
-| `rollbackStarter` | `(String name) → void` | Suppression du tag + retour sur develop |
+| `releaseStarter` | `(String name) → void` | Release d'un module du monorepo (prepare/perform/promote). Utilise `getModuleReleaseVersion()` pour le tag. Merge sur master uniquement si `!isSingleModuleRelease()`. |
+| `rollbackStarter` | `(String name) → void` | Suppression du tag (via `getModuleReleaseVersion()`) + retour sur develop |
 | `appendReport` | `(String line) → void` | Ajoute une ligne au rapport |
 | `generateReleaseReport` | `() → void` | Genere le rapport final de release |

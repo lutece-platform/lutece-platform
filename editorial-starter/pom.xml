@@ -8,6 +8,7 @@
     </parent>
 
     <artifactId>editorial-starter</artifactId>
+    <version>${lutece.editorial-starter.version}</version>
     <name>Lutece Editorial Starter</name>
     <description>Lutece Editorial Starter</description>
 
