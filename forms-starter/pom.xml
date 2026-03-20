@@ -8,7 +8,7 @@
     </parent>
 
     <artifactId>forms-starter</artifactId>
-    <version>${lutece.forms-starter.version}</version>
+    <version>8.0.0-RC2</version>
     <name>Lutece Forms Starter</name>
     <description>Lutece Forms Starter</description>
 

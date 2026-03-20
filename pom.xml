@@ -57,7 +57,7 @@
         -->
 
         <!-- LUTECE PROFILES VERSION — each starter/BOM has its own version for independent releases -->
-        <lutece.forms-starter.version>8.0.0-SNAPSHOT</lutece.forms-starter.version>
+        <lutece.forms-starter.version>8.0.0-RC2</lutece.forms-starter.version>
         <lutece.appointment-starter.version>8.0.0-SNAPSHOT</lutece.appointment-starter.version>
         <lutece.editorial-starter.version>8.0.0-SNAPSHOT</lutece.editorial-starter.version>
         <lutece.lutece-starter.version>8.0.0-SNAPSHOT</lutece.lutece-starter.version>
