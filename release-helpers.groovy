@@ -131,10 +131,22 @@ def parseSnapshotPlugins(String pomContent) {
     def plugins = []
     // Strip XML comments before scanning to avoid detecting commented-out properties
     def cleanContent = pomContent.replaceAll('(?s)<!--.*?-->', '')
+    // Monorepo module version properties — these are NOT external plugins
+    def monorepoProperties = [
+        'lutece.forms-starter.version',
+        'lutece.appointment-starter.version',
+        'lutece.editorial-starter.version',
+        'lutece.lutece-starter.version',
+        'lutece.lutece-bom.version'
+    ] as Set
     def matcher = cleanContent =~ '<(lutece\\.[a-zA-Z0-9._-]+\\.version)>([^<]*-SNAPSHOT)</'
     while (matcher.find()) {
         def propertyName = matcher.group(1)
         def version = matcher.group(2)
+        // Skip monorepo module properties — they have their own release lifecycle (Stages 6-8)
+        if (monorepoProperties.contains(propertyName)) {
+            continue
+        }
         // Derive artifactId from property name:
         // lutece.plugin-forms.version -> plugin-forms
         // lutece.library-lucene.version -> library-lucene
