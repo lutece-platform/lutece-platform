@@ -216,6 +216,12 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-extend-statistics</artifactId>
+                <version>${lutece.module-extend-statistics.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-galleryimage</artifactId>
                 <version>${lutece.plugin-galleryimage.version}</version>
                 <type>lutece-plugin</type>
@@ -250,6 +256,12 @@
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-workflow-appointment</artifactId>
                 <version>${lutece.module-workflow-appointment.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-management</artifactId>
+                <version>${lutece.module-appointment-management.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
             
@@ -503,6 +515,12 @@
                 <version>${lutece.plugin-matomo.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+             <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-health</artifactId>
+                <version>${lutece.plugin-health.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-rest</artifactId>
@@ -611,6 +629,56 @@
                 <version>${lutece.plugin-parser.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+            <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-wiki</artifactId>
+	            <version>${lutece.plugin-wiki.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-wiki-quiz</artifactId>
+	            <version>${lutece.module-wiki-quiz.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-wiki-ai</artifactId>
+	            <version>${lutece.module-wiki-ai.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+
+			 <!-- SEO -->
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-seo</artifactId>
+	            <version>${lutece.plugin-seo.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>plugin-sitemap</artifactId>
+	            <version>${lutece.plugin-sitemap.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-seo-wiki</artifactId>
+	            <version>${lutece.module-seo-wiki.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-seo-blog</artifactId>
+	            <version>${lutece.module-seo-blog.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
+	        <dependency>
+	            <groupId>fr.paris.lutece.plugins</groupId>
+	            <artifactId>module-seo-robots</artifactId>
+	            <version>${lutece.module-seo-robots.version}</version>
+	            <type>lutece-plugin</type>
+	        </dependency>
 
             <!-- ================================================== -->
             <!-- Elasticsearch                                      -->
