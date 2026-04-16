@@ -151,9 +151,10 @@ def parseSnapshotPlugins(String pomContent) {
         // lutece.plugin-forms.version -> plugin-forms
         // lutece.library-lucene.version -> library-lucene
         // lutece.core.version -> lutece-core
+        // Use replaceFirst to avoid stripping "lutece." inside the name (e.g. plugin-mylutece)
         def artifactId = propertyName
-            .replace('lutece.', '')
-            .replace('.version', '')
+            .replaceFirst('^lutece\\.', '')
+            .replaceFirst('\\.version$', '')
         if (artifactId == 'core') {
             artifactId = 'lutece-core'
         }
