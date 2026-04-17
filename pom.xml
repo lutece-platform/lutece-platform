@@ -119,8 +119,18 @@
         <!-- Lutece appointment -->
         <lutece.plugin-appointment.version>4.0.0-SNAPSHOT</lutece.plugin-appointment.version>
         <lutece.module-workflow-appointment.version>4.0.0-SNAPSHOT</lutece.module-workflow-appointment.version>
-		<lutece.module-appointment-management.version>2.0.0-SNAPSHOT</lutece.module-appointment-management.version>
-       
+		<lutece.module-appointment-management.version>2.0.0-SNAPSHOT</lutece.module-appointment-management.version>      
+        <lutece.module-appointment-desk.version>2.0.0-SNAPSHOT</lutece.module-appointment-desk.version>
+        <lutece.module-appointment-mydashboard.version>4.0.0-SNAPSHOT</lutece.module-appointment-mydashboard.version>
+        <lutece.module-appointment-resource.version>4.0.0-SNAPSHOT</lutece.module-appointment-resource.version>
+        <lutece.module-appointment-ants.version>2.0.0-SNAPSHOT</lutece.module-appointment-ants.version>
+        <lutece.module-appointment-alert.version>4.0.0-SNAPSHOT</lutece.module-appointment-alert.version>
+        <lutece.module-appointment-solrsearchapp.version>4.0.0-SNAPSHOT</lutece.module-appointment-solrsearchapp.version>
+		
+	    <lutece.plugin-resource.version>3.0.0-SNAPSHOT</lutece.plugin-resource.version>
+        <lutece.module-resource-adminuser.version>2.0.0-SNAPSHOT</lutece.module-resource-adminuser.version>
+        <lutece.plugin-mydashboard.version>2.0.0-SNAPSHOT</lutece.plugin-mydashboard.version>
+
         <!-- Lutece Editorial -->
         <lutece.plugin-html.version>6.0.0</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.0.0</lutece.plugin-htmlpage.version>

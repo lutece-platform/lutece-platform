@@ -268,8 +268,61 @@
                 <artifactId>module-appointment-management</artifactId>
                 <version>${lutece.module-appointment-management.version}</version>
                 <type>lutece-plugin</type>
+            </dependency>          
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-desk</artifactId>
+                <version>${lutece.module-appointment-desk.version}</version>
+                <type>lutece-plugin</type>
             </dependency>
-            
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-mydashboard</artifactId>
+                <version>${lutece.module-appointment-mydashboard.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-ants</artifactId>
+                <version>${lutece.module-appointment-ants.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-alert</artifactId>
+                <version>${lutece.module-appointment-alert.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-solrsearchapp</artifactId>
+                <version>${lutece.module-appointment-solrsearchapp.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-resource</artifactId>
+                <version>${lutece.module-appointment-resource.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-resource</artifactId>
+                <version>${lutece.plugin-resource.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-resource-adminuser</artifactId>
+                <version>${lutece.module-resource-adminuser.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-mydashboard</artifactId>
+                <version>${lutece.plugin-mydashboard.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
 
             <!-- ================================================== -->
             <!-- Authentification                                   -->
