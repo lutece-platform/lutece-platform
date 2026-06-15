@@ -274,10 +274,38 @@
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>plugin-health</artifactId>
-                <version>${lutece.plugin-health.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
+             <groupId>fr.paris.lutece.plugins</groupId>
+             <artifactId>plugin-health</artifactId>
+             <version>${lutece.plugin-health.version}</version>
+             <type>lutece-plugin</type>
+         </dependency>
+         <!-- ================================================== -->
+        <!-- Plugins appointment                                -->
+        <!-- ================================================== -->
+         <dependency>
+              <groupId>fr.paris.lutece.plugins</groupId>
+              <artifactId>module-appointment-rest</artifactId>
+              <version>${lutece.module-appointment-rest.version}</version>
+              <type>lutece-plugin</type>
+          </dependency>
+          <dependency>
+               <groupId>fr.paris.lutece.plugins</groupId>
+               <artifactId>module-appointment-solr</artifactId>
+               <version>${lutece.module-appointment-solr.version}</version>
+               <type>lutece-plugin</type>
+          </dependency>
+          <dependency>
+               <groupId>fr.paris.lutece.plugins</groupId>
+               <artifactId>module-appointment-leaflet</artifactId>
+               <version>${lutece.module-appointment-leaflet.version}</version>
+               <type>lutece-plugin</type>
+          </dependency>
+          <dependency>
+               <groupId>fr.paris.lutece.plugins</groupId>
+               <artifactId>module-elasticdata-appointment</artifactId>
+               <version>${lutece.module-elasticdata-appointment.version}</version>
+               <type>lutece-plugin</type>
+          </dependency>
+    
     </dependencies>
 </project>

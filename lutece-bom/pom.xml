@@ -307,6 +307,30 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointement-rest</artifactId>
+                <version>${lutece.module-appointement-rest.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-solr</artifactId>
+                <version>${lutece.module-appointment-solr.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-leaflet</artifactId>
+                <version>${lutece.module-appointment-leaflet.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-elasticdata-appointment</artifactId>
+                <version>${lutece.module-elasticdata-appointment.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>         
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-resource</artifactId>
                 <version>${lutece.plugin-resource.version}</version>
                 <type>lutece-plugin</type>

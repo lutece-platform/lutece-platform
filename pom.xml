@@ -126,7 +126,11 @@
         <lutece.module-appointment-ants.version>2.0.0-SNAPSHOT</lutece.module-appointment-ants.version>
         <lutece.module-appointment-alert.version>4.0.0-SNAPSHOT</lutece.module-appointment-alert.version>
         <lutece.module-appointment-solrsearchapp.version>4.0.0-SNAPSHOT</lutece.module-appointment-solrsearchapp.version>
-		
+		<lutece.module-appointment-rest.version>2.0.0-SNAPSHOT</lutece.module-appointment-rest.version>
+	    <lutece.module-appointment-solr.version>4.0.0-SNAPSHOT</lutece.module-appointment-solr.version>
+	    <lutece.module-appointment-leaflet.version>4.0.0-SNAPSHOT</lutece.module-appointment-leaflet.version>
+	    <lutece.module-elasticdata-appointment.version>4.0.0-SNAPSHOT</lutece.module-elasticdata-appointment.version>
+	    
 	    <lutece.plugin-resource.version>3.0.0-SNAPSHOT</lutece.plugin-resource.version>
         <lutece.module-resource-adminuser.version>2.0.0-SNAPSHOT</lutece.module-resource-adminuser.version>
         <lutece.plugin-mydashboard.version>2.0.0-SNAPSHOT</lutece.plugin-mydashboard.version>
