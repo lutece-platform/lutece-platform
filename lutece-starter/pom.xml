@@ -4,7 +4,7 @@
     <parent>
         <groupId>fr.paris.lutece.starters</groupId>
         <artifactId>lutece-parent</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>lutece-starter</artifactId>
@@ -155,55 +155,64 @@
             <version>${lutece.plugin-parser.version}</version>
             <type>lutece-plugin</type>
         </dependency>
+
+	<!-- incompatible avec plugin-rest 3.3.4 : -->
+	<!--
         <dependency>
 	        <groupId>fr.paris.lutece.plugins</groupId>
 	        <artifactId>plugin-wiki</artifactId>
 	        <version>${lutece.plugin-wiki.version}</version>
 	        <type>lutece-plugin</type>
-	    </dependency>
-	    <dependency>
+        </dependency>
+        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>module-wiki-quiz</artifactId>
 	            <version>${lutece.module-wiki-quiz.version}</version>
 	            <type>lutece-plugin</type>
-	        </dependency>
-	        <dependency>
+        </dependency>
+        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>module-wiki-ai</artifactId>
 	            <version>${lutece.module-wiki-ai.version}</version>
 	            <type>lutece-plugin</type>
-	        </dependency>
- 			<!-- SEO-->
- 			<dependency>
-	            <groupId>fr.paris.lutece.plugins</groupId>
-	            <artifactId>plugin-seo</artifactId>
-	            <version>${lutece.plugin-seo.version}</version>
-	            <type>lutece-plugin</type>
-	        </dependency>
-	        <dependency>
-	            <groupId>fr.paris.lutece.plugins</groupId>
-	            <artifactId>plugin-sitemap</artifactId>
-	            <version>${lutece.plugin-sitemap.version}</version>
-	            <type>lutece-plugin</type>
-	        </dependency>
-	        <dependency>
-	            <groupId>fr.paris.lutece.plugins</groupId>
-	            <artifactId>module-seo-wiki</artifactId>
-	            <version>${lutece.module-seo-wiki.version}</version>
-	            <type>lutece-plugin</type>
-	        </dependency>
-	        <dependency>
-	            <groupId>fr.paris.lutece.plugins</groupId>
-	            <artifactId>module-seo-blog</artifactId>
-	            <version>${lutece.module-seo-blog.version}</version>
-	            <type>lutece-plugin</type>
-	        </dependency>
-	        <dependency>
-	            <groupId>fr.paris.lutece.plugins</groupId>
-	            <artifactId>module-seo-robots</artifactId>
-	            <version>${lutece.module-seo-robots.version}</version>
-	            <type>lutece-plugin</type>
-	        </dependency>
+        </dependency>
+        -->
+        
+        <!-- SEO-->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-seo</artifactId>
+            <version>${lutece.plugin-seo.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-sitemap</artifactId>
+            <version>${lutece.plugin-sitemap.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <!-- incompatible avec plugin-wiki 5.0.0-SNAPSHOT (v7) requis par wiki-quiz/ai -->
+        <!--
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-seo-wiki</artifactId>
+            <version>${lutece.module-seo-wiki.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-seo-blog</artifactId>
+            <version>${lutece.module-seo-blog.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-seo-robots</artifactId>
+            <version>${lutece.module-seo-robots.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        
         <!-- ================================================== -->
         <!-- Elasticsearch                                      -->
         <!-- ================================================== -->
@@ -253,12 +262,6 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-captcha-captchetat</artifactId>
-            <version>${lutece.module-captcha-captchetat.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-verifybackurl</artifactId>
             <version>${lutece.plugin-verifybackurl.version}</version>
             <type>lutece-plugin</type>
@@ -273,15 +276,10 @@
             <version>${lutece.plugin-matomo.version}</version>
             <type>lutece-plugin</type>
         </dependency>
-        <dependency>
-             <groupId>fr.paris.lutece.plugins</groupId>
-             <artifactId>plugin-health</artifactId>
-             <version>${lutece.plugin-health.version}</version>
-             <type>lutece-plugin</type>
-         </dependency>
+        
          <!-- ================================================== -->
-        <!-- Plugins appointment                                -->
-        <!-- ================================================== -->
+         <!-- Plugins appointment                                -->
+         <!-- ================================================== -->
          <dependency>
               <groupId>fr.paris.lutece.plugins</groupId>
               <artifactId>module-appointment-rest</artifactId>

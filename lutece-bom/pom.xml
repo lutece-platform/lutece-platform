@@ -4,7 +4,7 @@
     <parent>
         <groupId>fr.paris.lutece.starters</groupId>
         <artifactId>lutece-parent</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>lutece-bom</artifactId>
@@ -42,13 +42,6 @@
                 <artifactId>lutece-core</artifactId>
                 <version>${lutece.core.version}</version>
                 <type>lutece-core</type>
-            </dependency>
-            <!-- This one is NOT in test scope -->
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>library-lutece-unit-testing-common</artifactId>
-                <version>${lutece.library-lutece-unit-testing-common.version}</version>
-                <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
@@ -88,20 +81,8 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>library-priority-extension</artifactId>
-                <version>${lutece.library-priority-extension.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>library-freemarker</artifactId>
                 <version>${lutece.library-freemarker.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>library-lutece-resources</artifactId>
-                <version>${lutece.library-lutece-resources.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
@@ -244,12 +225,13 @@
                 <version>${lutece.plugin-library.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
-			<dependency>
+            <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-xmltransformer</artifactId>
                 <version>${lutece.plugin-xmltransformer.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+            
             <!-- Appointment Profile -->
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
@@ -307,8 +289,8 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-appointement-rest</artifactId>
-                <version>${lutece.module-appointement-rest.version}</version>
+                <artifactId>module-appointment-rest</artifactId>
+                <version>${lutece.module-appointment-rest.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
             <dependency>
@@ -563,12 +545,6 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>library-core-utils</artifactId>
-                <version>${lutece.library-core-utils.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>library-jwt</artifactId>
                 <version>${lutece.library-jwt.version}</version>
                 <type>jar</type>
@@ -595,12 +571,6 @@
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-matomo</artifactId>
                 <version>${lutece.plugin-matomo.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-             <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>plugin-health</artifactId>
-                <version>${lutece.plugin-health.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
             <dependency>
@@ -730,7 +700,7 @@
 	            <type>lutece-plugin</type>
 	        </dependency>
 
-			 <!-- SEO -->
+	        <!-- SEO -->
 	        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>plugin-seo</artifactId>
@@ -805,42 +775,21 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-captcha-captchetat</artifactId>
-                <version>${lutece.module-captcha-captchetat.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-verifybackurl</artifactId>
                 <version>${lutece.plugin-verifybackurl.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
 
             <!-- ================================================== -->
-            <!-- Hors starters : artefacts geres par le BOM mais    -->
-            <!-- non inclus dans aucun starter (test, optionnel,    -->
-            <!-- ou pas encore pret pour la release)                -->
+            <!-- others					            -->
             <!-- ================================================== -->
-            <!-- Dependance de test heritee du global POM (pas de version ici) -->
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>library-lutece-unit-testing</artifactId>
-                <type>jar</type>
-                <scope>test</scope>
-            </dependency>
+
             <!-- Configuration externalisee via HashiCorp Vault (optionnel) -->
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>library-configsource-vault</artifactId>
                 <version>${lutece.library-configsource-vault.version}</version>
                 <type>jar</type>
-            </dependency>
-            <!-- Remplacement des daemons par Quartz pour les environnements en cluster (SNAPSHOT) -->
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>plugin-quartz-scheduler</artifactId>
-                <version>${lutece.plugin-quartz-scheduler.version}</version>
-                <type>lutece-plugin</type>
             </dependency>
         </dependencies>
     </dependencyManagement>

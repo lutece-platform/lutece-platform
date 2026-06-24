@@ -4,7 +4,7 @@
     <parent>
         <groupId>fr.paris.lutece.starters</groupId>
         <artifactId>lutece-parent</artifactId>
-        <version>8.0.0-SNAPSHOT</version>
+        <version>7.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>editorial-starter</artifactId>
@@ -81,15 +81,31 @@
             <version>${lutece.library-jwt.version}</version>
             <type>jar</type>
         </dependency>
+
+        <!-- ================================================== -->
+        <!-- Blog & Newsletter                                  -->
+        <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-liquibase</artifactId>
-            <version>${lutece.plugin-liquibase.version}</version>
+            <artifactId>plugin-blog</artifactId>
+            <version>${lutece.plugin-blog.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-newsletter</artifactId>
+            <version>${lutece.plugin-newsletter.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-newsletter-blog</artifactId>
+            <version>${lutece.module-newsletter-blog.version}</version>
             <type>lutece-plugin</type>
         </dependency>
 
         <!-- ================================================== -->
-        <!-- Editorial                                          -->
+        <!-- Content (HTML, document, library, pages)           -->
         <!-- ================================================== -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
@@ -105,44 +121,20 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-extend</artifactId>
-            <version>${lutece.plugin-extend.version}</version>
+            <artifactId>plugin-library</artifactId>
+            <version>${lutece.plugin-library.version}</version>
             <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-extend-rating</artifactId>
-                <version>${lutece.module-extend-rating.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-extend-feedback</artifactId>
-                <version>${lutece.module-extend-feedback.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-        <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-extend-statistics</artifactId>
-                <version>${lutece.module-extend-statistics.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-galleryimage</artifactId>
-            <version>${lutece.plugin-galleryimage.version}</version>
-            <type>lutece-plugin</type>
+            <exclusions>
+                <exclusion>
+                    <artifactId>plugin-document</artifactId>
+                    <groupId>fr.paris.lutece.plugins</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-carto</artifactId>
-            <version>${lutece.plugin-carto.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-contact</artifactId>
-            <version>${lutece.plugin-contact.version}</version>
+            <artifactId>plugin-document</artifactId>
+            <version>${lutece.plugin-document.version}</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
@@ -153,26 +145,54 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-blog</artifactId>
-            <version>${lutece.plugin-blog.version}</version>
+            <artifactId>plugin-linkpages</artifactId>
+            <version>${lutece.plugin-linkpages.version}</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-document</artifactId>
-            <version>${lutece.plugin-document.version}</version>
+            <artifactId>plugin-files2docs</artifactId>
+            <version>${lutece.plugin-files2docs.version}</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-library</artifactId>
-            <version>${lutece.plugin-library.version}</version>
+            <artifactId>plugin-childpages</artifactId>
+            <version>${lutece.plugin-childpages.version}</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-xmltransformer</artifactId>
-            <version>${lutece.plugin-xmltransformer.version}</version>
+            <artifactId>plugin-quicklinks</artifactId>
+            <version>${lutece.plugin-quicklinks.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-contact</artifactId>
+            <version>${lutece.plugin-contact.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-pagelinkservice</artifactId>
+            <version>${lutece.plugin-pagelinkservice.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+
+        <!-- ================================================== -->
+        <!-- Extend (comments)                                  -->
+        <!-- ================================================== -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-extend</artifactId>
+            <version>${lutece.plugin-extend.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-extend-comment</artifactId>
+            <version>${lutece.module-extend-comment.version}</version>
             <type>lutece-plugin</type>
         </dependency>
 
@@ -201,6 +221,12 @@
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-sitelabels</artifactId>
             <version>${lutece.plugin-sitelabels.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-xmltransformer</artifactId>
+            <version>${lutece.plugin-xmltransformer.version}</version>
             <type>lutece-plugin</type>
         </dependency>
     </dependencies>
