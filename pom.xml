@@ -193,7 +193,7 @@
         -->
         <lutece.module-cartography-solr.version>2.0.0</lutece.module-cartography-solr.version>
         <lutece.module-forms-solr.version>2.0.0</lutece.module-forms-solr.version>
-        <lutece.plugin-solr.version>5.0.0</lutece.plugin-solr.version>
+        <lutece.plugin-solr.version>5.0.1</lutece.plugin-solr.version>
         <lutece.plugin-parser.version>2.0.0</lutece.plugin-parser.version>
         <lutece.plugin-wiki.version>6.0.0-SNAPSHOT</lutece.plugin-wiki.version>
         <lutece.module-wiki-quiz.version>2.0.0-SNAPSHOT</lutece.module-wiki-quiz.version>
