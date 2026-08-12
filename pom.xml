@@ -99,7 +99,7 @@
         <lutece.module-appointment-alert.version>3.0.2</lutece.module-appointment-alert.version>
         <lutece.module-appointment-filling.version>3.0.1</lutece.module-appointment-filling.version>
         <lutece.module-appointment-management.version>1.0.6-SNAPSHOT</lutece.module-appointment-management.version>
-        <lutece.module-appointment-desk.version>1.0.4</lutece.module-appointment-desk.version>
+        <lutece.module-appointment-desk.version>1.0.5-SNAPSHOT</lutece.module-appointment-desk.version>
         <lutece.module-workflow-appointment.version>3.1.0-SNAPSHOT</lutece.module-workflow-appointment.version>
         <lutece.module-notifygru-appointment.version>3.0.5-SNAPSHOT</lutece.module-notifygru-appointment.version>
         <lutece.module-appointmentgru.version>2.0.8</lutece.module-appointmentgru.version>
