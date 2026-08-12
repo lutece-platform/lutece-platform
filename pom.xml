@@ -95,7 +95,7 @@
         <lutece.module-notifygru-forms.version>1.2.4-SNAPSHOT</lutece.module-notifygru-forms.version>
 
         <!-- Lutece appointment -->
-        <lutece.plugin-appointment.version>3.0.13-beta-01</lutece.plugin-appointment.version>
+        <lutece.plugin-appointment.version>3.0.13-SNAPSHOT</lutece.plugin-appointment.version>
         <lutece.module-appointment-alert.version>3.0.2</lutece.module-appointment-alert.version>
         <lutece.module-appointment-filling.version>3.0.1</lutece.module-appointment-filling.version>
         <lutece.module-appointment-management.version>1.0.6-SNAPSHOT</lutece.module-appointment-management.version>
