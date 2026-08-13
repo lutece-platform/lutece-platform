@@ -96,7 +96,7 @@
 
         <!-- Lutece appointment -->
         <lutece.plugin-appointment.version>3.0.13-SNAPSHOT</lutece.plugin-appointment.version>
-        <lutece.module-appointment-alert.version>3.0.2</lutece.module-appointment-alert.version>
+        <lutece.module-appointment-alert.version>3.0.3-SNAPSHOT</lutece.module-appointment-alert.version>
         <lutece.module-appointment-filling.version>3.0.1</lutece.module-appointment-filling.version>
         <lutece.module-appointment-management.version>1.0.6-SNAPSHOT</lutece.module-appointment-management.version>
         <lutece.module-appointment-desk.version>1.0.5-SNAPSHOT</lutece.module-appointment-desk.version>
