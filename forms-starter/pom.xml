@@ -181,13 +181,7 @@
             <artifactId>module-accesscontrol-forms</artifactId>
             <version>${lutece.module-accesscontrol-forms.version}</version>
             <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-forms-documentproducer</artifactId>
-            <version>${lutece.module-forms-documentproducer.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
+        </dependency>       
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-forms-unittree</artifactId>

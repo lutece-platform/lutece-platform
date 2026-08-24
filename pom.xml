@@ -90,7 +90,6 @@
         <lutece.module-workflow-formstopdf.version>2.0.2-SNAPSHOT</lutece.module-workflow-formstopdf.version>
         <lutece.module-forms-userassignment.version>3.0.0</lutece.module-forms-userassignment.version>
         <lutece.module-accesscontrol-forms.version>2.0.0</lutece.module-accesscontrol-forms.version>
-        <lutece.module-forms-documentproducer.version>2.0.1</lutece.module-forms-documentproducer.version>
         <lutece.module-forms-unittree.version>3.0.1</lutece.module-forms-unittree.version>
         <lutece.plugin-unittree.version>4.0.0</lutece.plugin-unittree.version>
         <lutece.module-unittree-notification.version>2.0.1</lutece.module-unittree-notification.version>
