@@ -179,7 +179,7 @@
         <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
         <lutece.library-httpaccess.version>4.0.0</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
-        <lutece.plugin-liquibase.version>2.0.1</lutece.plugin-liquibase.version>
+        <lutece.plugin-liquibase.version>2.0.2-SNAPSHOT</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.0.1</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.1-SNAPSHOT</lutece.library-configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
