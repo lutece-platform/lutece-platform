@@ -138,7 +138,7 @@
         <!-- Lutece Editorial -->
         <lutece.plugin-html.version>6.0.0</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.0.0</lutece.plugin-htmlpage.version>
-        <lutece.plugin-contact.version>6.0.2-SNAPSHOT</lutece.plugin-contact.version>
+        <lutece.plugin-contact.version>6.0.2</lutece.plugin-contact.version>
         <lutece.plugin-menus.version>3.0.0</lutece.plugin-menus.version>
         <lutece.plugin-blog.version>4.0.1-SNAPSHOT</lutece.plugin-blog.version>
         <lutece.plugin-document.version>6.0.0</lutece.plugin-document.version>
@@ -154,7 +154,7 @@
         <lutece.module-mylutece-users.version>2.0.0</lutece.module-mylutece-users.version>
         <lutece.plugin-automaticroleprovider.version>2.0.0</lutece.plugin-automaticroleprovider.version>
         <lutece.module-mylutece-database.version>7.0.1-SNAPSHOT</lutece.module-mylutece-database.version>
-        <lutece.module-mylutece-oauth2.version>3.0.1</lutece.module-mylutece-oauth2.version>
+        <lutece.module-mylutece-oauth2.version>3.0.2</lutece.module-mylutece-oauth2.version>
         <lutece.plugin-oauth2.version>3.0.1-SNAPSHOT</lutece.plugin-oauth2.version>
         <lutece.plugin-termofservice.version>2.0.0</lutece.plugin-termofservice.version>
         <lutece.plugin-adminauthenticationwsso.version>3.0.0</lutece.plugin-adminauthenticationwsso.version>
@@ -180,9 +180,9 @@
         <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
         <lutece.library-httpaccess.version>4.0.0</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
-        <lutece.plugin-liquibase.version>2.0.0</lutece.plugin-liquibase.version>
+        <lutece.plugin-liquibase.version>2.0.1</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.0.1</lutece.library-sql-utils.version>
-        <lutece.library-configsource-vault.version>2.0.0</lutece.library-configsource-vault.version>
+        <lutece.library-configsource-vault.version>2.0.1-SNAPSHOT</lutece.library-configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.0.0</lutece.plugin-rest.version>
@@ -208,7 +208,7 @@
 		<lutece.module-seo-wiki.version>2.0.0-SNAPSHOT</lutece.module-seo-wiki.version>
        	<lutece.module-seo-blog.version>2.0.0-SNAPSHOT</lutece.module-seo-blog.version>
         <lutece.module-seo-robots.version>2.0.0-SNAPSHOT</lutece.module-seo-robots.version>
-        <lutece.plugin-health.version>1.0.0-SNAPSHOT</lutece.plugin-health.version>
+        <lutece.plugin-health.version>1.0.0</lutece.plugin-health.version>
     </properties>
 
     <build>
