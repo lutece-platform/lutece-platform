@@ -155,6 +155,12 @@
                 <version>${lutece.module-elasticdata-forms.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-genericattributes-openstreetmap</artifactId>
+                <version>${lutece.module-genericattributes-openstreetmap.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
 
             <!-- ================================================== -->
             <!-- Editorial                                          -->
@@ -225,6 +231,54 @@
                 <version>${lutece.plugin-xmltransformer.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-newsletter</artifactId>
+                <version>${lutece.plugin-newsletter.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-newsletter-blog</artifactId>
+                <version>${lutece.module-newsletter-blog.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-childpages</artifactId>
+                <version>${lutece.plugin-childpages.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-linkpages</artifactId>
+                <version>${lutece.plugin-linkpages.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-pagelinkservice</artifactId>
+                <version>${lutece.plugin-pagelinkservice.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-quicklinks</artifactId>
+                <version>${lutece.plugin-quicklinks.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-files2docs</artifactId>
+                <version>${lutece.plugin-files2docs.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-extend-comment</artifactId>
+                <version>${lutece.module-extend-comment.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
             
             <!-- Appointment Profile -->
             <dependency>
@@ -237,6 +291,24 @@
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-workflow-appointment</artifactId>
                 <version>${lutece.module-workflow-appointment.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointment-filling</artifactId>
+                <version>${lutece.module-appointment-filling.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-appointmentgru</artifactId>
+                <version>${lutece.module-appointmentgru.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>module-notifygru-appointment</artifactId>
+                <version>${lutece.module-notifygru-appointment.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
             <dependency>
