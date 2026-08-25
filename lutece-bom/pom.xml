@@ -655,24 +655,10 @@
                 <version>${lutece.module-forms-cartography.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
-            <!--
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-forms-cartography-explorer</artifactId>
-                <version>${lutece.module-forms-cartography-explorer.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-            -->
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-forms-solr</artifactId>
                 <version>${lutece.module-forms-solr.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>plugin-parser</artifactId>
-                <version>${lutece.plugin-parser.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
             <dependency>
