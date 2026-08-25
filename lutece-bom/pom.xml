@@ -651,6 +651,12 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
+                <artifactId>plugin-solrserver</artifactId>
+                <version>${lutece.plugin-solrserver.version}</version>
+                <type>lutece-plugin</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-cartography-solr</artifactId>
                 <version>${lutece.module-cartography-solr.version}</version>
                 <type>lutece-plugin</type>

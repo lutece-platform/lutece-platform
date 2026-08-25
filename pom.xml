@@ -158,6 +158,7 @@
 
         <!-- Cartography / Solr / Leaflet -->
         <lutece.plugin-solr.version>4.0.8-SNAPSHOT</lutece.plugin-solr.version>
+        <lutece.plugin-solrserver.version>3.0.2-SNAPSHOT</lutece.plugin-solrserver.version>
         <lutece.plugin-leaflet.version>1.0.5-SNAPSHOT</lutece.plugin-leaflet.version>
         <lutece.plugin-carto.version>1.0.2-beta-01</lutece.plugin-carto.version>
         <lutece.module-cartography-solr.version>1.0.2-beta-01</lutece.module-cartography-solr.version>
