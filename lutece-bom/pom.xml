@@ -139,12 +139,6 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-forms-documentproducer</artifactId>
-                <version>${lutece.module-forms-documentproducer.version}</version>
-                <type>lutece-plugin</type>
-            </dependency>
-            <dependency>
-                <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-forms-unittree</artifactId>
                 <version>${lutece.module-forms-unittree.version}</version>
                 <type>lutece-plugin</type>
