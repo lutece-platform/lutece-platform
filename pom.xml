@@ -153,7 +153,7 @@
         <lutece.plugin-automaticroleprovider.version>[1.0.1]</lutece.plugin-automaticroleprovider.version>
         <lutece.plugin-termofservice.version>1.0.7-beta-01</lutece.plugin-termofservice.version>
         <lutece.plugin-adminauthenticationwsso.version>2.1.7-SNAPSHOT</lutece.plugin-adminauthenticationwsso.version>
-        <lutece.plugin-myluteceaccessrules.version>[1.0.3]</lutece.plugin-myluteceaccessrules.version>
+        <lutece.plugin-myluteceaccessrules.version>1.0.4-SNAPSHOT</lutece.plugin-myluteceaccessrules.version>
         <lutece.module-mylutece-users.version>1.0.0-SNAPSHOT</lutece.module-mylutece-users.version>
 
         <!-- Cartography / Solr / Leaflet -->
@@ -161,20 +161,27 @@
         <lutece.plugin-solrserver.version>3.0.2-SNAPSHOT</lutece.plugin-solrserver.version>
         <lutece.plugin-leaflet.version>1.0.5-SNAPSHOT</lutece.plugin-leaflet.version>
         <lutece.plugin-carto.version>1.0.2-beta-01</lutece.plugin-carto.version>
-        <lutece.module-cartography-solr.version>1.0.2-beta-01</lutece.module-cartography-solr.version>
+        <lutece.module-cartography-solr.version>1.0.2-SNAPSHOT</lutece.module-cartography-solr.version>
         <lutece.module-forms-solr.version>1.0.3</lutece.module-forms-solr.version>
         <lutece.module-forms-cartography.version>1.0.2</lutece.module-forms-cartography.version>
         <lutece.module-genericattributes-cartography.version>1.0.1</lutece.module-genericattributes-cartography.version>
 
         <!-- Wiki (v7 SNAPSHOT uniquement) -->
+        <!-- Desactive : plugin-wiki 5.x et module-wiki-ai epinglent plugin-rest [3.3.1-alpha2],
+             incompatible avec plugin-rest 3.3.4 impose par les autres starters.
+             Reactiver apres une release de plugin-wiki ouvrant ce pin en range.
         <lutece.plugin-wiki.version>5.0.0-SNAPSHOT</lutece.plugin-wiki.version>
         <lutece.module-wiki-quiz.version>1.0.0-SNAPSHOT</lutece.module-wiki-quiz.version>
         <lutece.module-wiki-ai.version>1.0.0-SNAPSHOT</lutece.module-wiki-ai.version>
+        -->
 
         <!-- SEO -->
         <lutece.plugin-seo.version>4.0.2-SNAPSHOT</lutece.plugin-seo.version>
         <lutece.plugin-sitemap.version>1.1.5</lutece.plugin-sitemap.version>
+        <!-- Desactive : module-seo-wiki accepte plugin-wiki [3.0.2-SNAPSHOT,4.9.9),
+             incompatible avec plugin-wiki 5.x requis par wiki-quiz / wiki-ai.
         <lutece.module-seo-wiki.version>1.1.2</lutece.module-seo-wiki.version>
+        -->
         <lutece.module-seo-blog.version>1.0.1</lutece.module-seo-blog.version>
         <lutece.module-seo-robots.version>1.0.3</lutece.module-seo-robots.version>
 

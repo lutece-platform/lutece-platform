@@ -745,6 +745,7 @@
                 <version>${lutece.module-forms-solr.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+	        <!-- Desactive : conflit de pin plugin-rest [3.3.1-alpha2] vs plugin-rest 3.3.4
             <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>plugin-wiki</artifactId>
@@ -763,6 +764,7 @@
 	            <version>${lutece.module-wiki-ai.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
+	        -->
 
 	        <!-- SEO -->
 	        <dependency>
@@ -777,12 +779,14 @@
 	            <version>${lutece.plugin-sitemap.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
+	        <!-- Desactive : module-seo-wiki accepte plugin-wiki au plus 4.9.9, incompatible avec plugin-wiki 5.x
 	        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>module-seo-wiki</artifactId>
 	            <version>${lutece.module-seo-wiki.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
+	        -->
 	        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>module-seo-blog</artifactId>
