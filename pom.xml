@@ -172,7 +172,7 @@
         <lutece.module-wiki-ai.version>1.0.0-SNAPSHOT</lutece.module-wiki-ai.version>
 
         <!-- SEO -->
-        <lutece.plugin-seo.version>4.0.1</lutece.plugin-seo.version>
+        <lutece.plugin-seo.version>4.0.2-SNAPSHOT</lutece.plugin-seo.version>
         <lutece.plugin-sitemap.version>1.1.5</lutece.plugin-sitemap.version>
         <lutece.module-seo-wiki.version>1.1.2</lutece.module-seo-wiki.version>
         <lutece.module-seo-blog.version>1.0.1</lutece.module-seo-blog.version>
