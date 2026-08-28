@@ -80,7 +80,7 @@
         <lutece.plugin-forms.version>3.1.6-SNAPSHOT</lutece.plugin-forms.version>
         <lutece.plugin-unittree.version>[3.1.6]</lutece.plugin-unittree.version>
         <lutece.plugin-workflow.version>6.0.10-SNAPSHOT</lutece.plugin-workflow.version>
-        <lutece.module-forms-unittree.version>[2.1.2]</lutece.module-forms-unittree.version>
+        <lutece.module-forms-unittree.version>2.1.3-SNAPSHOT</lutece.module-forms-unittree.version>
         <lutece.module-workflow-forms.version>2.3.7-SNAPSHOT</lutece.module-workflow-forms.version>
         <lutece.module-workflow-unittree.version>[2.1.3-beta-01]</lutece.module-workflow-unittree.version>
         <lutece.module-workflow-upload.version>1.1.8-SNAPSHOT</lutece.module-workflow-upload.version>
@@ -89,7 +89,7 @@
         <lutece.module-workflow-forms-automatic-assignment.version>[2.1.2]</lutece.module-workflow-forms-automatic-assignment.version>
         <lutece.module-workflow-unittree-userassignment.version>1.0.2-SNAPSHOT</lutece.module-workflow-unittree-userassignment.version>
         <lutece.module-workflow-userassignment.version>[2.1.3]</lutece.module-workflow-userassignment.version>
-        <lutece.plugin-htmltopdf.version>[1.0.0]</lutece.plugin-htmltopdf.version>
+        <lutece.plugin-htmltopdf.version>1.0.1-SNAPSHOT</lutece.plugin-htmltopdf.version>
         <lutece.module-workflow-formstopdf.version>1.1.2-SNAPSHOT</lutece.module-workflow-formstopdf.version>
         <lutece.module-unittree-notification.version>[1.0.2]</lutece.module-unittree-notification.version>
         <lutece.module-notifygru-forms.version>1.2.4-beta-01</lutece.module-notifygru-forms.version>
@@ -97,7 +97,7 @@
         <!-- Lutece appointment -->
         <lutece.plugin-appointment.version>3.0.13-SNAPSHOT</lutece.plugin-appointment.version>
         <lutece.module-appointment-alert.version>3.0.3-SNAPSHOT</lutece.module-appointment-alert.version>
-        <lutece.module-appointment-filling.version>3.0.1</lutece.module-appointment-filling.version>
+        <lutece.module-appointment-filling.version>3.0.2-SNAPSHOT</lutece.module-appointment-filling.version>
         <lutece.module-appointment-management.version>1.0.6-SNAPSHOT</lutece.module-appointment-management.version>
         <lutece.module-appointment-desk.version>1.0.5-SNAPSHOT</lutece.module-appointment-desk.version>
         <lutece.module-workflow-appointment.version>3.1.0-SNAPSHOT</lutece.module-workflow-appointment.version>
@@ -128,14 +128,14 @@
 
         <!-- Address & cartography -->
         <lutece.plugin-address.version>[1.1.1]</lutece.plugin-address.version>
-        <lutece.module-address-autocomplete.version>[1.1.4]</lutece.module-address-autocomplete.version>
+        <lutece.module-address-autocomplete.version>1.1.5-SNAPSHOT</lutece.module-address-autocomplete.version>
         <lutece.module-genericattributes-address.version>[2.0.3]</lutece.module-genericattributes-address.version>
         <lutece.module-genericattributes-openstreetmap.version>[1.0.5-beta-01]</lutece.module-genericattributes-openstreetmap.version>
 
         <!-- Utility plugins -->
         <lutece.plugin-profiles.version>[4.0.2]</lutece.plugin-profiles.version>
         <lutece.plugin-filegenerator.version>2.1.7-SNAPSHOT</lutece.plugin-filegenerator.version>
-        <lutece.plugin-regularexpression.version>[4.0.4]</lutece.plugin-regularexpression.version>
+        <lutece.plugin-regularexpression.version>4.0.5-SNAPSHOT</lutece.plugin-regularexpression.version>
         <lutece.plugin-genericattributes.version>2.4.12-SNAPSHOT</lutece.plugin-genericattributes.version>
         <lutece.plugin-referencelist.version>[1.1.5]</lutece.plugin-referencelist.version>
         <lutece.plugin-asynchronousupload.version>1.1.14-SNAPSHOT</lutece.plugin-asynchronousupload.version>
@@ -163,8 +163,8 @@
         <lutece.plugin-carto.version>1.0.2-beta-01</lutece.plugin-carto.version>
         <lutece.module-cartography-solr.version>1.0.2-SNAPSHOT</lutece.module-cartography-solr.version>
         <lutece.module-forms-solr.version>1.0.3</lutece.module-forms-solr.version>
-        <lutece.module-forms-cartography.version>1.0.2</lutece.module-forms-cartography.version>
-        <lutece.module-genericattributes-cartography.version>1.0.1</lutece.module-genericattributes-cartography.version>
+        <lutece.module-forms-cartography.version>1.0.3-SNAPSHOT</lutece.module-forms-cartography.version>
+        <lutece.module-genericattributes-cartography.version>1.0.2-SNAPSHOT</lutece.module-genericattributes-cartography.version>
 
         <!-- Wiki (v7 SNAPSHOT uniquement) -->
         <!-- Desactive : plugin-wiki 5.x et module-wiki-ai epinglent plugin-rest [3.3.1-alpha2],
