@@ -176,7 +176,7 @@
         -->
 
         <!-- SEO -->
-        <lutece.plugin-seo.version>4.0.2-SNAPSHOT</lutece.plugin-seo.version>
+        <lutece.plugin-seo.version>4.1.0-SNAPSHOT</lutece.plugin-seo.version>
         <lutece.plugin-sitemap.version>1.1.5</lutece.plugin-sitemap.version>
         <!-- Desactive : module-seo-wiki accepte plugin-wiki [3.0.2-SNAPSHOT,4.9.9),
              incompatible avec plugin-wiki 5.x requis par wiki-quiz / wiki-ai.
