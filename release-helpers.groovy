@@ -630,18 +630,9 @@ def generateReleaseReport() {
  * Stage 0 — Initialize: configure git, compute versions, create report.
  */
 def stageInitialize() {
-    // -- Pre-release type: PRERELEASE_TYPE is authoritative; the legacy
-    //    RC_BUILD/RC_NUMBER parameters are still honoured when it is 'none',
-    //    so jobs configured before beta support keep working unchanged.
-    def declaredType = params.PRERELEASE_TYPE?.trim()?.toLowerCase() ?: 'none'
-    if (declaredType == 'none' && params.RC_BUILD) {
-        env.PRERELEASE_TYPE = 'rc'
-        env.PRERELEASE_NUM = padPrereleaseNumber(params.RC_NUMBER)
-        echo "Legacy RC_BUILD=true detected -> PRERELEASE_TYPE=rc, number ${env.PRERELEASE_NUM}"
-    } else {
-        env.PRERELEASE_TYPE = declaredType
-        env.PRERELEASE_NUM = padPrereleaseNumber(params.PRERELEASE_NUMBER)
-    }
+    // -- Pre-release type: none / beta / rc
+    env.PRERELEASE_TYPE = params.PRERELEASE_TYPE?.trim()?.toLowerCase() ?: 'none'
+    env.PRERELEASE_NUM = padPrereleaseNumber(params.PRERELEASE_NUMBER)
     env.IS_PRERELEASE = (env.PRERELEASE_TYPE != 'none') ? 'true' : 'false'
 
     configFileProvider([configFile(fileId: params.MAVEN_SETTINGS_ID, variable: 'MVN_SETTINGS_TMP')]) {
@@ -674,7 +665,7 @@ def stageInitialize() {
     sh "git checkout -B ${env.MONOREPO_BRANCH}"
 
     withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
-        sh 'git remote set-url origin https://$GITHUB_TOKEN@github.com/lutece-platform/lutece.git'
+        sh 'git remote set-url origin https://$GITHUB_TOKEN@github.com/lutece-platform/lutece-platform.git'
     }
 
     def pomContent = readFile('pom.xml')

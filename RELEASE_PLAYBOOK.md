@@ -184,19 +184,6 @@ Beta et RC sont mecaniquement identiques ; la distinction est semantique
 publication). Les deux peuvent s'enchainer librement, dans n'importe quel
 ordre, autant de fois que necessaire sur la meme version de base.
 
-### Retro-compatibilite
-
-Les anciens parametres `RC_BUILD` / `RC_NUMBER` sont conserves et marques
-obsoletes. Ils ne sont pris en compte que si `PRERELEASE_TYPE = none` :
-
-```
-RC_BUILD = true, RC_NUMBER = 3, PRERELEASE_TYPE = none  →  8.0.0-RC-03
-```
-
-Les jobs configures avant l'ajout des betas continuent donc de fonctionner
-sans modification. Pour toute nouvelle configuration, utiliser
-`PRERELEASE_TYPE` / `PRERELEASE_NUMBER`.
-
 ---
 
 ## 4. Lignes Lutece V7 et V8
@@ -414,8 +401,6 @@ Stage 9  ► Release Report
 | `LUTECE_MAJOR` | choice | `auto` | `auto` / `8` / `7` — **assertion** sur la ligne Lutece, pas une surcharge. La ligne vient du `pom.xml` checkoute ; une valeur divergente fait echouer le build. |
 | `MONOREPO_BRANCH` | string | *(vide)* | Branche de release. Vide = deduite du checkout. Une valeur en desaccord avec le checkout fait echouer le build. |
 | `JDK_TOOL_MAP` | string | *(vide)* | Correspondance `targetJdk` → outil JDK Jenkins, ex: `11=temurin-11-jdk,17=temurin-17-jdk`. Vide = convention `temurin-{version}-jdk`. |
-| `RC_BUILD` | boolean | `false` | **Obsolete** — utiliser `PRERELEASE_TYPE = rc`. Pris en compte seulement si `PRERELEASE_TYPE = none`. |
-| `RC_NUMBER` | string | `1` | **Obsolete** — utiliser `PRERELEASE_NUMBER`. |
 | `GITHUB_CREDENTIAL_ID` | string | `github-token` | ID du credential Jenkins contenant le token GitHub (type : Secret text). |
 | `MAVEN_SETTINGS_ID` | string | `maven_settings_default` | ID du Config File Provider pour le `settings.xml` Maven. |
 | `GIT_USER_NAME` | string | `ryahiaoui` | Nom utilisateur des commits de release. |
@@ -600,8 +585,8 @@ DRY_RUN               = false
 
 **Actions :**
 
-1. Resout le type de release (`PRERELEASE_TYPE`, ou `RC_BUILD` en mode
-   retro-compatible) et le numero, complete sur 2 chiffres
+1. Resout le type de release (`PRERELEASE_TYPE`) et le numero, complete sur
+   2 chiffres
 2. Provisionne le `settings.xml` Maven (Config File Provider)
 3. Configure l'identite git des commits
 4. Detecte la **ligne Lutece** depuis le parent `lutece-global-pom` du
@@ -988,13 +973,6 @@ les versions en cours de stabilisation, RC pour une candidate a la
 publication. Le suffixe differe (`-beta-01` contre `-RC-01`), donc les deux
 peuvent s'enchainer sur la meme version de base.
 
-### Q: Mes anciens jobs utilisent RC_BUILD, faut-il les reconfigurer ?
-
-**R:** Non. `RC_BUILD` / `RC_NUMBER` restent pris en compte tant que
-`PRERELEASE_TYPE` vaut `none`. Les logs signalent alors
-`Legacy RC_BUILD=true detected -> PRERELEASE_TYPE=rc`. Pour toute nouvelle
-configuration, preferer `PRERELEASE_TYPE`.
-
 ### Q: Comment la pipeline sait-elle s'il faut builder en Java 11 ou 17 ?
 
 **R:** Elle resout la property `targetJdk` du POM effectif avec
@@ -1158,7 +1136,7 @@ resume des actions qui auraient ete effectuees, dont les tags.
 | `RELEASE_REPORT` | Jenkinsfile | Chemin du fichier rapport |
 | `MAVEN_SETTINGS_XML` | Stage 0 | Chemin du `settings.xml` provisionne |
 | `GITHUB_TOKEN` | `withCredentials(GITHUB_CREDENTIAL_ID)` | Token d'acces GitHub |
-| `PRERELEASE_TYPE` | Stage 0 | `none`, `beta` ou `rc` (integre la retro-compatibilite `RC_BUILD`) |
+| `PRERELEASE_TYPE` | Stage 0 | `none`, `beta` ou `rc` |
 | `PRERELEASE_NUM` | Stage 0 | Numero de pre-release sur 2 chiffres (`01`, `02`...) |
 | `IS_PRERELEASE` | Stage 0 | `true` si `PRERELEASE_TYPE != none` |
 | `LUTECE_MAJOR_RESOLVED` | Stage 0 | Ligne Lutece retenue (`7` ou `8`) |
