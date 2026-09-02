@@ -77,15 +77,20 @@ Les plugins Lutece sont répartis sur **deux organisations GitHub** :
 
 ## 🌿 Stratégie de branches
 
-- **Branche de développement** : `develop` (sur tous les dépôts) — branche de référence pour le travail courant
-- **Branche de production** : `master` — reçoit le merge de develop lors d'une release `all`
-- Les releases sont préparées sur `develop`, puis mergées sur `master` lors d'une release `all`
+- **Branche de développement V8** : `develop` (parent `lutece-global-pom` 8.0.x)
+- **Branche de développement V7** : `develop_core7` (parent `lutece-global-pom` 7.0.x)
+- **Branche de production** : `master` — reçoit le merge lors d'une release `all` stable
+- Les releases sont préparées sur la branche de développement de la ligne, puis mergées sur `master` lors d'une release `all` stable
 - Les releases individuelles (un seul module) **ne mergent pas sur master** (les autres modules peuvent encore etre en SNAPSHOT)
-- Convention de tags : `{artifactId}-{version}` (ex: `lutece-core-8.0.0`, `forms-starter-8.0.1`)
+- Les pré-releases (beta / RC) **ne mergent jamais sur master**
+- Convention de tags du monorepo :
+  - cible `all` → `v{version}` (ex: `v8.0.0`, `v8.0.0-beta-01`)
+  - cible d'un module → `{module}-{version}` (ex: `forms-starter-8.0.1`)
+  - plugins (release manuelle) → `{artifactId}-{version}` (ex: `lutece-core-8.0.0`)
 
 ## ☕ Stack technique
 
-- **Java** : 17
+- **Java** : 17 pour la ligne V8, 11 pour la ligne V7 (property `targetJdk` de `lutece-global-pom`)
 - **Build** : Maven 3.x
 - **CI/CD** : Jenkins (Pipeline déclaratif)
 - **SCM** : Git / GitHub
@@ -132,9 +137,15 @@ plugins Lutece (lutece-platform + lutece-secteur-public)
 
 ### Scénarios de release
 
+> **Périmètre :** la pipeline `Jenkinsfile-release` ne release que le monorepo
+> (starters + BOM). Les plugins sont releasés à la main **avant**, et leurs
+> versions mises à jour dans le POM parent — la pipeline marque le build
+> `UNSTABLE` si une property `lutece.*.version` est encore en SNAPSHOT.
+> Voir `RELEASE_PLAYBOOK.md` pour le détail de la pipeline.
+
 **Release individuelle d'un starter (ex: `RELEASE_TARGET = forms-starter`) :**
 1. Lit `<lutece.forms-starter.version>` → `8.0.0-SNAPSHOT`
-2. Identifie et release les plugins SNAPSHOT du forms-starter
+2. Vérifie qu'aucun plugin référencé n'est en SNAPSHOT (prérequis manuel)
 3. Met a jour **uniquement** `<lutece.forms-starter.version>` dans le POM parent → `8.0.0`
 4. Tag `forms-starter-8.0.0`, deploy sur Nexus (pas de merge sur master)
 5. Restaure `<lutece.forms-starter.version>` → `8.0.1-SNAPSHOT`
@@ -142,17 +153,18 @@ plugins Lutece (lutece-platform + lutece-secteur-public)
 
 **Release complète (`RELEASE_TARGET = all`) :**
 1. Lit la version de chaque module individuellement (chaque module peut avoir sa propre version)
-2. Release tous les plugins SNAPSHOT de tous les starters
+2. Vérifie qu'aucun plugin n'est en SNAPSHOT (prérequis manuel)
 3. Met a jour la version du parent + chaque property de module (avec sa propre version) + parent versions enfants
 4. Release les 3 starters specialises en parallele (chacun avec sa propre version)
 5. Release `lutece-starter` (avec sa propre version)
 6. Release `lutece-bom` (avec sa propre version)
-7. Merge develop sur master
+7. Tag `v8.0.0`, puis merge develop sur master (release stable uniquement)
 8. Restaure chaque module en SNAPSHOT (patch+1 de sa propre version)
 
 ### Détail du processus de release d'un plugin Lutece
 
-Pour chaque plugin/composant en SNAPSHOT :
+**Procédure manuelle** (hors pipeline), à exécuter pour chaque plugin en
+SNAPSHOT dont la version doit être releasée avant celle des starters :
 
 ```bash
 # 1. Lancer les tests avant la release (sur develop)
