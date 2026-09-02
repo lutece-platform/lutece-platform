@@ -25,6 +25,11 @@
  * Stage logic lives in release-helpers.groovy (loaded via load()) to stay
  * under the 64 KB JVM bytecode-per-method limit imposed by Jenkins CPS.
  */
+
+// Declared at script scope so that assigning it in the Initialize stage does
+// not create a WorkflowScript field ("Did you forget the `def` keyword?").
+def helpers
+
 pipeline {
     agent any
 

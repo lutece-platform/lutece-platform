@@ -149,46 +149,121 @@ def parentGlobalPomMajor(String pomContent) {
 
 /**
  * Detects the Lutece line ('7' or '8') of the POM in the current directory.
- * The LUTECE_MAJOR parameter overrides the detection when set to 7 or 8.
+ *
+ * The line always comes from the checked-out sources. LUTECE_MAJOR is an
+ * assertion, not an override: forcing a line the workspace does not hold
+ * would release the wrong sources under the wrong version, so a mismatch
+ * fails the build instead.
  */
 def detectLuteceMajor() {
-    def forced = params.LUTECE_MAJOR?.trim()
-    if (forced && forced != 'auto') {
-        return forced
-    }
     def detected = parentGlobalPomMajor(readFile('pom.xml'))
+    def forced = params.LUTECE_MAJOR?.trim()
+    def isForced = forced && forced != 'auto'
+
     if (!detected) {
+        if (isForced) {
+            echo "WARNING: could not read the global-pom version from <parent> — using LUTECE_MAJOR=${forced}"
+            return forced
+        }
         echo "WARNING: could not read the global-pom version from <parent> — assuming Lutece 8"
         return '8'
     }
+
+    if (isForced && forced != detected) {
+        error("""LUTECE_MAJOR=${forced} but the checked-out pom.xml inherits lutece-global-pom ${detected}.x, i.e. Lutece ${detected}.
+
+The pipeline releases the sources present in the workspace; forcing the line
+does not change what was checked out. To release Lutece ${forced}, point the job's
+SCM at that line's branch (V7: develop_core7, V8: develop), or set
+LUTECE_MAJOR=auto to release Lutece ${detected} from the current checkout.""")
+    }
+
     return detected
 }
 
 /**
  * Resolves the monorepo branch this release runs on.
  *
- * Priority: MONOREPO_BRANCH parameter > the branch currently checked out (when
- * it is a known development branch) > the default branch of the detected line.
+ * The branch is always the one the workspace actually holds. It is never
+ * derived from the Lutece line: deriving it would let a V8 checkout be pushed
+ * to the V7 branch (or the reverse) whenever the branch could not be detected.
  *
- * Never guess 'develop' blindly: the V7 line lives on develop_core7, and
- * forcing 'develop' onto a V7 checkout would push V7 commits to the V8 branch.
+ * MONOREPO_BRANCH is honoured, but only when it agrees with the checkout —
+ * the pipeline cannot switch branches, only the job's SCM can.
  */
-def resolveMonorepoBranch(String major) {
+def resolveMonorepoBranch() {
+    def checkedOut = detectCheckedOutBranch()
     def explicit = params.MONOREPO_BRANCH?.trim()
+
     if (explicit) {
+        if (checkedOut && explicit != checkedOut) {
+            error("""MONOREPO_BRANCH=${explicit} but the workspace holds the branch ${checkedOut}.
+
+The pipeline releases what was checked out; it does not switch branches.
+Point the job's SCM at ${explicit}, or clear MONOREPO_BRANCH to release ${checkedOut}.""")
+        }
         return explicit
     }
 
-    def known = ['develop', 'develop_core7', 'develop_core8']
-    def current = sh(script: 'git rev-parse --abbrev-ref HEAD 2>/dev/null || true', returnStdout: true).trim()
-    if (known.contains(current)) {
-        return current
-    }
-    if (env.BRANCH_NAME && known.contains(env.BRANCH_NAME)) {
-        return env.BRANCH_NAME
+    if (!checkedOut) {
+        error("""Could not determine which branch the workspace holds.
+
+Set MONOREPO_BRANCH explicitly, and make sure it matches the branch configured
+in the job's SCM — otherwise the release would be pushed to the wrong branch.""")
     }
 
-    return major == '7' ? 'develop_core7' : 'develop'
+    return checkedOut
+}
+
+/**
+ * Determines the branch the workspace actually holds.
+ *
+ * Jenkins checks out a detached SHA, so `git rev-parse --abbrev-ref HEAD`
+ * returns 'HEAD' and cannot be used on its own. Hence the fallbacks on the
+ * Git plugin variables, then on the remote refs pointing at HEAD.
+ *
+ * Returns null when the branch cannot be established — the caller then fails
+ * rather than guessing a branch name.
+ */
+def detectCheckedOutBranch() {
+    if (env.BRANCH_NAME?.trim()) {
+        // Multibranch Pipeline
+        echo "Checked-out branch from BRANCH_NAME: ${env.BRANCH_NAME.trim()}"
+        return env.BRANCH_NAME.trim()
+    }
+
+    if (env.GIT_BRANCH?.trim()) {
+        // Git plugin on a single-branch Pipeline job (e.g. 'origin/develop')
+        def fromPlugin = env.GIT_BRANCH.trim().replaceFirst('^origin/', '')
+        echo "Checked-out branch from GIT_BRANCH: ${fromPlugin}"
+        return fromPlugin
+    }
+
+    def symbolic = sh(script: 'git symbolic-ref --short HEAD 2>/dev/null || true', returnStdout: true).trim()
+    if (symbolic && symbolic != 'HEAD') {
+        echo "Checked-out branch from symbolic-ref: ${symbolic}"
+        return symbolic
+    }
+
+    // Detached HEAD: look for the remote branches pointing at this commit
+    def pointing = sh(
+        script: "git for-each-ref --points-at HEAD --format='%(refname:short)' refs/remotes/origin 2>/dev/null || true",
+        returnStdout: true
+    ).trim()
+    def candidates = pointing.split('\n')
+        .collect { it.trim().replaceFirst('^origin/', '') }
+        .findAll { it && it != 'HEAD' }
+        .unique()
+
+    if (candidates.size() == 1) {
+        echo "Checked-out branch from the refs pointing at HEAD: ${candidates[0]}"
+        return candidates[0]
+    }
+    if (candidates.size() > 1) {
+        echo "WARNING: HEAD is pointed at by several branches: ${candidates.join(', ')}"
+        return null
+    }
+    return null
 }
 
 /**
@@ -582,7 +657,7 @@ def stageInitialize() {
     //    The branch MUST be resolved before any checkout: the V7 line lives on
     //    develop_core7 and the V8 line on develop.
     env.LUTECE_MAJOR_RESOLVED = detectLuteceMajor()
-    env.MONOREPO_BRANCH = resolveMonorepoBranch(env.LUTECE_MAJOR_RESOLVED)
+    env.MONOREPO_BRANCH = resolveMonorepoBranch()
     env.PLATFORM_TARGET_JDK = detectTargetJdk()
     env.PLATFORM_JDK_TOOL = jdkToolName(env.PLATFORM_TARGET_JDK)
 
@@ -635,6 +710,26 @@ def stageInitialize() {
     }
     env.BASE_RELEASE_VERSION = baseVersion
     env.COMPUTED_RELEASE_VERSION = qualifyVersion(baseVersion)
+
+    // In 'all' mode RELEASE_VERSION only drives the lutece-parent version:
+    // each module is published under its own <lutece.{module}.version>. When
+    // they disagree, the announced release version names no published
+    // artifact, so make it loud rather than let it pass in a log line.
+    if (!isSingleModuleRelease() && params.RELEASE_VERSION?.trim()) {
+        def declaredVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
+        def moduleBases = declaredVersions.collect { mod, info -> stripQualifier(info.current) } as Set
+        if (!moduleBases.contains(baseVersion)) {
+            echo "WARNING: RELEASE_VERSION=${baseVersion} matches none of the module versions ${moduleBases}"
+            echo "         In 'all' mode, RELEASE_VERSION only sets the lutece-parent version."
+            echo "         The modules will be published as ${moduleBases.join(', ')}, and the"
+            echo "         platform tag falls back to per-module tags."
+            echo "         To release the whole platform as ${baseVersion}, bump the 5"
+            echo "         <lutece.*.version> properties and lutece-parent in pom.xml first,"
+            echo "         then leave RELEASE_VERSION empty."
+            appendReport("WARNING: RELEASE_VERSION ${baseVersion} does not match the module versions ${moduleBases.join(', ')}")
+            unstable("RELEASE_VERSION ${baseVersion} does not match the module versions ${moduleBases.join(', ')}")
+        }
+    }
 
     if (env.IS_PRERELEASE == 'true') {
         env.COMPUTED_NEXT_SNAPSHOT = env.ORIGINAL_SNAPSHOT_VERSION
@@ -943,7 +1038,6 @@ def stagePrepareNextSnapshot() {
 
     if (isPre) {
         echo "${prereleaseLabel()}: restoring original SNAPSHOT version ${env.ORIGINAL_SNAPSHOT_VERSION}"
-        echo "(Plugin repos already restored individually in Stage 3)"
     } else {
         echo "Preparing next development iteration: ${env.COMPUTED_NEXT_SNAPSHOT}"
     }
