@@ -155,6 +155,7 @@
         <lutece.plugin-adminauthenticationwsso.version>2.1.7-SNAPSHOT</lutece.plugin-adminauthenticationwsso.version>
         <lutece.plugin-myluteceaccessrules.version>1.0.4-SNAPSHOT</lutece.plugin-myluteceaccessrules.version>
         <lutece.module-mylutece-users.version>1.0.0-SNAPSHOT</lutece.module-mylutece-users.version>
+        <lutece.module-mylutece-cacheuserattribute>[1.0.1]</lutece.module-mylutece-cacheuserattribute>
 
         <!-- Cartography / Solr / Leaflet -->
         <lutece.plugin-solr.version>4.0.8-SNAPSHOT</lutece.plugin-solr.version>
