@@ -1,6 +1,11 @@
 /**
  * Lutece Release Pipeline — Helper Functions
  *
+ * Scope: this pipeline releases the lutece-platform monorepo only — the
+ * specialized starters, lutece-starter and lutece-bom. Plugin releases are
+ * out of scope: plugin versions are maintained by hand in the root pom.xml
+ * and must already be release versions (see stageValidateReleaseReadiness).
+ *
  * Extrait du Jenkinsfile-release pour eviter l'erreur "Method too large"
  * du moteur CPS Jenkins (limite 64 Ko de bytecode par methode JVM).
  *
@@ -22,6 +27,270 @@ def isSingleModuleRelease() {
     return params.RELEASE_TARGET != 'all'
 }
 
+// ========================================================================
+// Pre-release qualifiers — beta-NN / RC-NN
+// ========================================================================
+
+/**
+ * Zero-pads a pre-release number to 2 digits: '1' -> '01', '12' -> '12'.
+ */
+def padPrereleaseNumber(String raw) {
+    def digits = (raw?.trim() ?: '1').replaceAll('[^0-9]', '')
+    if (!digits) {
+        digits = '1'
+    }
+    return digits.padLeft(2, '0')
+}
+
+/**
+ * Appends the pre-release qualifier of the current build to a base version.
+ *   none -> 8.0.0
+ *   beta -> 8.0.0-beta-01
+ *   rc   -> 8.0.0-RC-01
+ */
+def qualifyVersion(String base) {
+    def type = env.PRERELEASE_TYPE ?: 'none'
+    if (type == 'none') {
+        return base
+    }
+    def qualifier = (type == 'rc') ? 'RC' : type
+    return "${base}-${qualifier}-${env.PRERELEASE_NUM}".toString()
+}
+
+/**
+ * Strips any -SNAPSHOT and any pre-release qualifier from a version.
+ *   8.0.0-SNAPSHOT   -> 8.0.0
+ *   8.0.0-beta-01    -> 8.0.0
+ *   8.0.0-RC-01      -> 8.0.0
+ */
+def stripQualifier(String version) {
+    return version.replaceAll('-SNAPSHOT$', '')
+                  .replaceAll('(?i)-(RC|beta|alpha)[-.]?\\d+$', '')
+}
+
+/**
+ * Human-readable label for the current build type, used in logs and reports.
+ */
+def prereleaseLabel() {
+    def type = env.PRERELEASE_TYPE ?: 'none'
+    if (type == 'none') {
+        return 'Stable'
+    }
+    if (type == 'rc') {
+        return "Release Candidate ${env.PRERELEASE_NUM}".toString()
+    }
+    return "Beta ${env.PRERELEASE_NUM}".toString()
+}
+
+// ========================================================================
+// Git tag naming
+// ========================================================================
+
+/**
+ * Tag name for a platform-wide release (RELEASE_TARGET = 'all').
+ * Example: v8.0.0-beta-01
+ */
+def platformTagName(String version) {
+    return "v${version}".toString()
+}
+
+/**
+ * Tag name for a single module release.
+ * Example: forms-starter-8.0.0-beta-01
+ */
+def moduleTagName(String moduleName, String version) {
+    return "${moduleName}-${version}".toString()
+}
+
+/**
+ * Computes the git tag(s) this release must create on the monorepo.
+ *
+ * - single-module target                 -> [forms-starter-8.0.0-beta-01]
+ * - 'all', module versions aligned       -> [v8.0.0-beta-01]
+ * - 'all', module versions NOT aligned   -> one tag per module, so that every
+ *   artifact published to Nexus stays traceable to a tag.
+ */
+def resolveReleaseTags() {
+    if (isSingleModuleRelease()) {
+        return [moduleTagName(params.RELEASE_TARGET, env.COMPUTED_RELEASE_VERSION)]
+    }
+
+    def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
+    def distinct = moduleVersions.collect { mod, info -> info.releaseVersion } as Set
+
+    if (distinct.size() == 1 && distinct.contains(env.COMPUTED_RELEASE_VERSION)) {
+        return [platformTagName(env.COMPUTED_RELEASE_VERSION)]
+    }
+
+    echo "WARNING: module versions ${distinct} differ from the platform version ${env.COMPUTED_RELEASE_VERSION}"
+    echo "         -> falling back to per-module tags to keep Nexus artifacts traceable"
+    return moduleVersions.collect { mod, info -> moduleTagName(mod, info.releaseVersion) }
+}
+
+// ========================================================================
+// Lutece line (V7 / V8) and JDK selection
+// ========================================================================
+
+/**
+ * Extracts the major of the <parent> version declared in a POM.
+ * Every Lutece POM inherits from lutece-global-pom, whose major matches the
+ * Lutece line: global-pom 7.0.x -> Lutece 7, global-pom 8.0.x -> Lutece 8.
+ *
+ * Returns null when the parent block or its version cannot be found.
+ */
+def parentGlobalPomMajor(String pomContent) {
+    def matcher = pomContent =~ '(?s)<parent>.*?<version>\\s*([^<\\s]+)\\s*</version>.*?</parent>'
+    if (!matcher.find()) {
+        return null
+    }
+    def majorMatcher = matcher.group(1) =~ '^(\\d+)'
+    return majorMatcher ? majorMatcher[0][1] : null
+}
+
+/**
+ * Detects the Lutece line ('7' or '8') of the POM in the current directory.
+ * The LUTECE_MAJOR parameter overrides the detection when set to 7 or 8.
+ */
+def detectLuteceMajor() {
+    def forced = params.LUTECE_MAJOR?.trim()
+    if (forced && forced != 'auto') {
+        return forced
+    }
+    def detected = parentGlobalPomMajor(readFile('pom.xml'))
+    if (!detected) {
+        echo "WARNING: could not read the global-pom version from <parent> — assuming Lutece 8"
+        return '8'
+    }
+    return detected
+}
+
+/**
+ * Resolves the monorepo branch this release runs on.
+ *
+ * Priority: MONOREPO_BRANCH parameter > the branch currently checked out (when
+ * it is a known development branch) > the default branch of the detected line.
+ *
+ * Never guess 'develop' blindly: the V7 line lives on develop_core7, and
+ * forcing 'develop' onto a V7 checkout would push V7 commits to the V8 branch.
+ */
+def resolveMonorepoBranch(String major) {
+    def explicit = params.MONOREPO_BRANCH?.trim()
+    if (explicit) {
+        return explicit
+    }
+
+    def known = ['develop', 'develop_core7', 'develop_core8']
+    def current = sh(script: 'git rev-parse --abbrev-ref HEAD 2>/dev/null || true', returnStdout: true).trim()
+    if (known.contains(current)) {
+        return current
+    }
+    if (env.BRANCH_NAME && known.contains(env.BRANCH_NAME)) {
+        return env.BRANCH_NAME
+    }
+
+    return major == '7' ? 'develop_core7' : 'develop'
+}
+
+/**
+ * Normalizes a targetJdk value to a plain major number: '1.8' -> '8', '17' -> '17'.
+ */
+def normalizeJdkMajor(String raw) {
+    def value = raw?.trim()
+    if (!value) {
+        return null
+    }
+    if (value.startsWith('1.')) {
+        return value.substring(2)
+    }
+    def matcher = value =~ '^(\\d+)'
+    return matcher ? matcher[0][1] : null
+}
+
+/**
+ * Resolves the effective <targetJdk> of the POM in the current directory.
+ *
+ * targetJdk is declared by lutece-global-pom, the parent of every Lutece POM:
+ *   global-pom 7.0.x   -> <targetJdk>11</targetJdk>
+ *   global-pom 8.0.0   -> <targetJdk>17</targetJdk>
+ *   global-pom 8.0.1+  -> <targetJdk>${java.version}</targetJdk>   (java.version = 17)
+ *
+ * `mvn help:evaluate` is used so that inheritance and property indirection
+ * (${java.version}) are resolved by Maven itself rather than re-implemented
+ * here. When the parent POM cannot be resolved, we fall back to the Lutece
+ * line: V7 -> JDK 11, V8 -> JDK 17.
+ */
+def detectTargetJdk() {
+    def raw = null
+    try {
+        raw = sh(
+            script: "mvn -s ${env.MAVEN_SETTINGS_XML} -N -q help:evaluate -Dexpression=targetJdk -DforceStdout 2>/dev/null | tail -1",
+            returnStdout: true
+        ).trim()
+    } catch (Throwable e) {
+        echo "WARNING: could not evaluate targetJdk with Maven: ${e.message}"
+    }
+
+    def major = normalizeJdkMajor(raw)
+    if (major) {
+        echo "targetJdk resolved from the effective POM: '${raw}' -> JDK ${major}"
+        return major
+    }
+
+    def fallback = detectLuteceMajor() == '7' ? '11' : '17'
+    echo "WARNING: targetJdk could not be evaluated (got: '${raw}') — falling back to JDK ${fallback}"
+    return fallback
+}
+
+/**
+ * Maps a JDK major number to a Jenkins JDK tool name.
+ * Default convention: temurin-{major}-jdk, matching the tool already declared
+ * in the Jenkinsfile. Overridable per build with the JDK_TOOL_MAP parameter,
+ * e.g. "11=my-jdk11,17=my-jdk17".
+ */
+def jdkToolName(String major) {
+    def overrides = [:]
+    params.JDK_TOOL_MAP?.split(',')?.each { entry ->
+        def parts = entry.split('=')
+        if (parts.length == 2) {
+            overrides[parts[0].trim()] = parts[1].trim()
+        }
+    }
+    return (overrides[major] ?: "temurin-${major}-jdk").toString()
+}
+
+/**
+ * Runs the closure with JAVA_HOME pointing at the Jenkins JDK tool matching
+ * the requested major version.
+ *
+ * Falls back to the build's default JDK (the one declared in the `tools`
+ * block) with an explicit warning when the tool is not configured, so that a
+ * missing tool declaration does not silently compile against the wrong JDK.
+ */
+def withJdk(String major, Closure body) {
+    if (!major) {
+        echo "No target JDK resolved — using the build default JDK"
+        body()
+        return
+    }
+
+    def toolName = jdkToolName(major)
+    def jdkHome = null
+    try {
+        jdkHome = tool(name: toolName, type: 'jdk')
+    } catch (Throwable e) {
+        echo "WARNING: Jenkins JDK tool '${toolName}' is not configured (${e.message})"
+        echo "         -> using the build default JDK. Declare it in Manage Jenkins > Tools,"
+        echo "            or remap it with the JDK_TOOL_MAP parameter."
+        body()
+        return
+    }
+
+    echo "Using JDK ${major} -> tool '${toolName}' (${jdkHome})"
+    withEnv(["JAVA_HOME=${jdkHome}", "PATH+JDK=${jdkHome}/bin"]) {
+        body()
+    }
+}
+
 /**
  * Reads all 5 module version properties from root pom.xml and builds a version map.
  * Each entry contains: current (SNAPSHOT), release, next (next SNAPSHOT).
@@ -33,8 +302,7 @@ def isSingleModuleRelease() {
  */
 def readModuleVersionMap(String pomContent) {
     def modules = ['forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter', 'lutece-bom']
-    def isRc = env.IS_RC == 'true'
-    def rcNum = env.RC_NUM
+    def isPre = env.IS_PRERELEASE == 'true'
 
     def versionMap = [:]
     modules.each { mod ->
@@ -42,9 +310,9 @@ def readModuleVersionMap(String pomContent) {
         def matcher = pomContent =~ "<${prop}>([^<]+)</${prop}>"
         if (matcher.find()) {
             def current = matcher[0][1]
-            def base = current.replace('-SNAPSHOT', '')
-            def release = isRc ? "${base}-RC-${rcNum.padLeft(2, '0')}" : base
-            def next = isRc ? current : computeNextSnapshot(base)
+            def base = stripQualifier(current)
+            def release = qualifyVersion(base)
+            def next = isPre ? current : computeNextSnapshot(base)
             versionMap[mod] = [
                 property     : prop,
                 current      : current,
@@ -87,12 +355,12 @@ def getModuleReleaseVersion(String moduleName) {
  * Example: "8.0.0" -> "8.0.1-SNAPSHOT"
  */
 def computeNextSnapshot(String version) {
-    def parts = version.replace('-SNAPSHOT', '').split('\\.')
+    def parts = stripQualifier(version).split('\\.')
     if (parts.length < 3) {
-        return "${version}.1-SNAPSHOT"
+        return "${version}.1-SNAPSHOT".toString()
     }
     def patch = parts[2].toInteger() + 1
-    return "${parts[0]}.${parts[1]}.${patch}-SNAPSHOT"
+    return "${parts[0]}.${parts[1]}.${patch}-SNAPSHOT".toString()
 }
 
 /**
@@ -123,7 +391,11 @@ def resolveStartersToRelease(String target) {
 
 /**
  * Parses the root pom.xml content and extracts all <lutece.*.version> properties
- * that contain a SNAPSHOT version.
+ * that still hold a SNAPSHOT version.
+ *
+ * Plugin versions are maintained by hand in the root pom.xml; this pipeline
+ * only reads them, to refuse releasing a starter that would depend on a
+ * SNAPSHOT (see stageValidateReleaseReadiness).
  *
  * Returns a list of maps: [propertyName, artifactId, version]
  */
@@ -168,383 +440,37 @@ def parseSnapshotPlugins(String pomContent) {
 }
 
 /**
- * Filters the list of SNAPSHOT plugins to only those referenced by the target starters.
+ * Builds and deploys a starter or BOM module of this monorepo to Nexus.
  *
- * Reads each starter's pom.xml and extracts which ${lutece.*.version} properties it uses,
- * then returns only the SNAPSHOT plugins that match.
- */
-def filterPluginsForStarters(List allPlugins, List starters) {
-    if (!starters || starters.isEmpty()) {
-        return allPlugins
-    }
-
-    def referencedProperties = [] as Set
-
-    // Map starter names to their pom files
-    def starterPomMap = [
-        'forms-starter'       : 'forms-starter/pom.xml',
-        'appointment-starter' : 'appointment-starter/pom.xml',
-        'editorial-starter'   : 'editorial-starter/pom.xml',
-        'lutece-starter'      : 'lutece-starter/pom.xml',
-        'lutece-bom'          : 'lutece-bom/pom.xml'
-    ]
-
-    starters.each { starter ->
-        def pomPath = starterPomMap[starter]
-        if (pomPath && fileExists(pomPath)) {
-            def content = readFile(pomPath)
-            // Extract all ${lutece.*.version} references
-            def refMatcher = content =~ '\\$\\{(lutece\\.[a-zA-Z0-9._-]+\\.version)\\}'
-            while (refMatcher.find()) {
-                referencedProperties.add(refMatcher.group(1))
-            }
-        }
-    }
-
-    // If lutece-starter is in the list, it depends on the 3 specialized starters,
-    // so we also need their plugins
-    if (starters.contains('lutece-starter')) {
-        ['forms-starter', 'appointment-starter', 'editorial-starter'].each { sub ->
-            def pomPath = starterPomMap[sub]
-            if (pomPath && fileExists(pomPath)) {
-                def content = readFile(pomPath)
-                def refMatcher = content =~ '\\$\\{(lutece\\.[a-zA-Z0-9._-]+\\.version)\\}'
-                while (refMatcher.find()) {
-                    referencedProperties.add(refMatcher.group(1))
-                }
-            }
-        }
-    }
-
-    echo "Referenced properties from starters: ${referencedProperties.size()}"
-    referencedProperties.each { echo "  - ${it}" }
-
-    return allPlugins.findAll { referencedProperties.contains(it.propertyName) }
-}
-
-/**
- * Resolves the GitHub organization and repo name for a given artifactId.
+ * Tagging (stage 'Tag Release') and the master merge (stage 'Promote to
+ * master') are deliberately NOT done here: this function runs inside parallel
+ * stages, and tagging or checking out master concurrently from the same
+ * working copy corrupts it.
  *
- * Convention Lutece : le nom du depot GitHub suit le pattern
- *   lutece-{categorie}-{artifactId}
- * Exemples :
- *   plugin-forms              -> lutece-form-plugin-forms
- *   module-workflow-forms      -> lutece-wf-module-workflow-forms
- *   library-lucene             -> lutece-tech-library-lucene
- *   lutece-core                -> lutece-core
- *
- * Certains depots ne suivent pas la convention standard (artifactId != suffixe du repo).
- * Ces cas sont geres par une table de correspondance REPO_OVERRIDES.
- *
- * Strategie de resolution :
- *   1. Verifie la table REPO_OVERRIDES
- *   2. Cherche le repo via l'API Search GitHub (nom se terminant par l'artifactId)
- *   3. Cherche dans lutece-platform, puis lutece-secteur-public
- *   4. Resout la branche de developpement
- *
- * Returns a map [org, repoName, branch] or null if not found.
- */
-def resolveGitHubRepo(String artifactId) {
-    // Table de correspondance pour les depots dont le nom ne suit pas
-    // la convention standard lutece-{categorie}-{artifactId}
-    def REPO_OVERRIDES = [
-        // artifactId POM                        : [org, repoName]
-        'plugin-modulenotifygrumappingmanager'    : ['lutece-secteur-public', 'gru-module-notifygru-mapping-manager'],
-        'plugin-galleryimage'                     : ['lutece-platform', 'lutece-tech-plugin-image-gallery'],
-        'library-sql-utils'                       : ['lutece-platform', 'lutece-build-library-sqlutils'],
-        // Ajouter ici d'autres cas speciaux si necessaire
-    ]
-
-    def result = null
-
-    withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
-        // 1. Check overrides first
-        if (REPO_OVERRIDES.containsKey(artifactId)) {
-            def override = REPO_OVERRIDES[artifactId]
-            def org = override[0]
-            def repoName = override[1]
-            def branch = resolveDevBranch(org, repoName)
-            echo "Resolved (override): ${artifactId} -> ${org}/${repoName} (${branch})"
-            result = [org: org, repoName: repoName, branch: branch]
-            return
-        }
-
-        // 2. Search via GitHub API
-        def orgs = [env.GITHUB_ORG_PLATFORM, env.GITHUB_ORG_PUBLIC]
-
-        for (org in orgs) {
-            env.SEARCH_ORG = org
-            env.SEARCH_ARTIFACT = artifactId
-            def searchJson = sh(
-                script: 'curl -s \
-                    -H "Authorization: token ${GITHUB_TOKEN}" \
-                    -H "Accept: application/vnd.github.v3+json" \
-                    "https://api.github.com/search/repositories?q=org:${SEARCH_ORG}+${SEARCH_ARTIFACT}+in:name&per_page=10"',
-                returnStdout: true
-            ).trim()
-
-            def searchResult = readJSON(text: searchJson)
-            if (searchResult.total_count > 0) {
-                def match = searchResult.items.find { repo ->
-                    repo.name == artifactId || repo.name.endsWith("-${artifactId}")
-                }
-                if (match) {
-                    def branch = resolveDevBranch(org, match.name)
-                    echo "Resolved: ${artifactId} -> ${org}/${match.name} (${branch})"
-                    result = [org: org, repoName: match.name, branch: branch]
-                    return
-                }
-            }
-        }
-
-        echo "WARNING: Repository not found for artifactId: ${artifactId}"
-    }
-
-    return result
-}
-
-/**
- * Resolves the development branch for a repo.
- * Priority: develop > develop_core8 > develop8 > develop8.x > main > master
- */
-def resolveDevBranch(String org, String repoName) {
-    // Note: cette fonction est appelee depuis resolveGitHubRepo
-    // qui fournit deja le contexte withCredentials(GITHUB_TOKEN)
-    env.BRANCH_ORG = org
-    env.BRANCH_REPO = repoName
-    def branchesJson = sh(
-        script: 'curl -s \
-            -H "Authorization: token ${GITHUB_TOKEN}" \
-            "https://api.github.com/repos/${BRANCH_ORG}/${BRANCH_REPO}/branches?per_page=100"',
-        returnStdout: true
-    ).trim()
-
-    def branches = readJSON(text: branchesJson)
-    def branchNames = branches.collect { it.name }
-
-    def priorities = ['develop', 'develop_core8', 'develop8', 'develop8.x']
-    for (b in priorities) {
-        if (branchNames.contains(b)) {
-            return b
-        }
-    }
-    return 'master'
-}
-
-/**
- * Performs the full release workflow for a single plugin:
- *
- * Stable release:
- *   1. Clone develop -> 2. Tests -> 3. Version set -> 4. Commit+tag
- *   5. Merge to master, push, deploy -> 6. Next SNAPSHOT on develop
- *
- * RC release:
- *   1. Clone develop -> 2. Tests -> 3. Version set (X.Y.Z-RCn) -> 4. Commit+tag
- *   5. Deploy from develop (NO merge to master) -> 6. Restore SNAPSHOT on develop
- */
-def releasePlugin(Map plugin) {
-    def workDir = "${env.PLUGIN_WORK_DIR}/${plugin.artifactId}"
-    def tagName = "${plugin.artifactId}-${plugin.releaseVersion}"
-    def isRc = env.IS_RC == 'true'
-
-    echo "=== Releasing ${plugin.artifactId} : ${plugin.currentVersion} -> ${plugin.releaseVersion}${isRc ? ' (RC)' : ''} ==="
-
-    if (params.DRY_RUN) {
-        echo "[DRY-RUN] Would release ${plugin.artifactId}"
-        echo "[DRY-RUN]   Clone ${plugin.org}/${plugin.repoName} (${plugin.branch})"
-        echo "[DRY-RUN]   Test, set version ${plugin.releaseVersion}, update plugin XML descriptor, tag ${tagName}"
-        if (isRc) {
-            echo "[DRY-RUN]   RC: deploy from develop (no merge to master)"
-            echo "[DRY-RUN]   RC: restore SNAPSHOT ${plugin.nextSnapshot}"
-        } else {
-            echo "[DRY-RUN]   Merge to master, deploy, next SNAPSHOT ${plugin.nextSnapshot}"
-        }
-        return
-    }
-
-    withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
-    dir(workDir) {
-        // 1. Clone
-        env.PLUGIN_BRANCH = plugin.branch
-        env.PLUGIN_ORG = plugin.org
-        env.PLUGIN_REPO = plugin.repoName
-        sh 'git clone -b ${PLUGIN_BRANCH} --single-branch https://${GITHUB_TOKEN}@github.com/${PLUGIN_ORG}/${PLUGIN_REPO}.git .'
-        env.GIT_AUTHOR_EMAIL = params.GIT_USER_EMAIL
-        env.GIT_AUTHOR_NAME = params.GIT_USER_NAME
-        sh 'git config user.email "${GIT_AUTHOR_EMAIL}"'
-        sh 'git config user.name "${GIT_AUTHOR_NAME}"'
-
-        // 2. Check packaging and run tests
-        if (!params.SKIP_TESTS) {
-            def pluginPom = readFile('pom.xml')
-            def packagingMatch = pluginPom =~ '<packaging>([^<]+)</packaging>'
-            def packaging = packagingMatch ? packagingMatch[0][1] : 'jar'
-
-            if (packaging in ['lutece-plugin', 'lutece-core']) {
-                echo "Running tests for ${plugin.artifactId} (packaging: ${packaging})..."
-                sh "mvn -s ${env.MAVEN_SETTINGS_XML} lutece:exploded antrun:run -Dlutece-test-hsql test"
-            } else {
-                echo "Skipping tests for ${plugin.artifactId} (packaging: ${packaging})"
-            }
-        }
-
-        // 3. Set release version
-        sh "mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.releaseVersion} -DgenerateBackupPoms=false"
-
-        // 3b. Update <version> in plugin XML descriptor (webapp/WEB-INF/plugins/*.xml)
-        sh """
-            for xmlFile in webapp/WEB-INF/plugins/*.xml; do
-                [ -f "\$xmlFile" ] || continue
-                sed -i 's|<version>[^<]*</version>|<version>${plugin.releaseVersion}</version>|' "\$xmlFile"
-                echo "Updated version in \$xmlFile"
-            done
-        """
-
-        // 4. Commit + tag
-        sh """
-            git add -A
-            git commit -m "release: ${tagName}"
-            git tag -fa ${tagName} -m "Release ${plugin.artifactId} ${plugin.releaseVersion}"
-        """
-
-        // -- Phase 1: prepare (push branch + tag) --
-        sh "git push origin ${plugin.branch} --tags"
-
-        // -- Phase 2: perform (deploy to Nexus) --
-        sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean deploy -DskipTests -DperformRelease=true"
-
-        if (isRc) {
-            // -- Phase 3-RC: restore SNAPSHOT on develop --
-            sh """
-                mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
-                for xmlFile in webapp/WEB-INF/plugins/*.xml; do
-                    [ -f "\$xmlFile" ] || continue
-                    sed -i 's|<version>[^<]*</version>|<version>${plugin.nextSnapshot}</version>|' "\$xmlFile"
-                done
-                git add -A
-                git commit -m "chore: restore SNAPSHOT after RC ${plugin.artifactId}-${plugin.releaseVersion}"
-                git push origin ${plugin.branch}
-            """
-        } else {
-            // -- Phase 3: promote (merge to master) --
-            sh """
-                git checkout master || git checkout -b master origin/master
-                git merge ${plugin.branch} -m "Merge ${plugin.branch} for release ${tagName}"
-                git push origin master
-            """
-
-            // -- Phase 4: next SNAPSHOT on develop --
-            sh """
-                git checkout ${plugin.branch}
-                mvn -s ${env.MAVEN_SETTINGS_XML} versions:set -DnewVersion=${plugin.nextSnapshot} -DgenerateBackupPoms=false
-                for xmlFile in webapp/WEB-INF/plugins/*.xml; do
-                    [ -f "\$xmlFile" ] || continue
-                    sed -i 's|<version>[^<]*</version>|<version>${plugin.nextSnapshot}</version>|' "\$xmlFile"
-                done
-                git add -A
-                git commit -m "chore: prepare next development iteration ${plugin.artifactId}-${plugin.nextSnapshot}"
-                git push origin ${plugin.branch}
-            """
-        }
-    }
-    } // withCredentials
-
-    echo "Released ${plugin.artifactId} ${plugin.releaseVersion} successfully."
-}
-
-/**
- * Rollback a failed plugin release:
- * - Reset develop to pre-release state (undo release commit)
- * - Delete the release tag (local + remote)
- *
- * Master is never touched before deploy succeeds, so no master rollback needed.
- */
-def rollbackPlugin(Map plugin) {
-    def workDir = "${env.PLUGIN_WORK_DIR}/${plugin.artifactId}"
-    def tagName = "${plugin.artifactId}-${plugin.releaseVersion}"
-
-    echo "Rolling back ${plugin.artifactId}..."
-
-    if (params.DRY_RUN) {
-        echo "[DRY-RUN] Would rollback ${plugin.artifactId}"
-        return
-    }
-
-    dir(workDir) {
-        // Reset develop (undo release version commit that was pushed)
-        try {
-            sh """
-                git checkout ${plugin.branch}
-                git revert HEAD --no-edit
-                git push origin ${plugin.branch}
-            """
-        } catch (Throwable e) {
-            echo "WARNING: Could not revert release commit on ${plugin.branch} for ${plugin.artifactId}: ${e.message}"
-        }
-
-        // Delete tag (local + remote)
-        try {
-            sh """
-                git tag -d ${tagName} || true
-                git push origin :refs/tags/${tagName} || true
-            """
-        } catch (Throwable e) {
-            echo "WARNING: Could not delete tag ${tagName}: ${e.message}"
-        }
-    }
-}
-
-/**
- * Releases a starter or BOM module within this monorepo.
- *
- * Follows the mvn release:prepare + release:perform pattern:
- *   1. Tag + push to Git (prepare)
- *   2. Deploy to Nexus (perform)
- *   3. Merge to master (promote — stable only, after successful deploy)
+ * The module is built with the JDK matching the POM's targetJdk, so the same
+ * pipeline releases the V7 line (JDK 11) and the V8 line (JDK 17).
  *
  * Master is never touched before deploy succeeds -> simple rollback (tag delete only).
  */
 def releaseStarter(String starterName) {
     def moduleVersion = getModuleReleaseVersion(starterName)
-    def tagName = "${starterName}-${moduleVersion}"
-    def isRc = env.IS_RC == 'true'
+    def isPre = env.IS_PRERELEASE == 'true'
 
-    echo "=== Releasing ${starterName} ${moduleVersion}${isRc ? ' (RC)' : ''} ==="
-
-    def singleModule = isSingleModuleRelease()
+    echo "=== Releasing ${starterName} ${moduleVersion}${isPre ? ' (' + prereleaseLabel() + ')' : ''} ==="
 
     if (params.DRY_RUN) {
         echo "[DRY-RUN] Would release ${starterName}"
-        echo "[DRY-RUN]   Tag: ${tagName}"
-        if (isRc) {
-            echo "[DRY-RUN]   RC: tag + push, then deploy from develop"
-        } else if (singleModule) {
-            echo "[DRY-RUN]   Single module: tag + push, then deploy (no merge to master)"
-        } else {
-            echo "[DRY-RUN]   Stable: tag + push, then deploy, then merge to master"
-        }
+        echo "[DRY-RUN]   Tag(s) already handled by the 'Tag Release' stage: ${env.RELEASE_TAGS ?: '(not computed)'}"
+        echo "[DRY-RUN]   Build with JDK ${env.PLATFORM_TARGET_JDK ?: '(build default)'}"
+        echo "[DRY-RUN]   Deploy ${starterName}:${moduleVersion} to Nexus"
         return
     }
 
-    // -- Phase 1: prepare (tag + push tag only — develop already pushed in Stage 4) --
-    // Delete local tag if it exists (git fetch --tags brings back remote tags on re-runs)
-    sh "git tag -d ${tagName} 2>/dev/null || true"
-    sh "git tag -a ${tagName} -m \"Release ${starterName} ${moduleVersion}\""
-    sh "git push origin ${tagName}"
-
-    // -- Phase 2: perform (deploy to Nexus) --
     // Build the module and its reactor dependencies (install only), then deploy ONLY the target module.
     // Using -am with deploy would re-deploy already-published dependencies -> Nexus 400 Bad Request.
-    sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean install -pl ${starterName} -am -DskipTests -DperformRelease=true"
-    sh "mvn -s ${env.MAVEN_SETTINGS_XML} deploy -pl ${starterName} -DskipTests -DperformRelease=true"
-
-    // -- Phase 3: promote (merge to master — stable 'all' release only) --
-    // Skip merge for single-module releases (other modules may still be in SNAPSHOT)
-    if (!isRc && !singleModule) {
-        sh "git checkout master"
-        sh "git merge develop -m \"Merge develop for release ${tagName}\""
-        sh "git push origin master"
-        sh "git checkout develop"
+    withJdk(env.PLATFORM_TARGET_JDK) {
+        sh "mvn -s ${env.MAVEN_SETTINGS_XML} clean install -pl ${starterName} -am -DskipTests -DperformRelease=true"
+        sh "mvn -s ${env.MAVEN_SETTINGS_XML} deploy -pl ${starterName} -DskipTests -DperformRelease=true"
     }
 
     echo "Released ${starterName} ${moduleVersion} successfully."
@@ -554,13 +480,10 @@ def releaseStarter(String starterName) {
  * Rolls back a failed starter release within the monorepo.
  *
  * Master is never touched before deploy succeeds, so rollback is simple:
- * - Delete the git tag (local + remote)
- * - Ensure we are back on the develop branch
+ * - Delete the release tag(s) (local + remote)
+ * - Ensure we are back on the release branch
  */
 def rollbackStarter(String starterName) {
-    def moduleVersion = getModuleReleaseVersion(starterName)
-    def tagName = "${starterName}-${moduleVersion}"
-
     echo "=== Rolling back ${starterName} ==="
 
     if (params.DRY_RUN) {
@@ -568,21 +491,42 @@ def rollbackStarter(String starterName) {
         return
     }
 
-    // Delete tag (local + remote)
+    // The release tag(s) are created once by the 'Tag Release' stage, so the
+    // rollback deletes those — not a per-module tag that no longer exists.
+    rollbackTags()
+
+    // Ensure we are back on the release branch
     try {
-        sh """
-            git tag -d ${tagName} || true
-            git push origin :refs/tags/${tagName} || true
-        """
+        sh "git checkout ${env.MONOREPO_BRANCH}"
     } catch (Throwable e) {
-        echo "WARNING: Could not delete tag ${tagName}: ${e.message}"
+        echo "WARNING: Could not checkout ${env.MONOREPO_BRANCH}: ${e.message}"
+    }
+}
+
+/**
+ * Deletes the release tag(s) created by the 'Tag Release' stage, locally and
+ * on the remote. Safe to call more than once.
+ */
+def rollbackTags() {
+    def tags = env.RELEASE_TAGS ? env.RELEASE_TAGS.split(',').collect { it.trim() }.findAll { it } : []
+    if (!tags) {
+        echo "No release tag to roll back"
+        return
     }
 
-    // Ensure we are back on develop
-    try {
-        sh "git checkout develop"
-    } catch (Throwable e) {
-        echo "WARNING: Could not checkout develop: ${e.message}"
+    if (params.DRY_RUN) {
+        echo "[DRY-RUN] Would delete tag(s): ${tags.join(', ')}"
+        return
+    }
+
+    tags.each { tag ->
+        try {
+            sh "git tag -d ${tag} || true"
+            sh "git push origin :refs/tags/${tag} || true"
+            echo "Deleted tag ${tag}"
+        } catch (Throwable e) {
+            echo "WARNING: Could not delete tag ${tag}: ${e.message}"
+        }
     }
 }
 
@@ -611,15 +555,19 @@ def generateReleaseReport() {
  * Stage 0 — Initialize: configure git, compute versions, create report.
  */
 def stageInitialize() {
-    env.IS_RC = "${params.RC_BUILD}"
-    env.RC_NUM = params.RC_NUMBER?.trim() ?: '1'
-
-    echo "=========================================="
-    echo " Lutece Release Pipeline"
-    echo " Target  : ${params.RELEASE_TARGET}"
-    echo " Dry-Run : ${params.DRY_RUN}"
-    echo " RC Build: ${env.IS_RC}${env.IS_RC == 'true' ? ' (RC' + env.RC_NUM + ')' : ''}"
-    echo "=========================================="
+    // -- Pre-release type: PRERELEASE_TYPE is authoritative; the legacy
+    //    RC_BUILD/RC_NUMBER parameters are still honoured when it is 'none',
+    //    so jobs configured before beta support keep working unchanged.
+    def declaredType = params.PRERELEASE_TYPE?.trim()?.toLowerCase() ?: 'none'
+    if (declaredType == 'none' && params.RC_BUILD) {
+        env.PRERELEASE_TYPE = 'rc'
+        env.PRERELEASE_NUM = padPrereleaseNumber(params.RC_NUMBER)
+        echo "Legacy RC_BUILD=true detected -> PRERELEASE_TYPE=rc, number ${env.PRERELEASE_NUM}"
+    } else {
+        env.PRERELEASE_TYPE = declaredType
+        env.PRERELEASE_NUM = padPrereleaseNumber(params.PRERELEASE_NUMBER)
+    }
+    env.IS_PRERELEASE = (env.PRERELEASE_TYPE != 'none') ? 'true' : 'false'
 
     configFileProvider([configFile(fileId: params.MAVEN_SETTINGS_ID, variable: 'MVN_SETTINGS_TMP')]) {
         sh "cp \${MVN_SETTINGS_TMP} ${WORKSPACE}/maven-settings.xml"
@@ -629,7 +577,26 @@ def stageInitialize() {
 
     sh "git config user.email '${params.GIT_USER_EMAIL}'"
     sh "git config user.name '${params.GIT_USER_NAME}'"
-    sh "git checkout -B develop"
+
+    // -- Lutece line (V7 / V8), release branch and JDK.
+    //    The branch MUST be resolved before any checkout: the V7 line lives on
+    //    develop_core7 and the V8 line on develop.
+    env.LUTECE_MAJOR_RESOLVED = detectLuteceMajor()
+    env.MONOREPO_BRANCH = resolveMonorepoBranch(env.LUTECE_MAJOR_RESOLVED)
+    env.PLATFORM_TARGET_JDK = detectTargetJdk()
+    env.PLATFORM_JDK_TOOL = jdkToolName(env.PLATFORM_TARGET_JDK)
+
+    echo "=========================================="
+    echo " Lutece Release Pipeline"
+    echo " Target      : ${params.RELEASE_TARGET}"
+    echo " Build type  : ${prereleaseLabel()}"
+    echo " Dry-Run     : ${params.DRY_RUN}"
+    echo " Lutece line : V${env.LUTECE_MAJOR_RESOLVED}"
+    echo " Branch      : ${env.MONOREPO_BRANCH}"
+    echo " targetJdk   : ${env.PLATFORM_TARGET_JDK} (Jenkins tool: ${env.PLATFORM_JDK_TOOL})"
+    echo "=========================================="
+
+    sh "git checkout -B ${env.MONOREPO_BRANCH}"
 
     withCredentials([string(credentialsId: params.GITHUB_CREDENTIAL_ID, variable: 'GITHUB_TOKEN')]) {
         sh 'git remote set-url origin https://$GITHUB_TOKEN@github.com/lutece-platform/lutece.git'
@@ -662,19 +629,14 @@ def stageInitialize() {
 
     def baseVersion
     if (params.RELEASE_VERSION?.trim()) {
-        baseVersion = params.RELEASE_VERSION.trim().replaceAll('-RC-?\\d+$', '')
+        baseVersion = stripQualifier(params.RELEASE_VERSION.trim())
     } else {
-        baseVersion = currentVersion.replace('-SNAPSHOT', '')
+        baseVersion = stripQualifier(currentVersion)
     }
     env.BASE_RELEASE_VERSION = baseVersion
+    env.COMPUTED_RELEASE_VERSION = qualifyVersion(baseVersion)
 
-    if (env.IS_RC == 'true') {
-        env.COMPUTED_RELEASE_VERSION = "${baseVersion}-RC-${env.RC_NUM.padLeft(2, '0')}"
-    } else {
-        env.COMPUTED_RELEASE_VERSION = baseVersion
-    }
-
-    if (env.IS_RC == 'true') {
+    if (env.IS_PRERELEASE == 'true') {
         env.COMPUTED_NEXT_SNAPSHOT = env.ORIGINAL_SNAPSHOT_VERSION
     } else if (params.NEXT_SNAPSHOT_VERSION?.trim()) {
         env.COMPUTED_NEXT_SNAPSHOT = params.NEXT_SNAPSHOT_VERSION.trim()
@@ -682,148 +644,30 @@ def stageInitialize() {
         env.COMPUTED_NEXT_SNAPSHOT = computeNextSnapshot(baseVersion)
     }
 
-    echo "Release version     : ${env.COMPUTED_RELEASE_VERSION}"
+    echo "Release version      : ${env.COMPUTED_RELEASE_VERSION}"
     echo "Next SNAPSHOT version: ${env.COMPUTED_NEXT_SNAPSHOT}"
-    if (env.IS_RC == 'true') {
-        echo "RC Mode             : RC will NOT merge to master, deploy from develop"
+    if (env.IS_PRERELEASE == 'true') {
+        echo "${prereleaseLabel()}: master is NOT touched, deploy runs from ${env.MONOREPO_BRANCH}, SNAPSHOT restored afterwards"
     }
 
     env.STARTERS_TO_RELEASE = resolveStartersToRelease(params.RELEASE_TARGET)
     echo "Starters to release : ${env.STARTERS_TO_RELEASE}"
 
-    def rcLabel = env.IS_RC == 'true' ? " (Release Candidate ${env.RC_NUM})" : ''
-    writeFile file: env.RELEASE_REPORT, text: """Lutece Release Report${rcLabel}
+    def buildLabel = env.IS_PRERELEASE == 'true' ? " (${prereleaseLabel()})" : ''
+    writeFile file: env.RELEASE_REPORT, text: """Lutece Release Report${buildLabel}
 ====================================
-Date        : ${new Date()}
-Target      : ${params.RELEASE_TARGET}
-Release Ver : ${env.COMPUTED_RELEASE_VERSION}
+Date         : ${new Date()}
+Target       : ${params.RELEASE_TARGET}
+Lutece line  : V${env.LUTECE_MAJOR_RESOLVED}
+Branch       : ${env.MONOREPO_BRANCH}
+targetJdk    : ${env.PLATFORM_TARGET_JDK} (Jenkins tool: ${env.PLATFORM_JDK_TOOL})
+Build type   : ${prereleaseLabel()}
+Release Ver  : ${env.COMPUTED_RELEASE_VERSION}
 Next SNAPSHOT: ${env.COMPUTED_NEXT_SNAPSHOT}
-RC Build    : ${env.IS_RC}
-Dry-Run     : ${params.DRY_RUN}
+Dry-Run      : ${params.DRY_RUN}
 ====================================
 
 """
-    sh "mkdir -p ${env.PLUGIN_WORK_DIR}"
-}
-
-/**
- * Stage 1 — Detect SNAPSHOT plugins from root pom.xml, filter by starters and whitelist.
- */
-def stageDetectSnapshotPlugins() {
-    def pomContent = readFile('pom.xml')
-    def allSnapshotPlugins = parseSnapshotPlugins(pomContent)
-    echo "All SNAPSHOT plugins detected: ${allSnapshotPlugins.size()}"
-    allSnapshotPlugins.each { echo "  - ${it.propertyName} = ${it.version}" }
-
-    def startersList = env.STARTERS_TO_RELEASE.split(',').collect { it.trim() }.findAll { it }
-    def filtered = filterPluginsForStarters(allSnapshotPlugins, startersList)
-
-    if (params.PLUGIN_WHITELIST?.trim()) {
-        def whitelist = params.PLUGIN_WHITELIST.split(',').collect { it.trim() }
-        filtered = filtered.findAll { plugin ->
-            whitelist.any { w -> plugin.artifactId.contains(w) || plugin.propertyName.contains(w) }
-        }
-        echo "After whitelist filter: ${filtered.size()} plugins"
-    }
-
-    env.SNAPSHOT_PLUGIN_COUNT = "${filtered.size()}"
-    def isRc = env.IS_RC == 'true'
-    def rcNum = env.RC_NUM
-    def pluginList = filtered.collect { plugin ->
-        def baseVer = plugin.version.replace('-SNAPSHOT', '')
-        def relVer = isRc ? "${baseVer}-RC-${rcNum.padLeft(2, '0')}" : baseVer
-        def nextVer = isRc ? plugin.version : computeNextSnapshot(baseVer)
-        [
-            propertyName: plugin.propertyName,
-            artifactId: plugin.artifactId,
-            currentVersion: plugin.version,
-            releaseVersion: relVer,
-            nextSnapshot: nextVer
-        ]
-    }
-    writeJSON file: "${WORKSPACE}/snapshot-plugins.json", json: pluginList
-    env.SNAPSHOT_PLUGINS_JSON = readFile("${WORKSPACE}/snapshot-plugins.json")
-
-    appendReport("SNAPSHOT Plugins Detected: ${filtered.size()}")
-    filtered.each { appendReport("  - ${it.artifactId} : ${it.version}") }
-    appendReport('')
-}
-
-/**
- * Stage 2 — Locate plugin repositories on GitHub.
- */
-def stageLocatePluginRepos() {
-    def plugins = readJSON(text: env.SNAPSHOT_PLUGINS_JSON)
-    def resolved = []
-
-    plugins.each { plugin ->
-        def repoInfo = resolveGitHubRepo(plugin.artifactId)
-        if (repoInfo) {
-            plugin.org = repoInfo.org
-            plugin.repoName = repoInfo.repoName
-            plugin.branch = repoInfo.branch
-            resolved.add(plugin)
-            echo "Resolved: ${plugin.artifactId} -> ${repoInfo.org}/${repoInfo.repoName} (${repoInfo.branch})"
-        } else {
-            echo "WARNING: Could not resolve repo for ${plugin.artifactId}"
-            appendReport("WARNING: Repo not found for ${plugin.artifactId} — skipped")
-        }
-    }
-
-    writeJSON file: "${WORKSPACE}/resolved-plugins.json", json: resolved
-    env.RESOLVED_PLUGINS_JSON = readFile("${WORKSPACE}/resolved-plugins.json")
-    env.RESOLVED_PLUGIN_COUNT = "${resolved.size()}"
-    echo "Resolved ${resolved.size()} / ${plugins.size()} plugin repos"
-}
-
-/**
- * Stage 3 — Release plugins in parallel batches of 5.
- */
-def stageReleasePlugins() {
-    def plugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
-    def batchSize = 5
-    def batches = plugins.collate(batchSize)
-    def failedPlugins = []
-    def releasedPlugins = []
-
-    batches.eachWithIndex { batch, batchIndex ->
-        echo "--- Batch ${batchIndex + 1} / ${batches.size()} (${batch.size()} plugins) ---"
-
-        def parallelSteps = [:]
-        batch.each { plugin ->
-            parallelSteps["${plugin.artifactId}"] = {
-                try {
-                    releasePlugin(plugin)
-                    releasedPlugins.add(plugin.artifactId)
-                } catch (Throwable e) {
-                    echo "FAILED: ${plugin.artifactId} — ${e.message}"
-                    failedPlugins.add([artifactId: plugin.artifactId, error: e.message])
-                    appendReport("FAILED: ${plugin.artifactId} — ${e.message}")
-                    try {
-                        rollbackPlugin(plugin)
-                        appendReport("ROLLBACK OK: ${plugin.artifactId}")
-                    } catch (Throwable re) {
-                        appendReport("ROLLBACK FAILED: ${plugin.artifactId} — manual intervention required: ${re.message}")
-                    }
-                }
-            }
-        }
-        parallel parallelSteps
-    }
-
-    appendReport("\nPlugin Release Summary:")
-    appendReport("  Released : ${releasedPlugins.size()}")
-    appendReport("  Failed   : ${failedPlugins.size()}")
-    releasedPlugins.each { appendReport("  OK   : ${it}") }
-    failedPlugins.each { appendReport("  FAIL : ${it.artifactId} — ${it.error}") }
-    appendReport('')
-
-    env.RELEASED_PLUGINS = releasedPlugins.join(',')
-    env.FAILED_PLUGIN_COUNT = "${failedPlugins.size()}"
-
-    if (failedPlugins.size() > 0) {
-        unstable("${failedPlugins.size()} plugin(s) failed to release")
-    }
 }
 
 /**
@@ -856,17 +700,13 @@ def _updatePomSingleModule(String pomFile) {
     def versionProp = starterVersionProperty(params.RELEASE_TARGET)
     echo "Single module: updating only <${versionProp}>"
 
-    if (!params.SKIP_PLUGIN_RELEASES) {
-        _sedUpdateReleasedPlugins(pomFile)
-    }
-
     if (!params.DRY_RUN) {
         sh "sed -i 's|<${versionProp}>${env.ORIGINAL_SNAPSHOT_VERSION}</${versionProp}>|<${versionProp}>${env.COMPUTED_RELEASE_VERSION}</${versionProp}>|g' ${pomFile}"
         sh """
             git add pom.xml
             git diff --cached --quiet && echo 'Version already at ${env.COMPUTED_RELEASE_VERSION} — nothing to commit' || git commit -m "release: update ${params.RELEASE_TARGET} version to ${env.COMPUTED_RELEASE_VERSION}"
         """
-        sh "git push origin develop"
+        sh "git push origin ${env.MONOREPO_BRANCH}"
     } else {
         echo "[DRY-RUN] Would update <${versionProp}> to ${env.COMPUTED_RELEASE_VERSION}"
     }
@@ -875,10 +715,6 @@ def _updatePomSingleModule(String pomFile) {
 /** Internal: update POM for 'all' release. */
 def _updatePomAllModules(String pomFile) {
     def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
-
-    if (!params.SKIP_PLUGIN_RELEASES) {
-        _sedUpdateReleasedPlugins(pomFile)
-    }
 
     if (!params.DRY_RUN) {
         sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${env.COMPUTED_RELEASE_VERSION}</version>|}' ${pomFile}"
@@ -900,7 +736,7 @@ def _updatePomAllModules(String pomFile) {
             git add pom.xml */pom.xml
             git diff --cached --quiet && echo 'Versions already at release — nothing to commit' || git commit -m "release: update versions for release"
         """
-        sh "git push origin develop"
+        sh "git push origin ${env.MONOREPO_BRANCH}"
     } else {
         echo "[DRY-RUN] Would update POM parent and per-module versions:"
         moduleVersions.each { mod, info ->
@@ -909,28 +745,11 @@ def _updatePomAllModules(String pomFile) {
     }
 }
 
-/** Internal: sed-update released plugin properties in root pom. */
-def _sedUpdateReleasedPlugins(String pomFile) {
-    def resolvedPlugins = env.RESOLVED_PLUGINS_JSON ? readJSON(text: env.RESOLVED_PLUGINS_JSON) : []
-    def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
-
-    resolvedPlugins.each { plugin ->
-        if (releasedList.contains(plugin.artifactId)) {
-            def sedExpr = "s|<${plugin.propertyName}>${plugin.currentVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|g"
-            if (params.DRY_RUN) {
-                echo "[DRY-RUN] Would update ${plugin.propertyName}: ${plugin.currentVersion} -> ${plugin.releaseVersion}"
-            } else {
-                sh "sed -i '${sedExpr}' ${pomFile}"
-            }
-        }
-    }
-}
-
 /**
  * Stage 5 — Validate no SNAPSHOT dependencies remain.
  */
 def stageValidateReleaseReadiness() {
-    echo "Checking for remaining SNAPSHOT dependencies..."
+    echo "Checking that no plugin dependency is still a SNAPSHOT..."
 
     def pomContent = readFile('pom.xml')
     def remainingSnapshots = parseSnapshotPlugins(pomContent)
@@ -943,18 +762,88 @@ def stageValidateReleaseReadiness() {
     def violations = remainingSnapshots.findAll { !ignoredProps.contains(it.propertyName) }
 
     if (violations.size() > 0) {
-        echo "WARNING: ${violations.size()} SNAPSHOT dependencies remain:"
+        echo "WARNING: ${violations.size()} plugin dependencies are still SNAPSHOT:"
         violations.each { echo "  - ${it.propertyName} = ${it.version}" }
         appendReport("\nSNAPSHOT Violations: ${violations.size()}")
         violations.each { appendReport("  - ${it.propertyName} = ${it.version}") }
+        appendReport("  -> Releaser ces plugins, puis mettre a jour leurs versions dans pom.xml")
 
-        if (!params.SKIP_PLUGIN_RELEASES) {
-            unstable("SNAPSHOT dependencies remain — review the report")
-        }
+        // Plugin releases are out of this pipeline's scope: their versions are
+        // maintained by hand in the root pom.xml, so a remaining SNAPSHOT is a
+        // missing prerequisite, not something the pipeline can fix.
+        unstable("${violations.size()} plugin dependencies are still SNAPSHOT — release them and update pom.xml first")
     } else {
         echo "All plugin dependencies are in release version."
         appendReport("Validation: All dependencies are release versions.")
     }
+}
+
+/**
+ * Stage 5b — Create and push the release tag(s) on the monorepo.
+ *
+ * Tagging is done here, once and before any deploy, rather than inside
+ * releaseStarter(): that ran inside the parallel starter stages, tagging and
+ * pushing from the same working copy concurrently.
+ *
+ * Tag naming:
+ *   RELEASE_TARGET = 'all'   -> v8.0.0-beta-01              (platform)
+ *   RELEASE_TARGET = starter -> forms-starter-8.0.0-beta-01 (module)
+ */
+def stageTagRelease() {
+    def tags = resolveReleaseTags()
+    env.RELEASE_TAGS = tags.join(',')
+
+    echo "Release tag(s): ${tags.join(', ')}"
+
+    if (params.DRY_RUN) {
+        echo "[DRY-RUN] Would create and push tag(s): ${tags.join(', ')}"
+        appendReport("Tags (dry-run): ${tags.join(', ')}")
+        return
+    }
+
+    tags.each { tag ->
+        // A `git fetch --tags` on a re-run brings remote tags back locally,
+        // so drop the local tag before recreating it.
+        sh "git tag -d ${tag} 2>/dev/null || true"
+        sh "git tag -a ${tag} -m \"Release ${tag}\""
+        // Not forced on purpose: pushing over an existing remote tag must fail
+        // loudly rather than silently overwrite a published release.
+        sh "git push origin ${tag}"
+    }
+
+    appendReport("Tags created: ${tags.join(', ')}")
+    appendReport('')
+}
+
+/**
+ * Stage 8b — Promote the release branch to master.
+ *
+ * Runs once, after every module has been deployed. This merge used to live in
+ * releaseStarter(), which meant the 3 parallel starter jobs each ran
+ * `git checkout master && git merge` on the same working copy.
+ *
+ * Pre-releases (beta / RC) never touch master.
+ */
+def stagePromoteToMaster() {
+    if (env.IS_PRERELEASE == 'true') {
+        echo "${prereleaseLabel()}: master is not touched by a pre-release"
+        return
+    }
+    if (isSingleModuleRelease()) {
+        echo "Single-module release: master is not touched (other modules may still be in SNAPSHOT)"
+        return
+    }
+    if (params.DRY_RUN) {
+        echo "[DRY-RUN] Would merge ${env.MONOREPO_BRANCH} into master"
+        return
+    }
+
+    sh "git checkout master"
+    sh "git merge ${env.MONOREPO_BRANCH} -m \"Merge ${env.MONOREPO_BRANCH} for release ${env.RELEASE_TAGS}\""
+    sh "git push origin master"
+    sh "git checkout ${env.MONOREPO_BRANCH}"
+
+    appendReport("Promoted to master: ${env.RELEASE_TAGS}")
 }
 
 /**
@@ -973,7 +862,7 @@ def stageReleaseSpecializedStarters() {
                 appendReport("Starter Released: ${starter} ${starterVersion}")
             } catch (Throwable e) {
                 appendReport("FAILED Starter: ${starter} — ${e.message}")
-                appendReport("  -> Si le tag existe deja : git push origin :refs/tags/${starter}-${starterVersion}")
+                appendReport("  -> Si le tag existe deja : git push origin :refs/tags/${env.RELEASE_TAGS}")
                 appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
                 appendReport("  -> Puis relancer le build")
                 try {
@@ -1009,7 +898,7 @@ def stageReleaseLuteceStarter() {
         appendReport("Starter Released: lutece-starter ${lsVersion}")
     } catch (Throwable e) {
         appendReport("FAILED Starter: lutece-starter — ${e.message}")
-        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-starter-${lsVersion}")
+        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/${env.RELEASE_TAGS}")
         appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
         appendReport("  -> Puis relancer le build")
         try {
@@ -1032,7 +921,7 @@ def stageReleaseBom() {
         appendReport("BOM Released: lutece-bom ${bomVersion}")
     } catch (Throwable e) {
         appendReport("FAILED: lutece-bom — ${e.message}")
-        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/lutece-bom-${bomVersion}")
+        appendReport("  -> Si le tag existe deja : git push origin :refs/tags/${env.RELEASE_TAGS}")
         appendReport("  -> Si l'artefact est deja sur Nexus : supprimer manuellement depuis l'interface Nexus")
         appendReport("  -> Puis relancer le build")
         try {
@@ -1049,98 +938,74 @@ def stageReleaseBom() {
  * Stage 9 — Prepare next SNAPSHOT versions.
  */
 def stagePrepareNextSnapshot() {
-    def isRc = env.IS_RC == 'true'
+    def isPre = env.IS_PRERELEASE == 'true'
     def singleModule = isSingleModuleRelease()
 
-    if (isRc) {
-        echo "RC Mode: restoring original SNAPSHOT version ${env.ORIGINAL_SNAPSHOT_VERSION}"
+    if (isPre) {
+        echo "${prereleaseLabel()}: restoring original SNAPSHOT version ${env.ORIGINAL_SNAPSHOT_VERSION}"
         echo "(Plugin repos already restored individually in Stage 3)"
     } else {
         echo "Preparing next development iteration: ${env.COMPUTED_NEXT_SNAPSHOT}"
     }
 
     if (params.DRY_RUN) {
-        _nextSnapshotDryRun(isRc, singleModule)
+        _nextSnapshotDryRun(isPre, singleModule)
     } else if (singleModule) {
-        _nextSnapshotSingleModule(isRc)
+        _nextSnapshotSingleModule(isPre)
     } else {
-        _nextSnapshotAllModules(isRc)
+        _nextSnapshotAllModules(isPre)
     }
 
-    appendReport(isRc ?
+    appendReport(isPre ?
         "\nRestored SNAPSHOT: ${env.ORIGINAL_SNAPSHOT_VERSION}" :
         "\nNext SNAPSHOT: ${env.COMPUTED_NEXT_SNAPSHOT}")
 }
 
 /** Internal: dry-run output for next snapshot. */
-def _nextSnapshotDryRun(boolean isRc, boolean singleModule) {
+def _nextSnapshotDryRun(boolean isPre, boolean singleModule) {
     if (singleModule) {
         def versionProp = starterVersionProperty(params.RELEASE_TARGET)
-        echo "[DRY-RUN] Would set <${versionProp}> to ${isRc ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT}"
+        echo "[DRY-RUN] Would set <${versionProp}> to ${isPre ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT}"
     } else {
         def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
         echo "[DRY-RUN] Would restore per-module versions:"
         moduleVersions.each { mod, info ->
-            def nextVer = isRc ? info.current : info.next
+            def nextVer = isPre ? info.current : info.next
             echo "[DRY-RUN]   ${info.property}: ${info.releaseVersion} -> ${nextVer}"
         }
     }
 }
 
 /** Internal: next snapshot for single-module release. */
-def _nextSnapshotSingleModule(boolean isRc) {
+def _nextSnapshotSingleModule(boolean isPre) {
     def pomFile = 'pom.xml'
     def versionProp = starterVersionProperty(params.RELEASE_TARGET)
-    def targetVersion = isRc ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT
+    def targetVersion = isPre ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT
 
     sh "sed -i 's|<${versionProp}>${env.COMPUTED_RELEASE_VERSION}</${versionProp}>|<${versionProp}>${targetVersion}</${versionProp}>|g' ${pomFile}"
 
-    if (env.RESOLVED_PLUGINS_JSON) {
-        def resolvedPlugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
-        def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
-
-        resolvedPlugins.each { plugin ->
-            if (releasedList.contains(plugin.artifactId)) {
-                def nextVer = isRc ? plugin.currentVersion : plugin.nextSnapshot
-                sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${nextVer}</${plugin.propertyName}>|g' ${pomFile}"
-            }
-        }
-    }
-
-    def commitMsg = isRc ?
-        "chore: restore SNAPSHOT for ${params.RELEASE_TARGET} after RC ${env.COMPUTED_RELEASE_VERSION}" :
+    def commitMsg = isPre ?
+        "chore: restore SNAPSHOT for ${params.RELEASE_TARGET} after ${prereleaseLabel()} ${env.COMPUTED_RELEASE_VERSION}" :
         "chore: prepare next development iteration ${params.RELEASE_TARGET} ${targetVersion}"
     sh """
         git add pom.xml
         git diff --cached --quiet && echo 'Version already at target — nothing to commit' || git commit -m "${commitMsg}"
-        git push origin develop
+        git push origin ${env.MONOREPO_BRANCH}
     """
 }
 
 /** Internal: next snapshot for 'all' release. */
-def _nextSnapshotAllModules(boolean isRc) {
+def _nextSnapshotAllModules(boolean isPre) {
     def pomFile = 'pom.xml'
     def moduleVersions = readJSON(text: env.MODULE_VERSIONS_JSON)
 
-    def parentTarget = isRc ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT
+    def parentTarget = isPre ? env.ORIGINAL_SNAPSHOT_VERSION : env.COMPUTED_NEXT_SNAPSHOT
     sh "sed -i '/<artifactId>lutece-parent<\\/artifactId>/{n;s|<version>[^<]*</version>|<version>${parentTarget}</version>|}' ${pomFile}"
 
     moduleVersions.each { mod, info ->
-        def nextVer = isRc ? info.current : info.next
+        def nextVer = isPre ? info.current : info.next
         sh "sed -i 's|<${info.property}>${info.releaseVersion}</${info.property}>|<${info.property}>${nextVer}</${info.property}>|g' ${pomFile}"
         echo "Restored ${info.property}: ${info.releaseVersion} -> ${nextVer}"
-    }
-
-    if (env.RESOLVED_PLUGINS_JSON) {
-        def resolvedPlugins = readJSON(text: env.RESOLVED_PLUGINS_JSON)
-        def releasedList = env.RELEASED_PLUGINS ? env.RELEASED_PLUGINS.split(',').collect { it.trim() } : []
-
-        resolvedPlugins.each { plugin ->
-            if (releasedList.contains(plugin.artifactId)) {
-                def nextVer = isRc ? plugin.currentVersion : plugin.nextSnapshot
-                sh "sed -i 's|<${plugin.propertyName}>${plugin.releaseVersion}</${plugin.propertyName}>|<${plugin.propertyName}>${nextVer}</${plugin.propertyName}>|g' ${pomFile}"
-            }
-        }
     }
 
     def modules = ['lutece-bom', 'forms-starter', 'appointment-starter', 'editorial-starter', 'lutece-starter']
@@ -1151,13 +1016,13 @@ def _nextSnapshotAllModules(boolean isRc) {
         }
     }
 
-    def commitMsg = isRc ?
-        "chore: restore SNAPSHOT after RC" :
+    def commitMsg = isPre ?
+        "chore: restore SNAPSHOT after ${prereleaseLabel()}" :
         "chore: prepare next development iteration"
     sh """
         git add pom.xml */pom.xml
         git diff --cached --quiet && echo 'Versions already at target — nothing to commit' || git commit -m "${commitMsg}"
-        git push origin develop
+        git push origin ${env.MONOREPO_BRANCH}
     """
 }
 
@@ -1180,13 +1045,15 @@ def stageReleaseReport() {
 def postSuccess() {
     try {
         def report = fileExists(env.RELEASE_REPORT) ? readFile(env.RELEASE_REPORT) : 'No report generated.'
-        def rcInfo = env.IS_RC == 'true' ? '\nType: Release Candidate' : ''
+        def typeInfo = "\nType: ${prereleaseLabel()}"
         try {
             slackSend(
                 channel: '#lutece-releases',
                 color: 'good',
                 message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION} — SUCCESS*
-Target: ${params.RELEASE_TARGET}${rcInfo}
+Target: ${params.RELEASE_TARGET}${typeInfo}
+Tags: ${env.RELEASE_TAGS ?: '(none)'}
+Lutece line: V${env.LUTECE_MAJOR_RESOLVED} (JDK ${env.PLATFORM_TARGET_JDK})
 Dry-Run: ${params.DRY_RUN}
 ${params.DRY_RUN ? '(Simulation only — no changes were pushed)' : ''}
 <${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
@@ -1220,6 +1087,8 @@ def postFailure() {
                 color: 'danger',
                 message: """*Lutece Release ${env.COMPUTED_RELEASE_VERSION ?: 'UNKNOWN'} — FAILED*
 Target: ${params.RELEASE_TARGET}
+Type: ${env.PRERELEASE_TYPE ?: 'unknown'}
+Tags: ${env.RELEASE_TAGS ?: '(none created)'}
 Check the report for rollback actions required.
 <${env.BUILD_URL}|Build #${env.BUILD_NUMBER}>"""
             )
