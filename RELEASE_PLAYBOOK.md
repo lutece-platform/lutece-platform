@@ -29,8 +29,12 @@
 **Les plugins Lutece ne sont pas releases par cette pipeline.** Leurs versions
 sont maintenues a la main dans les properties du `pom.xml` racine, et doivent
 deja etre des versions release au moment de lancer la pipeline. Un garde-fou
-(stage `Validate Release Readiness`) marque le build `UNSTABLE` si une
-property `lutece.*.version` est encore en `-SNAPSHOT`.
+(stage `Validate Release Readiness`) **fait echouer le build** si une property
+`lutece.*.version` est encore en `-SNAPSHOT`, avant tout tag et tout deploy.
+
+Le parametre `ALLOW_SNAPSHOT_DEPENDENCIES` permet de passer outre, en
+connaissance de cause : le build devient alors `UNSTABLE` et la release se
+poursuit.
 
 Le workflow complet est donc :
 
@@ -396,6 +400,7 @@ Stage 9  ► Release Report
 | `RELEASE_VERSION` | string | *(vide)* | Version release (ex: `8.0.0`). Vide = calculee depuis la version SNAPSHOT courante. |
 | `NEXT_SNAPSHOT_VERSION` | string | *(vide)* | Prochaine SNAPSHOT (ex: `8.0.1-SNAPSHOT`). Vide = patch+1. |
 | `DRY_RUN` | boolean | `true` | Mode simulation : aucun push, deploy ni merge. |
+| `ALLOW_SNAPSHOT_DEPENDENCIES` | boolean | `false` | Publier meme si des plugins sont encore en SNAPSHOT. Par defaut le build echoue au Stage 2. |
 | `PRERELEASE_TYPE` | choice | `none` | `none` / `beta` / `rc` — voir [section 3](#3-types-de-release--stable-beta-rc). |
 | `PRERELEASE_NUMBER` | string | `1` | Numero de pre-release, complete sur 2 chiffres (`1` → `beta-01`). Ignore si `PRERELEASE_TYPE = none`. |
 | `LUTECE_MAJOR` | choice | `auto` | `auto` / `8` / `7` — **assertion** sur la ligne Lutece, pas une surcharge. La ligne vient du `pom.xml` checkoute ; une valeur divergente fait echouer le build. |
@@ -648,13 +653,22 @@ pipeline : elles sont maintenues a la main.
 - Relit le `pom.xml` et cherche toute property `lutece.*.version` encore en
   `-SNAPSHOT`
 - Ignore les 5 properties structurelles des modules
-- Si des violations subsistent : build `UNSTABLE`, violations listees dans le
-  rapport avec la marche a suivre
+- Ecrit les violations dans le rapport, avec la marche a suivre
+- Puis, selon `ALLOW_SNAPSHOT_DEPENDENCIES` :
+
+| `ALLOW_SNAPSHOT_DEPENDENCIES` | Comportement |
+|-------------------------------|--------------|
+| `false` (defaut) | Build `FAILURE`. Rien n'est tague ni deploye. |
+| `true` | Build `UNSTABLE`, la release se poursuit. La derogation est tracee dans le rapport. |
 
 C'est le **gate de securite** de la pipeline : releaser un starter qui depend
-d'un plugin SNAPSHOT produit un artefact non reproductible. Les versions de
-plugins etant maintenues a la main, une violation est un prerequis manquant,
-pas quelque chose que la pipeline peut corriger.
+d'un plugin SNAPSHOT publie un artefact dont le contenu continue de changer
+sous ses consommateurs. Les versions de plugins etant maintenues a la main,
+une violation est un prerequis manquant, pas quelque chose que la pipeline
+peut corriger.
+
+Ce stage s'execute **avant** le tag et les deploys : un echec ici ne laisse
+rien a annuler.
 
 ### Stage 3 — Tag Release
 
@@ -838,7 +852,7 @@ Une intervention manuelle est alors necessaire.
 | `MONOREPO_BRANCH` contredit le checkout | Build `FAILURE` au Stage 0. Idem. |
 | Branche du workspace indeterminable | Build `FAILURE` au Stage 0. Renseigner `MONOREPO_BRANCH`. |
 | `RELEASE_VERSION` ne correspond a aucune version de module (cible `all`) | Build `UNSTABLE`, tags par module. La version annoncee ne designe aucun artefact — corriger avant de publier. |
-| Un plugin est encore en SNAPSHOT | Build `UNSTABLE`, violations listees dans le rapport. Le release continue — verifier avant de publier. |
+| Un plugin est encore en SNAPSHOT | Build `FAILURE` au Stage 2, avant tout tag et tout deploy. Releaser les plugins et mettre a jour le `pom.xml`, ou passer `ALLOW_SNAPSHOT_DEPENDENCIES = true` pour publier malgre tout (`UNSTABLE`). |
 | Le tag existe deja sur le remote | Build `FAILURE` au Stage 3. Supprimer le tag distant, ou incrementer `PRERELEASE_NUMBER`. |
 | Un module echoue au deploy | Rollback du tag. Build `FAILURE`. Les modules deja deployes sur Nexus ne sont pas retires. |
 | Outil JDK non configure | Avertissement, repli sur le JDK d'amorcage. Le build continue. |
@@ -939,10 +953,11 @@ versions de plugins sont maintenues a la main dans le `pom.xml` racine et
 doivent deja etre des versions release. Le Stage 2 marque le build `UNSTABLE`
 et liste les properties fautives si ce n'est pas le cas.
 
-### Q: Le build est UNSTABLE avec « N plugin dependencies are still SNAPSHOT » ?
+### Q: Le build echoue avec « N plugin dependencies are still SNAPSHOT » ?
 
 **R:** Un ou plusieurs plugins references par le POM racine sont encore en
-SNAPSHOT. Marche a suivre :
+SNAPSHOT. Le build s'arrete au Stage 2, **avant tout tag et tout deploy** :
+il n'y a rien a annuler. Marche a suivre :
 
 1. Releaser les plugins concernes (hors pipeline)
 2. Mettre a jour leurs properties `<lutece.*.version>` dans le `pom.xml` racine
@@ -950,6 +965,17 @@ SNAPSHOT. Marche a suivre :
 4. Relancer la pipeline
 
 La liste exacte des properties fautives est dans le rapport archive.
+
+### Q: Peut-on publier malgre des dependances en SNAPSHOT ?
+
+**R:** Oui, avec `ALLOW_SNAPSHOT_DEPENDENCIES = true`. Le build passe alors
+`UNSTABLE` au lieu d'echouer, la release se poursuit, et la derogation est
+tracee dans le rapport.
+
+A n'utiliser qu'en connaissance de cause : les artefacts publies dependraient
+de versions mouvantes, et leur contenu effectif changerait a chaque
+redeploiement d'un de ces SNAPSHOT. Pour une beta destinee a des
+integrateurs, ils testeraient quelque chose qui bouge sous eux.
 
 ### Q: Comment lancer une beta ?
 
