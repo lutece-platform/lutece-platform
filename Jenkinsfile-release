@@ -68,6 +68,11 @@ pipeline {
             defaultValue: true,
             description: 'Mode simulation : aucun push, deploy ou merge ne sera effectué.'
         )
+        booleanParam(
+            name: 'ALLOW_SNAPSHOT_DEPENDENCIES',
+            defaultValue: false,
+            description: 'Publier meme si des plugins sont encore en SNAPSHOT dans le pom.xml. Par defaut le build echoue au stage Validate Release Readiness, avant tout tag et tout deploy. A n\'activer qu\'en connaissance de cause : les artefacts publies dependraient de versions mouvantes.'
+        )
         choice(
             name: 'PRERELEASE_TYPE',
             choices: ['none', 'beta', 'rc'],
