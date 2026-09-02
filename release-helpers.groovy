@@ -857,7 +857,28 @@ def stageValidateReleaseReadiness() {
         // Plugin releases are out of this pipeline's scope: their versions are
         // maintained by hand in the root pom.xml, so a remaining SNAPSHOT is a
         // missing prerequisite, not something the pipeline can fix.
-        unstable("${violations.size()} plugin dependencies are still SNAPSHOT — release them and update pom.xml first")
+        //
+        // Blocking by default: releasing a starter that depends on a SNAPSHOT
+        // publishes an artifact whose content keeps changing under its
+        // consumers. This stage runs before any tag or deploy, so failing here
+        // leaves nothing to roll back.
+        if (params.ALLOW_SNAPSHOT_DEPENDENCIES) {
+            appendReport("  -> ALLOW_SNAPSHOT_DEPENDENCIES=true : publication malgre les violations")
+            unstable("${violations.size()} plugin dependencies are still SNAPSHOT — published anyway (ALLOW_SNAPSHOT_DEPENDENCIES=true)")
+        } else {
+            error("""${violations.size()} plugin dependencies are still SNAPSHOT. Nothing was tagged or deployed.
+
+Releasing a starter that depends on a SNAPSHOT publishes an artifact whose
+content keeps changing under its consumers. The full list is in the archived
+report (release-report.txt).
+
+To proceed:
+  1. release the plugins listed above (outside this pipeline)
+  2. update their <lutece.*.version> properties in pom.xml, commit and push
+  3. relaunch this build
+
+Or set ALLOW_SNAPSHOT_DEPENDENCIES=true to publish despite the violations.""")
+        }
     } else {
         echo "All plugin dependencies are in release version."
         appendReport("Validation: All dependencies are release versions.")
