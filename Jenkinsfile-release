@@ -93,16 +93,6 @@ pipeline {
             defaultValue: '',
             description: 'Correspondance targetJdk -> nom de l\'outil JDK Jenkins, ex: "11=temurin-11-jdk,17=temurin-17-jdk". Vide = convention temurin-{version}-jdk.'
         )
-        booleanParam(
-            name: 'RC_BUILD',
-            defaultValue: false,
-            description: 'OBSOLETE — utiliser PRERELEASE_TYPE = rc. Encore pris en compte si PRERELEASE_TYPE = none, pour ne pas casser les jobs existants.'
-        )
-        string(
-            name: 'RC_NUMBER',
-            defaultValue: '1',
-            description: 'OBSOLETE — utiliser PRERELEASE_NUMBER. Utilise uniquement avec RC_BUILD = true.'
-        )
         string(
             name: 'GITHUB_CREDENTIAL_ID',
             defaultValue: 'github-token',
