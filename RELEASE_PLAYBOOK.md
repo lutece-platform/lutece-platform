@@ -213,11 +213,21 @@ est identique (memes 5 modules, memes properties de version).
 
 ### Detection de la ligne
 
-`LUTECE_MAJOR = auto` (defaut) : la pipeline lit la version du parent
-`lutece-global-pom` declaree dans le `pom.xml` de la branche courante et en
-prend le major (`7.0.8-SNAPSHOT` → `7`, `8.0.1-SNAPSHOT` → `8`).
+La ligne vient **toujours des sources checkoutees** : la pipeline lit la
+version du parent `lutece-global-pom` declaree dans le `pom.xml` du workspace
+et en prend le major (`7.0.8-SNAPSHOT` → `7`, `8.0.1-SNAPSHOT` → `8`).
 
-Mettre `LUTECE_MAJOR = 7` ou `8` force la valeur.
+`LUTECE_MAJOR` n'est pas une surcharge mais une **assertion** : si la valeur
+renseignee ne correspond pas au `pom.xml` checkoute, le build echoue.
+
+```
+LUTECE_MAJOR=7 but the checked-out pom.xml inherits lutece-global-pom 8.x, i.e. Lutece 8.
+```
+
+C'est volontaire : forcer la ligne ne change pas ce qui a ete checkoute. Seul
+le SCM du job decide des sources. Renseigner `LUTECE_MAJOR` sert donc a
+declarer son intention et a se faire arreter en cas d'erreur de branche, pas a
+basculer de ligne.
 
 ### Detection du JDK
 
@@ -268,15 +278,33 @@ compilent rien (calcul de versions, git, `help:evaluate`).
 
 ### Resolution de la branche de release
 
-`MONOREPO_BRANCH` (vide par defaut) est resolu dans cet ordre :
+La branche de release est **celle que le workspace contient reellement**.
+Elle n'est jamais deduite de la ligne Lutece : une deduction permettrait de
+pousser un checkout V8 sur la branche V7 des que la branche n'est pas
+detectable.
 
-1. La valeur du parametre si elle est renseignee
-2. La branche courante du workspace si elle est connue
-   (`develop`, `develop_core7`, `develop_core8`)
-3. Sinon : `develop` pour la V8, `develop_core7` pour la V7
+Jenkins checkoute un SHA detache (`git checkout -f <sha>`), donc
+`git rev-parse --abbrev-ref HEAD` renvoie `HEAD` et ne suffit pas. La
+detection enchaine donc :
 
-Cette resolution est faite **avant tout `git checkout`** : sur un checkout
-`develop_core7`, forcer `develop` creerait la branche V8 sur un commit V7.
+1. `BRANCH_NAME` — job Multibranch Pipeline
+2. `GIT_BRANCH` — plugin Git sur un job Pipeline simple (`origin/develop` → `develop`)
+3. `git symbolic-ref --short HEAD` — checkout attache
+4. `git for-each-ref --points-at HEAD refs/remotes/origin` — branches distantes
+   pointant sur le commit checkoute
+
+Si aucune de ces sources ne donne de reponse univoque, **le build echoue** au
+lieu de deviner un nom de branche.
+
+`MONOREPO_BRANCH` est pris en compte, mais uniquement s'il **concorde avec le
+checkout** :
+
+```
+MONOREPO_BRANCH=develop_core7 but the workspace holds the branch develop.
+```
+
+La pipeline release ce qui a ete checkoute ; elle ne change pas de branche.
+Pour releaser une autre ligne, il faut pointer le SCM du job dessus.
 
 ---
 
@@ -383,8 +411,8 @@ Stage 9  ► Release Report
 | `DRY_RUN` | boolean | `true` | Mode simulation : aucun push, deploy ni merge. |
 | `PRERELEASE_TYPE` | choice | `none` | `none` / `beta` / `rc` — voir [section 3](#3-types-de-release--stable-beta-rc). |
 | `PRERELEASE_NUMBER` | string | `1` | Numero de pre-release, complete sur 2 chiffres (`1` → `beta-01`). Ignore si `PRERELEASE_TYPE = none`. |
-| `LUTECE_MAJOR` | choice | `auto` | `auto` / `8` / `7` — ligne Lutece. `auto` = detectee depuis le parent `lutece-global-pom`. |
-| `MONOREPO_BRANCH` | string | *(vide)* | Branche de release. Vide = branche courante si connue, sinon `develop` (V8) / `develop_core7` (V7). |
+| `LUTECE_MAJOR` | choice | `auto` | `auto` / `8` / `7` — **assertion** sur la ligne Lutece, pas une surcharge. La ligne vient du `pom.xml` checkoute ; une valeur divergente fait echouer le build. |
+| `MONOREPO_BRANCH` | string | *(vide)* | Branche de release. Vide = deduite du checkout. Une valeur en desaccord avec le checkout fait echouer le build. |
 | `JDK_TOOL_MAP` | string | *(vide)* | Correspondance `targetJdk` → outil JDK Jenkins, ex: `11=temurin-11-jdk,17=temurin-17-jdk`. Vide = convention `temurin-{version}-jdk`. |
 | `RC_BUILD` | boolean | `false` | **Obsolete** — utiliser `PRERELEASE_TYPE = rc`. Pris en compte seulement si `PRERELEASE_TYPE = none`. |
 | `RC_NUMBER` | string | `1` | **Obsolete** — utiliser `PRERELEASE_NUMBER`. |
@@ -427,6 +455,15 @@ Si `NEXT_SNAPSHOT_VERSION` est vide, le patch est incremente :
 
 En beta / RC, la prochaine version est la version SNAPSHOT **d'origine**
 (pas d'increment) : le developpement continue sur la meme version de base.
+
+> **Attention en cible `all` :** `RELEASE_VERSION` ne pilote que la version de
+> `lutece-parent`. Chaque module est publie sous sa propre
+> `<lutece.{module}.version>`. Si la valeur saisie ne correspond a aucune
+> version de module, le build passe `UNSTABLE` et les tags retombent par
+> module — la version annoncee ne designerait aucun artefact publie. Pour
+> releaser toute la plateforme sous une nouvelle version, bumper d'abord les 5
+> properties de modules et `lutece-parent` dans le `pom.xml`, puis laisser
+> `RELEASE_VERSION` vide.
 
 ---
 
@@ -567,8 +604,11 @@ DRY_RUN               = false
    retro-compatible) et le numero, complete sur 2 chiffres
 2. Provisionne le `settings.xml` Maven (Config File Provider)
 3. Configure l'identite git des commits
-4. Detecte la **ligne Lutece** depuis le parent `lutece-global-pom`
-5. Resout la **branche de release**, puis `git checkout -B {branche}`
+4. Detecte la **ligne Lutece** depuis le parent `lutece-global-pom` du
+   workspace, et echoue si `LUTECE_MAJOR` la contredit
+5. Resout la **branche de release** depuis le checkout reel, et echoue si
+   `MONOREPO_BRANCH` la contredit ou si elle est indeterminable, puis
+   `git checkout -B {branche}`
 6. Resout le **targetJdk** via `mvn help:evaluate` et le nom de l'outil JDK
 7. Lit la version courante :
    - cible individuelle : `<lutece.{target}.version>`
@@ -809,6 +849,10 @@ Une intervention manuelle est alors necessaire.
 
 | Situation | Comportement |
 |-----------|--------------|
+| `LUTECE_MAJOR` contredit le `pom.xml` checkoute | Build `FAILURE` au Stage 0, avant toute modification. Pointer le SCM du job sur la bonne branche. |
+| `MONOREPO_BRANCH` contredit le checkout | Build `FAILURE` au Stage 0. Idem. |
+| Branche du workspace indeterminable | Build `FAILURE` au Stage 0. Renseigner `MONOREPO_BRANCH`. |
+| `RELEASE_VERSION` ne correspond a aucune version de module (cible `all`) | Build `UNSTABLE`, tags par module. La version annoncee ne designe aucun artefact — corriger avant de publier. |
 | Un plugin est encore en SNAPSHOT | Build `UNSTABLE`, violations listees dans le rapport. Le release continue — verifier avant de publier. |
 | Le tag existe deja sur le remote | Build `FAILURE` au Stage 3. Supprimer le tag distant, ou incrementer `PRERELEASE_NUMBER`. |
 | Un module echoue au deploy | Rollback du tag. Build `FAILURE`. Les modules deja deployes sur Nexus ne sont pas retires. |
@@ -968,9 +1012,39 @@ le JDK d'amorcage. Deux options : declarer l'outil dans
 
 ### Q: Comment releaser la ligne V7 ?
 
-**R:** Lancer le job sur la branche `develop_core7`, ou renseigner
-`MONOREPO_BRANCH = develop_core7`. La ligne est ensuite detectee
-automatiquement depuis le parent `lutece-global-pom 7.0.x`, avec le JDK 11.
+**R:** Il faut que le job **checkoute** `develop_core7` : changer la branche
+dans la configuration SCM du job (ou utiliser un job Multibranch). La ligne et
+le JDK 11 sont ensuite detectes automatiquement depuis le parent
+`lutece-global-pom 7.0.x`.
+
+Renseigner `LUTECE_MAJOR = 7` ou `MONOREPO_BRANCH = develop_core7` sur un job
+qui checkoute `develop` **ne suffit pas** et fait echouer le build : ces deux
+parametres sont des garde-fous, pas des moyens de changer de sources.
+
+### Q: Le build echoue avec « LUTECE_MAJOR=7 but the checked-out pom.xml inherits lutece-global-pom 8.x » ?
+
+**R:** Le job a checkoute la ligne V8 alors que vous demandez la V7. Deux
+options :
+
+- Pour releaser la V7 : changer la branche du SCM du job pour `develop_core7`
+- Pour releaser la V8 depuis ce checkout : remettre `LUTECE_MAJOR = auto`
+
+Ce garde-fou existe parce que sans lui la pipeline creerait une branche locale
+`develop_core7` sur le commit V8, et pousserait le contenu V8 sur la branche V7.
+
+### Q: Le build echoue avec « MONOREPO_BRANCH=X but the workspace holds the branch Y » ?
+
+**R:** Meme cause : la pipeline release ce qui a ete checkoute et ne change
+pas de branche. Pointer le SCM du job sur `X`, ou vider `MONOREPO_BRANCH` pour
+releaser `Y`.
+
+### Q: Le build echoue avec « Could not determine which branch the workspace holds » ?
+
+**R:** Ni `BRANCH_NAME`, ni `GIT_BRANCH`, ni les refs git ne permettent
+d'identifier la branche checkoutee — cela arrive par exemple si le workspace a
+ete checkoute sur un commit qui n'est la tete d'aucune branche distante.
+Renseigner `MONOREPO_BRANCH` explicitement, en verifiant qu'il correspond bien
+a la branche du SCM du job.
 
 ### Q: Peut-on lancer la pipeline sur une autre branche que develop ?
 
@@ -1131,8 +1205,9 @@ resume des actions qui auraient ete effectuees, dont les tags.
 | Fonction | Signature | Description |
 |----------|-----------|-------------|
 | `parentGlobalPomMajor` | `(String pomContent) → String` | Major du parent `lutece-global-pom` (`7` / `8`), `null` si illisible |
-| `detectLuteceMajor` | `() → String` | Ligne Lutece du POM courant, surchargee par `LUTECE_MAJOR` |
-| `resolveMonorepoBranch` | `(String major) → String` | Branche de release (parametre > branche courante > defaut de la ligne) |
+| `detectLuteceMajor` | `() → String` | Ligne Lutece du POM checkoute ; echoue si `LUTECE_MAJOR` la contredit |
+| `detectCheckedOutBranch` | `() → String` | Branche que le workspace contient (`BRANCH_NAME` > `GIT_BRANCH` > `symbolic-ref` > refs pointant sur HEAD), `null` si indeterminable |
+| `resolveMonorepoBranch` | `() → String` | Branche de release depuis le checkout ; echoue si `MONOREPO_BRANCH` la contredit ou si elle est indeterminable |
 | `normalizeJdkMajor` | `(String raw) → String` | `1.8` → `8`, `17` → `17` |
 | `detectTargetJdk` | `() → String` | `targetJdk` effectif via `mvn help:evaluate`, repli sur la ligne Lutece |
 | `jdkToolName` | `(String major) → String` | `17` → `temurin-17-jdk`, surcharge par `JDK_TOOL_MAP` |
