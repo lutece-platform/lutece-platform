@@ -62,17 +62,17 @@
         <lutece.core.version>7.1.10-SNAPSHOT</lutece.core.version>
 
         <!-- Shared libraries -->
-        <lutece.library-lucene.version>[5.0.3]</lutece.library-lucene.version>
-        <lutece.library-user-api.version>[1.0.1]</lutece.library-user-api.version>
-        <lutece.library-rbac-api.version>[1.0.0]</lutece.library-rbac-api.version>
+        <lutece.library-lucene.version>5.0.3</lutece.library-lucene.version>
+        <lutece.library-user-api.version>1.0.2</lutece.library-user-api.version>
+        <lutece.library-rbac-api.version>1.0.1</lutece.library-rbac-api.version>
         <lutece.library-workflow-core.version>3.0.8-SNAPSHOT</lutece.library-workflow-core.version>
-        <lutece.library-workgroup-api.version>[1.0.0]</lutece.library-workgroup-api.version>
-        <lutece.library-jmx-api.version>[1.0.0]</lutece.library-jmx-api.version>
+        <lutece.library-workgroup-api.version>1.0.1</lutece.library-workgroup-api.version>
+        <lutece.library-jmx-api.version>1.0.1</lutece.library-jmx-api.version>
         <lutece.library-freemarker.version>1.3.7-beta-01</lutece.library-freemarker.version>
-        <lutece.library-utils.version>[1.0.0]</lutece.library-utils.version>
+        <lutece.library-utils.version>1.0.1</lutece.library-utils.version>
         <lutece.library-httpaccess.version>[3.0.4]</lutece.library-httpaccess.version>
         <lutece.library-signrequest.version>3.0.2-SNAPSHOT</lutece.library-signrequest.version>
-        <lutece.library-jwt.version>[2.0.2]</lutece.library-jwt.version>
+        <lutece.library-jwt.version>2.0.3</lutece.library-jwt.version>
         <lutece.library-grubusiness.version>[1.1.22]</lutece.library-grubusiness.version>
         <lutece.library-notifygru.version>[1.3.0]</lutece.library-notifygru.version>
 
@@ -117,7 +117,7 @@
         <lutece.plugin-childpages.version>[5.0.1]</lutece.plugin-childpages.version>
         <lutece.plugin-quicklinks.version>[3.1.4]</lutece.plugin-quicklinks.version>
         <lutece.plugin-contact.version>[5.1.2]</lutece.plugin-contact.version>
-        <lutece.plugin-pagelinkservice.version>[3.0.3]</lutece.plugin-pagelinkservice.version>
+        <lutece.plugin-pagelinkservice.version>3.0.4</lutece.plugin-pagelinkservice.version>
         <lutece.plugin-xmltransformer.version>1.0.1-beta-01</lutece.plugin-xmltransformer.version>
         <lutece.plugin-extend.version>[1.3.8]</lutece.plugin-extend.version>
         <lutece.module-extend-comment.version>1.2.2-SNAPSHOT</lutece.module-extend-comment.version>
@@ -186,7 +186,7 @@
         <lutece.module-seo-robots.version>1.0.3</lutece.module-seo-robots.version>
 
         <!-- Elasticsearch / Kibana -->
-        <lutece.library-elastic.version>[1.1.2]</lutece.library-elastic.version>
+        <lutece.library-elastic.version>1.1.3</lutece.library-elastic.version>
         <lutece.plugin-elasticdata.version>[2.1.2]</lutece.plugin-elasticdata.version>
         <lutece.module-elasticdata-forms.version>1.0.9-SNAPSHOT</lutece.module-elasticdata-forms.version>
         <lutece.module-elasticdata-appointment.version>3.0.3-SNAPSHOT</lutece.module-elasticdata-appointment.version>
