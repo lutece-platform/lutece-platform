@@ -9,7 +9,7 @@
 
     <groupId>fr.paris.lutece.starters</groupId>
     <artifactId>lutece-parent</artifactId>
-    <version>7.2.0-beta-01</version>
+    <version>7.2.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Lutece platform parent (v7)</name>
     <description>Lutece platform parent — Lutece 7 starters aggregator</description>
@@ -52,11 +52,11 @@
         <maven.deploy.skip>${parent.deploy.skip}</maven.deploy.skip>
 
         <!-- LUTECE STARTERS VERSION — each starter/BOM has its own version for independent releases -->
-        <lutece.forms-starter.version>7.2.0-beta-01</lutece.forms-starter.version>
-        <lutece.appointment-starter.version>7.2.0-beta-01</lutece.appointment-starter.version>
-        <lutece.editorial-starter.version>7.2.0-beta-01</lutece.editorial-starter.version>
-        <lutece.lutece-starter.version>7.2.0-beta-01</lutece.lutece-starter.version>
-        <lutece.lutece-bom.version>7.2.0-beta-01</lutece.lutece-bom.version>
+        <lutece.forms-starter.version>7.2.0-SNAPSHOT</lutece.forms-starter.version>
+        <lutece.appointment-starter.version>7.2.0-SNAPSHOT</lutece.appointment-starter.version>
+        <lutece.editorial-starter.version>7.2.0-SNAPSHOT</lutece.editorial-starter.version>
+        <lutece.lutece-starter.version>7.2.0-SNAPSHOT</lutece.lutece-starter.version>
+        <lutece.lutece-bom.version>7.2.0-SNAPSHOT</lutece.lutece-bom.version>
 
         <!-- Lutece core -->
         <lutece.core.version>7.1.10-beta-02</lutece.core.version>
