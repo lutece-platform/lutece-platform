@@ -147,6 +147,7 @@
         <lutece.plugin-extend.version>2.0.1-SNAPSHOT</lutece.plugin-extend.version>
         <lutece.module-extend-statistics.version>2.0.0-SNAPSHOT</lutece.module-extend-statistics.version>
         <lutece.module-extend-comment.version>2.0.0-SNAPSHOT</lutece.module-extend-comment.version>
+        <lutece.plugin-avatar.version>2.0.0-SNAPSHOT</lutece.plugin-avatar.version>
         <lutece.plugin-xmltransformer.version>2.0.0-SNAPSHOT</lutece.plugin-xmltransformer.version>
 
 		<!-- Authentification -->

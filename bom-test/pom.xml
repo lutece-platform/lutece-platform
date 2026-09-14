@@ -470,6 +470,12 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-avatar</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-blog</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
