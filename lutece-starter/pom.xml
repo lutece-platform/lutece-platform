@@ -353,5 +353,40 @@
                <type>lutece-plugin</type>
           </dependency>
     
+
+        <!-- ================================================== -->
+        <!-- Forms (moved out of forms-starter)                 -->
+        <!-- ================================================== -->
+        <!--
+          Moved here from forms-starter. plugin-accesscontrol is deliberately NOT
+          repeated: appointment-starter already brings it through
+          module-appointment-ants, so declaring it again would only pin a version
+          the platform already resolves on its own.
+        -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-accesscontrol-forms</artifactId>
+            <version>${lutece.module-accesscontrol-forms.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-forms-breadcrumbaccordion</artifactId>
+            <version>${lutece.module-forms-breadcrumbaccordion.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-alertforms</artifactId>
+            <version>${lutece.module-workflow-alertforms.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-notifygru-alert</artifactId>
+            <version>${lutece.module-workflow-notifygru-alert.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+
     </dependencies>
 </project>

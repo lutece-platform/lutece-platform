@@ -147,12 +147,6 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-forms-breadcrumbaccordion</artifactId>
-            <version>${lutece.module-forms-breadcrumbaccordion.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-workflow-forms</artifactId>
             <version>${lutece.module-workflow-forms.version}</version>
             <type>lutece-plugin</type>
@@ -175,12 +169,6 @@
             <version>${lutece.module-forms-userassignment.version}</version>
             <type>lutece-plugin</type>
         </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-accesscontrol-forms</artifactId>
-            <version>${lutece.module-accesscontrol-forms.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>       
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-forms-unittree</artifactId>
@@ -242,18 +230,6 @@
             <artifactId>library-grubusiness</artifactId>
             <version>${lutece.library-grubusiness.version}</version>
             <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-alertforms</artifactId>
-            <version>${lutece.module-workflow-alertforms.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-notifygru-alert</artifactId>
-            <version>${lutece.module-workflow-notifygru-alert.version}</version>
-            <type>lutece-plugin</type>
         </dependency>
 
         <!-- ================================================== -->
@@ -349,12 +325,6 @@
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-htmltopdf</artifactId>
             <version>${lutece.plugin-htmltopdf.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>plugin-accesscontrol</artifactId>
-            <version>${lutece.plugin-accesscontrol.version}</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
