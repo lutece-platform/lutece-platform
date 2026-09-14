@@ -133,12 +133,14 @@
             <version>${lutece.plugin-galleryimage.version}</version>
             <type>lutece-plugin</type>
         </dependency>
+        <!--
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-carto</artifactId>
             <version>${lutece.plugin-carto.version}</version>
             <type>lutece-plugin</type>
         </dependency>
+        -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-contact</artifactId>

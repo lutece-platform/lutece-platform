@@ -415,13 +415,14 @@
                 <version>${lutece.module-genericattributes-address.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+            <!--
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-carto</artifactId>
                 <version>${lutece.plugin-carto.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
-
+			-->
             <!-- ================================================== -->
             <!-- GRU (Gestion de la Relation Usager)                -->
             <!-- ================================================== -->
@@ -637,12 +638,14 @@
                 <version>${lutece.plugin-menus.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+           <!--
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-genericattributes-cartography</artifactId>
                 <version>${lutece.module-genericattributes-cartography.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+            -->
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-leaflet</artifactId>
@@ -673,6 +676,7 @@
                 <version>${lutece.plugin-solr.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+            <!--
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-cartography-solr</artifactId>
@@ -684,8 +688,7 @@
                 <artifactId>module-forms-cartography</artifactId>
                 <version>${lutece.module-forms-cartography.version}</version>
                 <type>lutece-plugin</type>
-            </dependency>
-            <!--
+            </dependency>            
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>module-forms-cartography-explorer</artifactId>
@@ -699,12 +702,34 @@
                 <version>${lutece.module-forms-solr.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
-            <dependency>
+            <!--
+          plugin-parser is commented out: it pulls tika-parsers-standard-package 3.2.2, a
+          meta artifact bundling the whole Tika stack (POI, PDFBox, BouncyCastle,
+          commons-compress) in versions that clash with the rest of the platform. It breaks
+          requireUpperBoundDeps on lutece-starter, which is the only module where it meets
+          forms-starter and appointment-starter:
+            org.apache.pdfbox:xmpbox            2.0.24 (plugin-htmltopdf) vs 3.0.5 here
+            org.apache.poi:poi                  5.4.0 (plugin-appointment) vs 5.4.1 here
+            org.apache.poi:poi-ooxml            5.4.0 (plugin-appointment) vs 5.4.1 here
+            org.apache.commons:commons-compress 1.27.1 (plugin-appointment) vs 1.28.0 here
+            org.bouncycastle:bcprov-jdk18on     1.81 vs 1.81.1, both from Tika itself
+          The POI, commons-compress and BouncyCastle clashes are plain version bumps and
+          could be pinned in dependencyManagement. The PDFBox one cannot: Tika 3.2.2 needs
+          PDFBox 3.x, while openhtmltopdf-pdfbox 1.0.10, pulled by plugin-htmltopdf through
+          forms-starter, is compiled against the PDFBox 2.x API. Both land on the same
+          classpath, where pdfbox resolves to 3.0.5 and xmpbox to 2.0.24, and HTML to PDF
+          generation would fail at runtime with NoSuchMethodError. Restore this dependency
+          only once plugin-htmltopdf moves to an openhtmltopdf release built on PDFBox 3,
+          or once the Tika PDF module is excluded here.
+        -->
+         <!--   <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
                 <artifactId>plugin-parser</artifactId>
                 <version>${lutece.plugin-parser.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+         -->
+         <!--
             <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>plugin-wiki</artifactId>
@@ -717,13 +742,28 @@
 	            <version>${lutece.module-wiki-quiz.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
-	        <dependency>
+	        -->
+	        <!--
+	          module-wiki-ai is commented out: through langchain4j it pulls azure-ai-openai,
+	          hence azure-core-http-netty 1.15.11 (Netty 4.1.118.Final) and reactor-netty-http
+	          1.0.48 (Netty 4.1.112.Final). Both sit shallower in the graph than
+	          plugin-solr to solr-solrj to zookeeper 3.9.4, which needs Netty 4.1.119.Final, so
+	          4.1.118 wins nearest-wins resolution and requireUpperBoundDeps fails on
+	          netty-buffer, netty-codec, netty-common and netty-transport-native-unix-common.
+	          langchain4j-elasticsearch also brings httpclient 4.5.14, which collides with the
+	          4.5.13 declared directly by module-cartography-solr.
+	          Unlike plugin-parser this is a pure version alignment problem: importing
+	          io.netty:netty-bom 4.1.119.Final and pinning httpclient 4.5.14 in
+	          dependencyManagement resolves it, so this dependency can be restored as soon as
+	          that is in place.
+	        -->
+	        <!--<dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>module-wiki-ai</artifactId>
 	            <version>${lutece.module-wiki-ai.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
-
+            -->
 			 <!-- SEO -->
 	        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
@@ -737,12 +777,14 @@
 	            <version>${lutece.plugin-sitemap.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
+	       <!--
 	        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>module-seo-wiki</artifactId>
 	            <version>${lutece.module-seo-wiki.version}</version>
 	            <type>lutece-plugin</type>
 	        </dependency>
+	        -->
 	        <dependency>
 	            <groupId>fr.paris.lutece.plugins</groupId>
 	            <artifactId>module-seo-blog</artifactId>

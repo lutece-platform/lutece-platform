@@ -3,7 +3,7 @@
     <parent>
         <artifactId>lutece-global-pom</artifactId>
         <groupId>fr.paris.lutece.tools</groupId>
-        <version>8.0.1-SNAPSHOT</version>
+        <version>8.0.2-SNAPSHOT</version>
         <relativePath/>
     </parent>
 
@@ -69,11 +69,11 @@
         <lutece.library-lucene.version>6.0.0</lutece.library-lucene.version>
         <lutece.library-user-api.version>2.0.0</lutece.library-user-api.version>
         <lutece.library-rbac-api.version>2.0.0</lutece.library-rbac-api.version>
-        <lutece.library-workflow-core.version>4.0.2-SNAPSHOT</lutece.library-workflow-core.version>
+        <lutece.library-workflow-core.version>4.0.2-beta-02</lutece.library-workflow-core.version>
         <lutece.library-workgroup-api.version>2.0.0</lutece.library-workgroup-api.version>
         <lutece.library-jmx-api.version>1.0.0</lutece.library-jmx-api.version>
         <lutece.library-priority-extension.version>1.0.0</lutece.library-priority-extension.version>
-        <lutece.library-freemarker.version>2.0.1-SNAPSHOT</lutece.library-freemarker.version>
+        <lutece.library-freemarker.version>2.1.0-SNAPSHOT</lutece.library-freemarker.version>
         <lutece.library-lutece-resources.version>1.0.0</lutece.library-lutece-resources.version>
         
         <!-- Lutece forms -->
@@ -104,11 +104,13 @@
         <lutece.module-workflow-notifygru-alert.version>3.0.0</lutece.module-workflow-notifygru-alert.version>
 
         <!-- Address -->
-        <lutece.plugin-address.version>2.0.0</lutece.plugin-address.version>
+        <lutece.plugin-address.version>2.0.1-SNAPSHOT</lutece.plugin-address.version>
         <lutece.module-address-autocomplete.version>2.0.0</lutece.module-address-autocomplete.version>
         <lutece.module-genericattributes-address.version>3.0.0</lutece.module-genericattributes-address.version>
+        <!--
         <lutece.plugin-carto.version>2.0.0</lutece.plugin-carto.version>
         <lutece.module-genericattributes-cartography.version>2.0.0</lutece.module-genericattributes-cartography.version>
+        -->
         <lutece.plugin-leaflet.version>2.0.0</lutece.plugin-leaflet.version>
 
         <!-- GRU -->
@@ -177,35 +179,40 @@
         <lutece.plugin-filegenerator.version>3.0.0</lutece.plugin-filegenerator.version>
         <lutece.plugin-htmltopdf.version>2.0.0</lutece.plugin-htmltopdf.version>
         <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
-        <lutece.library-httpaccess.version>4.0.0</lutece.library-httpaccess.version>
+        <lutece.library-httpaccess.version>4.0.1-SNAPSHOT</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
         <lutece.plugin-liquibase.version>2.0.2-SNAPSHOT</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.0.1</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.1-SNAPSHOT</lutece.library-configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
-        <lutece.plugin-rest.version>4.0.0</lutece.plugin-rest.version>
+        <lutece.plugin-rest.version>4.0.1-SNAPSHOT</lutece.plugin-rest.version>
         <lutece.plugin-sitelabels.version>3.0.1</lutece.plugin-sitelabels.version>
-        <lutece.module-forms-cartography.version>2.0.0</lutece.module-forms-cartography.version>
         <!--
-        <lutece.module-forms-cartography-explorer.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography-explorer.version>
-        -->
+        <lutece.module-forms-cartography.version>2.0.0</lutece.module-forms-cartography.version>
+        <lutece.module-forms-cartography-explorer.version>2.0.0-SNAPSHOT</lutece.module-forms-cartography-explorer.version>        
         <lutece.module-cartography-solr.version>2.0.0</lutece.module-cartography-solr.version>
+        -->
         <lutece.module-forms-solr.version>2.0.0</lutece.module-forms-solr.version>
         <lutece.plugin-solr.version>5.0.1</lutece.plugin-solr.version>
+        <!--
         <lutece.plugin-parser.version>2.0.0</lutece.plugin-parser.version>
+        -->
+        <!--
         <lutece.plugin-wiki.version>6.0.0-SNAPSHOT</lutece.plugin-wiki.version>
         <lutece.module-wiki-quiz.version>2.0.0-SNAPSHOT</lutece.module-wiki-quiz.version>
         <lutece.module-wiki-ai.version>2.0.0-SNAPSHOT</lutece.module-wiki-ai.version>
-
+	    -->
         <lutece.plugin-matomo.version>2.0.0</lutece.plugin-matomo.version>
         <lutece.plugin-captcha.version>3.0.0</lutece.plugin-captcha.version>
         <lutece.module-captcha-captchetat.version>1.0.1-SNAPSHOT</lutece.module-captcha-captchetat.version>
         <lutece.plugin-verifybackurl.version>2.0.0</lutece.plugin-verifybackurl.version>
         <lutece.plugin-sitemap.version>2.0.0-SNAPSHOT</lutece.plugin-sitemap.version>
         <lutece.plugin-seo.version>5.0.0-SNAPSHOT</lutece.plugin-seo.version>
+		<!-- 
 		<lutece.module-seo-wiki.version>2.0.0-SNAPSHOT</lutece.module-seo-wiki.version>
-       	<lutece.module-seo-blog.version>2.0.0-SNAPSHOT</lutece.module-seo-blog.version>
+       	-->
+		<lutece.module-seo-blog.version>2.0.0-SNAPSHOT</lutece.module-seo-blog.version>
         <lutece.module-seo-robots.version>2.0.0-SNAPSHOT</lutece.module-seo-robots.version>
         <lutece.plugin-health.version>1.0.0</lutece.plugin-health.version>
     </properties>
