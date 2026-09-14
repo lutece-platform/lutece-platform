@@ -374,12 +374,6 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-alertforms</artifactId>
-            <type>lutece-plugin</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-workflow-appointment</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
@@ -405,12 +399,6 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-workflow-notifygru</artifactId>
-            <type>lutece-plugin</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-workflow-notifygru-alert</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
         </dependency>
