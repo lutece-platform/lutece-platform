@@ -8,11 +8,16 @@
     </parent>
 
     <artifactId>lutece-starter</artifactId>
-    <version>${lutece.lutece-starter.version}</version>
+    <version>${revision}</version>
     <name>Lutece Platform starters</name>
     <description>Lutece Platform</description>
 
     <properties>
+        <!-- Project version alias. Maven only interpolates revision, sha1 and
+             changelist inside a project version; any other property raises
+             "version contains an expression but should be a constant". The value
+             itself stays in the root pom, so modules can still diverge. -->
+        <revision>${lutece.lutece-starter.version}</revision>
         <maven.deploy.skip>${lutece.deploy.skip}</maven.deploy.skip>
         <componentName>lutece-starter</componentName>
     </properties>
