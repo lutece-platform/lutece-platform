@@ -306,8 +306,8 @@
             </dependency>
             <dependency>
                 <groupId>fr.paris.lutece.plugins</groupId>
-                <artifactId>module-appointement-rest</artifactId>
-                <version>${lutece.module-appointement-rest.version}</version>
+                <artifactId>module-appointment-rest</artifactId>
+                <version>${lutece.module-appointment-rest.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
             <dependency>

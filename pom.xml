@@ -251,6 +251,22 @@
 
     <profiles>
         <!--
+          Opt-in check that lutece-bom is usable by a downstream consumer. Not part of
+          the default build: lutece-bom-test resolves the full transitive closure of the
+          114 managed artifacts, which is slow and downloads a lot. Run it when the BOM
+          changes, and in CI:
+
+              mvn -Pbom-test -pl bom-test test
+
+          Move <module>bom-test</module> into <modules> to make it permanent.
+        -->
+        <profile>
+            <id>bom-test</id>
+            <modules>
+                <module>bom-test</module>
+            </modules>
+        </profile>
+        <!--
             A profile to report serialVersionUID errors when compiling
             the code source files.
         -->
