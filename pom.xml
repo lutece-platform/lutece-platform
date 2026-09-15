@@ -176,7 +176,7 @@
         <!-- Others -->
         <lutece.plugin-referencelist.version>2.0.0</lutece.plugin-referencelist.version>
         <lutece.plugin-genericattributes.version>3.0.2-SNAPSHOT</lutece.plugin-genericattributes.version>
-        <lutece.plugin-asynchronousupload.version>2.0.0</lutece.plugin-asynchronousupload.version>
+        <lutece.plugin-asynchronousupload.version>2.0.1-SNAPSHOT</lutece.plugin-asynchronousupload.version>
         <lutece.plugin-regularexpression.version>5.0.0</lutece.plugin-regularexpression.version>
         <lutece.plugin-filegenerator.version>3.0.0</lutece.plugin-filegenerator.version>
         <lutece.plugin-htmltopdf.version>2.0.0</lutece.plugin-htmltopdf.version>
