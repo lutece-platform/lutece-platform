@@ -140,6 +140,8 @@
         <lutece.plugin-contact.version>6.0.2</lutece.plugin-contact.version>
         <lutece.plugin-menus.version>3.0.0</lutece.plugin-menus.version>
         <lutece.plugin-blog.version>4.0.1-SNAPSHOT</lutece.plugin-blog.version>
+        <lutece.plugin-newsletter.version>5.0.0-SNAPSHOT</lutece.plugin-newsletter.version>
+        <lutece.module-newsletter-blog.version>2.0.0-SNAPSHOT</lutece.module-newsletter-blog.version>
         <lutece.plugin-document.version>6.0.0</lutece.plugin-document.version>
         <lutece.plugin-library.version>6.0.0</lutece.plugin-library.version>
 		<lutece.module-extend-rating.version>4.0.0</lutece.module-extend-rating.version>

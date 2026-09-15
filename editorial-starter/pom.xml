@@ -181,6 +181,22 @@
             <version>${lutece.plugin-blog.version}</version>
             <type>lutece-plugin</type>
         </dependency>
+        <!--
+          Migrated to V8 (parent 8.0.1) but left out of the V8 scope when the line was
+          created. Reinstated here, where they sat on the V7 line.
+        -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-newsletter</artifactId>
+            <version>${lutece.plugin-newsletter.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-newsletter-blog</artifactId>
+            <version>${lutece.module-newsletter-blog.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-document</artifactId>
