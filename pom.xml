@@ -150,7 +150,7 @@
         <lutece.module-extend-statistics.version>2.0.0-SNAPSHOT</lutece.module-extend-statistics.version>
         <lutece.module-extend-comment.version>2.0.0-SNAPSHOT</lutece.module-extend-comment.version>
         <lutece.plugin-avatar.version>2.0.0-SNAPSHOT</lutece.plugin-avatar.version>
-        <lutece.plugin-xmltransformer.version>2.0.0-SNAPSHOT</lutece.plugin-xmltransformer.version>
+        <lutece.plugin-xmltransformer.version>2.0.1-SNAPSHOT</lutece.plugin-xmltransformer.version>
 
 		<!-- Authentification -->
 		<lutece.plugin-mylutece.version>5.0.1-SNAPSHOT</lutece.plugin-mylutece.version>
@@ -207,7 +207,7 @@
 	    -->
         <lutece.plugin-matomo.version>2.0.0</lutece.plugin-matomo.version>
         <lutece.plugin-captcha.version>3.0.0</lutece.plugin-captcha.version>
-        <lutece.module-captcha-captchetat.version>1.0.1-SNAPSHOT</lutece.module-captcha-captchetat.version>
+        <lutece.module-captcha-captchetat.version>1.0.1</lutece.module-captcha-captchetat.version>
         <lutece.plugin-verifybackurl.version>2.0.0</lutece.plugin-verifybackurl.version>
         <lutece.plugin-sitemap.version>2.0.0-SNAPSHOT</lutece.plugin-sitemap.version>
         <lutece.plugin-seo.version>5.0.0-SNAPSHOT</lutece.plugin-seo.version>
