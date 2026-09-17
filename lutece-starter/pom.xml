@@ -370,17 +370,10 @@
         <!-- Forms (moved out of forms-starter)                 -->
         <!-- ================================================== -->
         <!--
-          Moved here from forms-starter. plugin-accesscontrol is deliberately NOT
-          repeated: appointment-starter already brings it through
-          module-appointment-ants, so declaring it again would only pin a version
-          the platform already resolves on its own.
+          Moved here from forms-starter. plugin-accesscontrol and
+          module-accesscontrol-forms went back to forms-starter, which declares
+          them both.
         -->
-        <dependency>
-            <groupId>fr.paris.lutece.plugins</groupId>
-            <artifactId>module-accesscontrol-forms</artifactId>
-            <version>${lutece.module-accesscontrol-forms.version}</version>
-            <type>lutece-plugin</type>
-        </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-forms-breadcrumbaccordion</artifactId>
@@ -396,8 +389,7 @@
           <!--
             Moved here from appointment-starter. None of them was reachable in this
             module, directly or transitively, so declaring them keeps the assembled
-            platform unchanged. module-appointment-ants also carries plugin-accesscontrol,
-            which is already declared above.
+            platform unchanged.
           -->
           <dependency>
                <groupId>fr.paris.lutece.plugins</groupId>
