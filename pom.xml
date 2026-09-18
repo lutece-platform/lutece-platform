@@ -76,7 +76,7 @@
         <lutece.library-lutece-resources.version>1.0.0</lutece.library-lutece-resources.version>
         
         <!-- Lutece forms -->
-        <lutece.plugin-forms.version>4.0.2-SNAPSHOT</lutece.plugin-forms.version>
+        <lutece.plugin-forms.version>4.0.2-beta-02</lutece.plugin-forms.version>
         <lutece.library-utils.version>2.0.0</lutece.library-utils.version>
         <lutece.module-forms-breadcrumbaccordion.version>2.0.2-SNAPSHOT</lutece.module-forms-breadcrumbaccordion.version>
         <lutece.module-workflow-forms.version>3.0.2-SNAPSHOT</lutece.module-workflow-forms.version>
@@ -116,7 +116,7 @@
         <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
         <!-- Lutece appointment -->
         <lutece.plugin-appointment.version>4.0.0-SNAPSHOT</lutece.plugin-appointment.version>
-        <lutece.module-workflow-appointment.version>4.0.0-SNAPSHOT</lutece.module-workflow-appointment.version>
+        <lutece.module-workflow-appointment.version>4.0.0-beta-01</lutece.module-workflow-appointment.version>
 		<lutece.module-appointment-management.version>2.0.0-SNAPSHOT</lutece.module-appointment-management.version>      
         <lutece.module-appointment-desk.version>2.0.0-SNAPSHOT</lutece.module-appointment-desk.version>
         <lutece.module-appointment-mydashboard.version>4.0.0-SNAPSHOT</lutece.module-appointment-mydashboard.version>
@@ -129,17 +129,17 @@
 	    <lutece.module-appointment-leaflet.version>4.0.0-SNAPSHOT</lutece.module-appointment-leaflet.version>
 	    <lutece.module-elasticdata-appointment.version>4.0.0-SNAPSHOT</lutece.module-elasticdata-appointment.version>
 	    
-	    <lutece.plugin-resource.version>3.0.0-SNAPSHOT</lutece.plugin-resource.version>
-        <lutece.module-resource-adminuser.version>2.0.0-SNAPSHOT</lutece.module-resource-adminuser.version>
-        <lutece.plugin-mydashboard.version>2.0.0-SNAPSHOT</lutece.plugin-mydashboard.version>
+	    <lutece.plugin-resource.version>3.0.0-beta-01</lutece.plugin-resource.version>
+        <lutece.module-resource-adminuser.version>2.0.0-beta-01</lutece.module-resource-adminuser.version>
+        <lutece.plugin-mydashboard.version>2.0.0-beta-01</lutece.plugin-mydashboard.version>
 
         <!-- Lutece Editorial -->
         <lutece.plugin-html.version>6.0.1-SNAPSHOT</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.0.1-SNAPSHOT</lutece.plugin-htmlpage.version>
         <lutece.plugin-contact.version>6.0.2</lutece.plugin-contact.version>
         <lutece.plugin-menus.version>3.0.1-SNAPSHOT</lutece.plugin-menus.version>
-        <lutece.plugin-blog.version>4.0.1-SNAPSHOT</lutece.plugin-blog.version>
-        <lutece.plugin-newsletter.version>5.0.0-SNAPSHOT</lutece.plugin-newsletter.version>
+        <lutece.plugin-blog.version>4.0.1-beta-01</lutece.plugin-blog.version>
+        <lutece.plugin-newsletter.version>5.0.0-beta-01</lutece.plugin-newsletter.version>
         <lutece.module-newsletter-blog.version>2.0.0-SNAPSHOT</lutece.module-newsletter-blog.version>
         <lutece.plugin-document.version>6.0.1-SNAPSHOT</lutece.plugin-document.version>
         <lutece.plugin-library.version>6.0.1-SNAPSHOT</lutece.plugin-library.version>
@@ -148,7 +148,7 @@
         <lutece.plugin-extend.version>2.0.1-SNAPSHOT</lutece.plugin-extend.version>
         <lutece.module-extend-statistics.version>2.0.0-SNAPSHOT</lutece.module-extend-statistics.version>
         <lutece.module-extend-comment.version>2.0.0-SNAPSHOT</lutece.module-extend-comment.version>
-        <lutece.plugin-avatar.version>2.0.0-SNAPSHOT</lutece.plugin-avatar.version>
+        <lutece.plugin-avatar.version>2.0.0-beta-01</lutece.plugin-avatar.version>
         <lutece.plugin-xmltransformer.version>2.0.1-SNAPSHOT</lutece.plugin-xmltransformer.version>
 
 		<!-- Authentification -->
@@ -201,7 +201,7 @@
         -->
         <!--
         <lutece.plugin-wiki.version>6.0.0-SNAPSHOT</lutece.plugin-wiki.version>
-        <lutece.module-wiki-quiz.version>2.0.0-SNAPSHOT</lutece.module-wiki-quiz.version>
+		<lutece.module-wiki-quiz.version>2.0.0-SNAPSHOT</lutece.module-wiki-quiz.version>
         <lutece.module-wiki-ai.version>2.0.0-SNAPSHOT</lutece.module-wiki-ai.version>
 	    -->
         <lutece.plugin-matomo.version>2.0.1-beta-01</lutece.plugin-matomo.version>
@@ -209,7 +209,7 @@
         <lutece.module-captcha-captchetat.version>1.0.1</lutece.module-captcha-captchetat.version>
         <lutece.plugin-verifybackurl.version>2.0.0</lutece.plugin-verifybackurl.version>
         <lutece.plugin-sitemap.version>2.0.0-SNAPSHOT</lutece.plugin-sitemap.version>
-        <lutece.plugin-seo.version>5.0.0-SNAPSHOT</lutece.plugin-seo.version>
+        <lutece.plugin-seo.version>5.0.0-beta-01</lutece.plugin-seo.version>
 		<!-- 
 		<lutece.module-seo-wiki.version>2.0.0-SNAPSHOT</lutece.module-seo-wiki.version>
        	-->
