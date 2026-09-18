@@ -64,7 +64,7 @@
         <lutece.lutece-bom.version>8.0.0-SNAPSHOT</lutece.lutece-bom.version>
 
         <!-- Lutece core -->
-        <lutece.core.version>8.0.2-SNAPSHOT</lutece.core.version>
+        <lutece.core.version>8.0.2-beta-03</lutece.core.version>
         <lutece.library-lutece-unit-testing-common.version>1.0.0</lutece.library-lutece-unit-testing-common.version>
         <lutece.library-lucene.version>6.0.0</lutece.library-lucene.version>
         <lutece.library-user-api.version>2.0.0</lutece.library-user-api.version>
