@@ -72,7 +72,7 @@
         <lutece.library-workflow-core.version>4.0.2-beta-02</lutece.library-workflow-core.version>
         <lutece.library-workgroup-api.version>2.0.0</lutece.library-workgroup-api.version>
         <lutece.library-priority-extension.version>1.0.0</lutece.library-priority-extension.version>
-        <lutece.library-freemarker.version>2.1.0-SNAPSHOT</lutece.library-freemarker.version>
+        <lutece.library-freemarker.version>2.1.0-beta-01</lutece.library-freemarker.version>
         <lutece.library-lutece-resources.version>1.0.0</lutece.library-lutece-resources.version>
         
         <!-- Lutece forms -->
