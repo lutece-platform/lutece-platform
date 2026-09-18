@@ -115,7 +115,7 @@
         <lutece.library-notifygru.version>2.0.1-SNAPSHOT</lutece.library-notifygru.version>
         <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
         <!-- Lutece appointment -->
-        <lutece.plugin-appointment.version>4.0.0-SNAPSHOT</lutece.plugin-appointment.version>
+        <lutece.plugin-appointment.version>4.0.0-beta-01</lutece.plugin-appointment.version>
         <lutece.module-workflow-appointment.version>4.0.0-beta-01</lutece.module-workflow-appointment.version>
 		<lutece.module-appointment-management.version>2.0.0-SNAPSHOT</lutece.module-appointment-management.version>      
         <lutece.module-appointment-desk.version>2.0.0-SNAPSHOT</lutece.module-appointment-desk.version>
