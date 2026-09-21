@@ -41,3 +41,6 @@ dependency-reduced-pom.xml
 # Maven effective POM #
 effective-pom.xml
 */effective-pom.xml
+
+# Claude Code #
+.claude/

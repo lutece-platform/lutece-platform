@@ -880,7 +880,7 @@ Une intervention manuelle est alors necessaire.
 
 | Outil | Nom Jenkins | Usage |
 |-------|-------------|-------|
-| Maven | `Maven 3.8.5` | Build et deploy |
+| Maven | `maven-3.9.12` | Build et deploy (le pom exige Maven `[3.9,4.0.0)`) |
 | JDK | `temurin-17-jdk` | JDK d'amorcage + build de la ligne V8 |
 | JDK | `temurin-11-jdk` | Build de la ligne V7 |
 
