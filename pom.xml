@@ -76,17 +76,17 @@
         <lutece.library-lutece-resources.version>1.0.0</lutece.library-lutece-resources.version>
         
         <!-- Lutece forms -->
-        <lutece.plugin-forms.version>4.0.2-beta-02</lutece.plugin-forms.version>
+        <lutece.plugin-forms.version>4.0.2-beta-03</lutece.plugin-forms.version>
         <lutece.library-utils.version>2.0.0</lutece.library-utils.version>
         <lutece.module-forms-breadcrumbaccordion.version>2.0.2-beta-01</lutece.module-forms-breadcrumbaccordion.version>
-        <lutece.module-workflow-forms.version>3.0.2-beta-02</lutece.module-workflow-forms.version>
+        <lutece.module-workflow-forms.version>3.0.2-beta-03</lutece.module-workflow-forms.version>
         <lutece.plugin-workflow.version>7.0.2-beta-01</lutece.plugin-workflow.version>
         <lutece.module-workflow-upload.version>2.0.1-beta-01</lutece.module-workflow-upload.version>
         <lutece.plugin-mermaidjs.version>2.0.1-beta-01</lutece.plugin-mermaidjs.version>
         <lutece.library-signrequest.version>4.0.0</lutece.library-signrequest.version>
         <lutece.library-jwt.version>3.0.0</lutece.library-jwt.version>
         <lutece.module-workflow-forms-automatic-assignment.version>3.0.1-beta-01</lutece.module-workflow-forms-automatic-assignment.version>
-        <lutece.module-workflow-formstopdf.version>2.0.2-beta-01</lutece.module-workflow-formstopdf.version>
+        <lutece.module-workflow-formstopdf.version>2.0.2-beta-02</lutece.module-workflow-formstopdf.version>
         <lutece.module-forms-userassignment.version>3.0.0</lutece.module-forms-userassignment.version>
         <lutece.module-accesscontrol-forms.version>2.0.0</lutece.module-accesscontrol-forms.version>
         <lutece.module-forms-unittree.version>3.0.2-beta-01</lutece.module-forms-unittree.version>
