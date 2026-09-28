@@ -206,6 +206,12 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-appointment-filling</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-appointment-leaflet</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
@@ -243,6 +249,12 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-appointment-solrsearchapp</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-appointmentgru</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
         </dependency>
@@ -320,7 +332,19 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-genericattributes-openstreetmap</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-kibana-forms</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-mylutece-cacheuserattribute</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
         </dependency>
@@ -345,6 +369,12 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-newsletter-blog</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-notifygru-appointment</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
         </dependency>
@@ -381,6 +411,12 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>module-workflow-appointment</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-appointmentants</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
         </dependency>
@@ -488,6 +524,12 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-childpages</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-contact</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
@@ -513,6 +555,12 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-filegenerator</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-files2docs</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
         </dependency>
@@ -578,6 +626,12 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-linkpages</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-liquibase</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
@@ -638,6 +692,12 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-pagelinkservice</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-profiles</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
@@ -645,6 +705,12 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-quartz-scheduler</artifactId>
+            <type>lutece-plugin</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-quicklinks</artifactId>
             <type>lutece-plugin</type>
             <scope>provided</scope>
         </dependency>

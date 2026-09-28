@@ -104,6 +104,14 @@
             <version>${lutece.plugin-liquibase.version}</version>
             <type>lutece-plugin</type>
         </dependency>
+        <!-- Version epinglee : plugin-liquibase la tire via l'intervalle [2.0.0,),
+             qui se resout sinon sur 2.0.2-SNAPSHOT -->
+        <dependency>
+            <groupId>fr.paris.lutece.tools</groupId>
+            <artifactId>library-sql-utils</artifactId>
+            <version>${lutece.library-sql-utils.version}</version>
+            <type>jar</type>
+        </dependency>
 
         <!-- ================================================== -->
         <!-- Appointment                                        -->
@@ -175,6 +183,68 @@
                 <version>${lutece.module-appointment-alert.version}</version>
                 <type>lutece-plugin</type>
             </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-appointmentgru</artifactId>
+            <version>${lutece.module-appointmentgru.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <!-- Versions epinglees : ces artefacts sont tires par des intervalles ouverts
+             de modules transitifs, qui se resolvent sinon sur des SNAPSHOT -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-modulenotifygrumappingmanager</artifactId>
+            <version>${lutece.plugin-modulenotifygrumappingmanager.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-workflow-notifygru</artifactId>
+            <version>${lutece.module-workflow-notifygru.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-notifygru</artifactId>
+            <version>${lutece.library-notifygru.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-httpaccess</artifactId>
+            <version>${lutece.library-httpaccess.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-signrequest</artifactId>
+            <version>${lutece.library-signrequest.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-jwt</artifactId>
+            <version>${lutece.library-jwt.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-grubusiness</artifactId>
+            <version>${lutece.library-grubusiness.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-appointment-filling</artifactId>
+            <version>${lutece.module-appointment-filling.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>module-notifygru-appointment</artifactId>
+            <version>${lutece.module-notifygru-appointment.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
 
             <!-- ================================================== -->
             <!-- Pulled transitively, declared here to pin them     -->

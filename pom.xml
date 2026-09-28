@@ -128,6 +128,10 @@
 	    <lutece.module-appointment-solr.version>4.0.0-beta-01</lutece.module-appointment-solr.version>
 	    <lutece.module-appointment-leaflet.version>4.0.0-beta-01</lutece.module-appointment-leaflet.version>
 	    <lutece.module-elasticdata-appointment.version>4.0.0-beta-01</lutece.module-elasticdata-appointment.version>
+        <lutece.module-appointmentgru.version>3.0.0-SNAPSHOT</lutece.module-appointmentgru.version>
+        <lutece.module-appointment-filling.version>4.0.0-SNAPSHOT</lutece.module-appointment-filling.version>
+        <lutece.module-notifygru-appointment.version>4.0.0-SNAPSHOT</lutece.module-notifygru-appointment.version>
+        <lutece.module-workflow-appointmentants.version>2.0.0-SNAPSHOT</lutece.module-workflow-appointmentants.version>
 	    
 	    <lutece.plugin-resource.version>3.0.0-beta-01</lutece.plugin-resource.version>
         <lutece.module-resource-adminuser.version>2.0.0-beta-01</lutece.module-resource-adminuser.version>
@@ -150,12 +154,18 @@
         <lutece.module-extend-comment.version>2.0.0-beta-01</lutece.module-extend-comment.version>
         <lutece.plugin-avatar.version>2.0.0-beta-01</lutece.plugin-avatar.version>
         <lutece.plugin-xmltransformer.version>2.0.1-beta-01</lutece.plugin-xmltransformer.version>
+        <lutece.plugin-childpages.version>6.0.0-SNAPSHOT</lutece.plugin-childpages.version>
+        <lutece.plugin-linkpages.version>6.0.0-SNAPSHOT</lutece.plugin-linkpages.version>
+        <lutece.plugin-pagelinkservice.version>4.0.0-SNAPSHOT</lutece.plugin-pagelinkservice.version>
+        <lutece.plugin-quicklinks.version>4.0.0-SNAPSHOT</lutece.plugin-quicklinks.version>
+        <lutece.plugin-files2docs.version>2.0.0-SNAPSHOT</lutece.plugin-files2docs.version>
 
 		<!-- Authentification -->
 		<lutece.plugin-mylutece.version>5.0.1-beta-01</lutece.plugin-mylutece.version>
         <lutece.module-mylutece-users.version>2.0.1-beta-01</lutece.module-mylutece-users.version>
         <lutece.plugin-automaticroleprovider.version>2.0.0</lutece.plugin-automaticroleprovider.version>
         <lutece.module-mylutece-database.version>7.0.1-beta-01</lutece.module-mylutece-database.version>
+        <lutece.module-mylutece-cacheuserattribute.version>2.0.0-SNAPSHOT</lutece.module-mylutece-cacheuserattribute.version>
         <lutece.module-mylutece-oauth2.version>3.0.2</lutece.module-mylutece-oauth2.version>
         <lutece.plugin-oauth2.version>3.0.1-beta-01</lutece.plugin-oauth2.version>
         <lutece.plugin-termofservice.version>2.0.1-beta-01</lutece.plugin-termofservice.version>
@@ -175,6 +185,7 @@
         <!-- Others -->
         <lutece.plugin-referencelist.version>2.0.0</lutece.plugin-referencelist.version>
         <lutece.plugin-genericattributes.version>3.0.2-beta-01</lutece.plugin-genericattributes.version>
+        <lutece.module-genericattributes-openstreetmap.version>2.0.0-SNAPSHOT</lutece.module-genericattributes-openstreetmap.version>
         <lutece.plugin-asynchronousupload.version>2.0.1-beta-01</lutece.plugin-asynchronousupload.version>
         <lutece.plugin-regularexpression.version>5.0.1-beta-01</lutece.plugin-regularexpression.version>
         <lutece.plugin-filegenerator.version>3.0.1-beta-01</lutece.plugin-filegenerator.version>

@@ -34,6 +34,30 @@
         </dependency>
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-core-utils</artifactId>
+            <version>${lutece.library-core-utils.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-lutece-resources</artifactId>
+            <version>${lutece.library-lutece-resources.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-priority-extension</artifactId>
+            <version>${lutece.library-priority-extension.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-lutece-unit-testing-common</artifactId>
+            <version>${lutece.library-lutece-unit-testing-common.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-lucene</artifactId>
             <version>${lutece.library-lucene.version}</version>
             <type>lutece-plugin</type>
@@ -85,6 +109,14 @@
             <artifactId>plugin-liquibase</artifactId>
             <version>${lutece.plugin-liquibase.version}</version>
             <type>lutece-plugin</type>
+        </dependency>
+        <!-- Version epinglee : plugin-liquibase la tire via l'intervalle [2.0.0,),
+             qui se resout sinon sur 2.0.2-SNAPSHOT -->
+        <dependency>
+            <groupId>fr.paris.lutece.tools</groupId>
+            <artifactId>library-sql-utils</artifactId>
+            <version>${lutece.library-sql-utils.version}</version>
+            <type>jar</type>
         </dependency>
 
         <!-- ================================================== -->
@@ -167,6 +199,44 @@
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>plugin-menus</artifactId>
             <version>${lutece.plugin-menus.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-childpages</artifactId>
+            <version>${lutece.plugin-childpages.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-linkpages</artifactId>
+            <version>${lutece.plugin-linkpages.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-pagelinkservice</artifactId>
+            <version>${lutece.plugin-pagelinkservice.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-quicklinks</artifactId>
+            <version>${lutece.plugin-quicklinks.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-files2docs</artifactId>
+            <version>${lutece.plugin-files2docs.version}</version>
+            <type>lutece-plugin</type>
+        </dependency>
+        <!-- Versions epinglees : ces artefacts sont tires par des intervalles ouverts
+             de modules transitifs, qui se resolvent sinon sur des SNAPSHOT -->
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>plugin-asynchronousupload</artifactId>
+            <version>${lutece.plugin-asynchronousupload.version}</version>
             <type>lutece-plugin</type>
         </dependency>
         <dependency>
