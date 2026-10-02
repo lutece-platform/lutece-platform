@@ -151,7 +151,7 @@
         <lutece.module-extend-feedback.version>3.0.1-beta-01</lutece.module-extend-feedback.version>
         <lutece.plugin-extend.version>2.0.1-beta-01</lutece.plugin-extend.version>
         <lutece.module-extend-statistics.version>2.0.0-beta-01</lutece.module-extend-statistics.version>
-        <lutece.module-extend-comment.version>2.0.0-beta-01</lutece.module-extend-comment.version>
+        <lutece.module-extend-comment.version>2.0.0-SNAPSHOT</lutece.module-extend-comment.version>
         <lutece.plugin-avatar.version>2.0.0-beta-01</lutece.plugin-avatar.version>
         <lutece.plugin-xmltransformer.version>2.0.1-beta-01</lutece.plugin-xmltransformer.version>
         <lutece.plugin-childpages.version>6.0.0-SNAPSHOT</lutece.plugin-childpages.version>
