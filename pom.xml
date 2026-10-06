@@ -138,7 +138,7 @@
         <lutece.plugin-mydashboard.version>2.0.0-beta-01</lutece.plugin-mydashboard.version>
 
         <!-- Lutece Editorial -->
-        <lutece.plugin-html.version>6.0.1-beta-01</lutece.plugin-html.version>
+        <lutece.plugin-html.version>6.0.1-SNAPSHOT</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.0.1-beta-01</lutece.plugin-htmlpage.version>
         <lutece.plugin-contact.version>6.0.2</lutece.plugin-contact.version>
         <lutece.plugin-menus.version>3.0.1-beta-01</lutece.plugin-menus.version>
