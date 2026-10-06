@@ -145,7 +145,7 @@
         <lutece.plugin-blog.version>4.0.1-SNAPSHOT</lutece.plugin-blog.version>
         <lutece.plugin-newsletter.version>5.0.0-beta-01</lutece.plugin-newsletter.version>
         <lutece.module-newsletter-blog.version>2.0.0-beta-01</lutece.module-newsletter-blog.version>
-        <lutece.plugin-document.version>6.0.1-beta-01</lutece.plugin-document.version>
+        <lutece.plugin-document.version>6.0.1-SNAPSHOT</lutece.plugin-document.version>
         <lutece.plugin-library.version>6.0.1-beta-01</lutece.plugin-library.version>
 		<lutece.module-extend-rating.version>4.0.1-beta-01</lutece.module-extend-rating.version>
         <lutece.module-extend-feedback.version>3.0.1-beta-01</lutece.module-extend-feedback.version>
@@ -168,7 +168,7 @@
         <lutece.module-mylutece-cacheuserattribute.version>2.0.0-SNAPSHOT</lutece.module-mylutece-cacheuserattribute.version>
         <lutece.module-mylutece-oauth2.version>3.0.2</lutece.module-mylutece-oauth2.version>
         <lutece.plugin-oauth2.version>3.0.1-beta-01</lutece.plugin-oauth2.version>
-        <lutece.plugin-termofservice.version>2.0.1-beta-01</lutece.plugin-termofservice.version>
+        <lutece.plugin-termofservice.version>2.0.1-SNAPSHOT</lutece.plugin-termofservice.version>
         <lutece.plugin-adminauthenticationwsso.version>3.0.1-SNAPSHOT</lutece.plugin-adminauthenticationwsso.version>
         <lutece.plugin-myluteceaccessrules.version>2.0.1-beta-01</lutece.plugin-myluteceaccessrules.version>
         <lutece.plugin-profiles.version>5.0.1-beta-01</lutece.plugin-profiles.version>
