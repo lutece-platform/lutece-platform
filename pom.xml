@@ -80,7 +80,7 @@
         <lutece.library-utils.version>2.0.0</lutece.library-utils.version>
         <lutece.module-forms-breadcrumbaccordion.version>2.0.2-SNAPSHOT</lutece.module-forms-breadcrumbaccordion.version>
         <lutece.module-workflow-forms.version>3.0.2-SNAPSHOT</lutece.module-workflow-forms.version>
-        <lutece.plugin-workflow.version>7.0.2-beta-01</lutece.plugin-workflow.version>
+        <lutece.plugin-workflow.version>7.0.2-SNAPSHOT</lutece.plugin-workflow.version>
         <lutece.module-workflow-upload.version>2.0.1-beta-01</lutece.module-workflow-upload.version>
         <lutece.plugin-mermaidjs.version>2.0.1-beta-01</lutece.plugin-mermaidjs.version>
         <lutece.library-signrequest.version>4.0.0</lutece.library-signrequest.version>
