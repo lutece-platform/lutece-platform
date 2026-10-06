@@ -121,7 +121,7 @@
         <lutece.module-appointment-desk.version>2.0.0-SNAPSHOT</lutece.module-appointment-desk.version>
         <lutece.module-appointment-mydashboard.version>4.0.0-beta-01</lutece.module-appointment-mydashboard.version>
         <lutece.module-appointment-resource.version>4.0.0-SNAPSHOT</lutece.module-appointment-resource.version>
-        <lutece.module-appointment-ants.version>2.0.0-beta-01</lutece.module-appointment-ants.version>
+        <lutece.module-appointment-ants.version>2.0.0-SNAPSHOT</lutece.module-appointment-ants.version>
         <lutece.module-appointment-alert.version>4.0.0-SNAPSHOT</lutece.module-appointment-alert.version>
         <lutece.module-appointment-solrsearchapp.version>4.0.0-SNAPSHOT</lutece.module-appointment-solrsearchapp.version>
 		<lutece.module-appointment-rest.version>2.0.0-beta-01</lutece.module-appointment-rest.version>
@@ -183,7 +183,7 @@
         <lutece.module-kibana-forms.version>2.0.1-beta-01</lutece.module-kibana-forms.version>
 
         <!-- Others -->
-        <lutece.plugin-referencelist.version>2.0.0</lutece.plugin-referencelist.version>
+        <lutece.plugin-referencelist.version>2.0.1-SNAPSHOT</lutece.plugin-referencelist.version>
         <lutece.plugin-genericattributes.version>3.0.2-beta-01</lutece.plugin-genericattributes.version>
         <lutece.module-genericattributes-openstreetmap.version>2.0.0-SNAPSHOT</lutece.module-genericattributes-openstreetmap.version>
         <lutece.plugin-asynchronousupload.version>2.0.1-beta-01</lutece.plugin-asynchronousupload.version>
@@ -193,7 +193,7 @@
         <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
         <lutece.library-httpaccess.version>4.0.1-beta-01</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
-        <lutece.plugin-liquibase.version>2.0.2-beta-01</lutece.plugin-liquibase.version>
+        <lutece.plugin-liquibase.version>2.0.2-SNAPSHOT</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.1.0-SNAPSHOT</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.1-beta-01</lutece.library-configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
