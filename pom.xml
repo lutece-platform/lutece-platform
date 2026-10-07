@@ -79,7 +79,7 @@
         <lutece.plugin-forms.version>4.0.2-beta-04</lutece.plugin-forms.version>
         <lutece.library-utils.version>2.0.0</lutece.library-utils.version>
         <lutece.module-forms-breadcrumbaccordion.version>2.0.2-beta-02</lutece.module-forms-breadcrumbaccordion.version>
-        <lutece.module-workflow-forms.version>3.0.2-SNAPSHOT</lutece.module-workflow-forms.version>
+        <lutece.module-workflow-forms.version>3.0.2-beta-04</lutece.module-workflow-forms.version>
         <lutece.plugin-workflow.version>7.0.2-beta-02</lutece.plugin-workflow.version>
         <lutece.module-workflow-upload.version>2.0.1-beta-01</lutece.module-workflow-upload.version>
         <lutece.plugin-mermaidjs.version>2.0.1-beta-01</lutece.plugin-mermaidjs.version>
@@ -183,7 +183,7 @@
         <lutece.module-kibana-forms.version>2.0.1-beta-01</lutece.module-kibana-forms.version>
 
         <!-- Others -->
-        <lutece.plugin-referencelist.version>2.0.1-SNAPSHOT</lutece.plugin-referencelist.version>
+        <lutece.plugin-referencelist.version>2.0.1-beta-01</lutece.plugin-referencelist.version>
         <lutece.plugin-genericattributes.version>3.0.2-beta-01</lutece.plugin-genericattributes.version>
         <lutece.module-genericattributes-openstreetmap.version>2.0.0-beta-01</lutece.module-genericattributes-openstreetmap.version>
         <lutece.plugin-asynchronousupload.version>2.0.1-beta-01</lutece.plugin-asynchronousupload.version>
