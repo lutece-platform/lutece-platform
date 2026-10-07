@@ -130,7 +130,7 @@
 	    <lutece.module-elasticdata-appointment.version>4.0.0-beta-02</lutece.module-elasticdata-appointment.version>
         <lutece.module-appointmentgru.version>3.0.0-beta-01</lutece.module-appointmentgru.version>
         <lutece.module-appointment-filling.version>4.0.0-beta-01</lutece.module-appointment-filling.version>
-        <lutece.module-notifygru-appointment.version>4.0.0-beta-01</lutece.module-notifygru-appointment.version>
+        <lutece.module-notifygru-appointment.version>4.0.0-beta-02</lutece.module-notifygru-appointment.version>
         <lutece.module-workflow-appointmentants.version>2.0.0-beta-01</lutece.module-workflow-appointmentants.version>
 	    
 	    <lutece.plugin-resource.version>3.0.0-beta-01</lutece.plugin-resource.version>
