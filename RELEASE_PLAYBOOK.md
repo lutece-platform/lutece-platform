@@ -684,9 +684,19 @@ distant existant fasse echouer le build au lieu d'ecraser une release publiee.
 
 ### Stage 4 — Release Specialized Starters
 
-Release en parallele des starters cibles parmi `forms-starter`,
-`appointment-starter` et `editorial-starter`. Voir
-[section 10](#10-processus-de-release-dun-module).
+Release des starters cibles parmi `forms-starter`, `appointment-starter` et
+`editorial-starter`, en deux temps :
+
+1. **Un seul build**, sequentiel, de tous les starters cibles :
+   `mvn clean install -pl forms-starter,appointment-starter,editorial-starter -am`.
+   S'il echoue, aucun starter n'est deploye et le tag est supprime.
+2. **Les deploys en parallele**, un `mvn deploy -pl {starter}` par starter.
+
+Le build ne doit jamais tourner en parallele : avec `-am`, chaque build
+reconstruit `lutece-parent`, et les `clean` / `flatten:clean` concurrents sur le
+meme workspace suppriment le `.flattened-pom.xml` racine pendant qu'un autre
+build l'installe (`The POM for project lutece-parent could not be attached`).
+Voir [section 10](#10-processus-de-release-dun-module).
 
 ### Stage 5 — Release lutece-starter
 
