@@ -194,7 +194,7 @@
         <lutece.library-httpaccess.version>4.0.1-beta-01</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.0</lutece.library-core-utils.version>
         <lutece.plugin-liquibase.version>2.0.2-SNAPSHOT</lutece.plugin-liquibase.version>
-        <lutece.library-sql-utils.version>2.1.0-SNAPSHOT</lutece.library-sql-utils.version>
+        <lutece.library-sql-utils.version>2.1.0</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.1-beta-01</lutece.library-configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
