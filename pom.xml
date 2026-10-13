@@ -123,6 +123,7 @@
         <lutece.module-appointment-resource.version>4.0.0-beta-02</lutece.module-appointment-resource.version>
         <lutece.module-appointment-ants.version>2.0.0-beta-02</lutece.module-appointment-ants.version>
         <lutece.module-appointment-alert.version>4.0.0-SNAPSHOT</lutece.module-appointment-alert.version>
+        <lutece.module-appointment-importer.version>2.0.0-SNAPSHOT</lutece.module-appointment-importer.version>
         <lutece.module-appointment-solrsearchapp.version>4.0.0-beta-02</lutece.module-appointment-solrsearchapp.version>
 		<lutece.module-appointment-rest.version>2.0.0-beta-02</lutece.module-appointment-rest.version>
 	    <lutece.module-appointment-solr.version>4.0.0-beta-02</lutece.module-appointment-solr.version>
@@ -142,7 +143,7 @@
         <lutece.plugin-htmlpage.version>6.0.1-SNAPSHOT</lutece.plugin-htmlpage.version>
         <lutece.plugin-contact.version>6.0.2</lutece.plugin-contact.version>
         <lutece.plugin-menus.version>3.0.1-beta-01</lutece.plugin-menus.version>
-        <lutece.plugin-blog.version>4.0.1-beta-02</lutece.plugin-blog.version>
+        <lutece.plugin-blog.version>4.0.1-SNAPSHOT</lutece.plugin-blog.version>
         <lutece.plugin-newsletter.version>5.0.0-beta-02</lutece.plugin-newsletter.version>
         <lutece.module-newsletter-blog.version>2.0.0-beta-01</lutece.module-newsletter-blog.version>
         <lutece.plugin-document.version>6.0.1-beta-02</lutece.plugin-document.version>
