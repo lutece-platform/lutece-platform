@@ -227,7 +227,7 @@
        	-->
 		<lutece.module-seo-blog.version>2.0.0-beta-01</lutece.module-seo-blog.version>
         <lutece.module-seo-robots.version>2.0.0-beta-01</lutece.module-seo-robots.version>
-        <lutece.plugin-health.version>1.0.0</lutece.plugin-health.version>
+        <lutece.plugin-health.version>1.0.1-SNAPSHOT</lutece.plugin-health.version>
     </properties>
 
     <build>
