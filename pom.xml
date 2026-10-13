@@ -69,7 +69,7 @@
         <lutece.library-lucene.version>6.0.0</lutece.library-lucene.version>
         <lutece.library-user-api.version>2.0.0</lutece.library-user-api.version>
         <lutece.library-rbac-api.version>2.0.0</lutece.library-rbac-api.version>
-        <lutece.library-workflow-core.version>4.0.2-beta-02</lutece.library-workflow-core.version>
+        <lutece.library-workflow-core.version>4.0.2-SNAPSHOT</lutece.library-workflow-core.version>
         <lutece.library-workgroup-api.version>2.0.0</lutece.library-workgroup-api.version>
         <lutece.library-priority-extension.version>1.0.0</lutece.library-priority-extension.version>
         <lutece.library-freemarker.version>2.1.0</lutece.library-freemarker.version>
@@ -112,17 +112,17 @@
 
         <!-- GRU -->
         <lutece.module-workflow-notifygru.version>3.0.1-SNAPSHOT</lutece.module-workflow-notifygru.version>
-        <lutece.library-notifygru.version>2.0.1-beta-01</lutece.library-notifygru.version>
+        <lutece.library-notifygru.version>2.0.1-SNAPSHOT</lutece.library-notifygru.version>
         <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
         <!-- Lutece appointment -->
-        <lutece.plugin-appointment.version>4.0.0-beta-02</lutece.plugin-appointment.version>
+        <lutece.plugin-appointment.version>4.0.0-SNAPSHOT</lutece.plugin-appointment.version>
         <lutece.module-workflow-appointment.version>4.0.0-beta-02</lutece.module-workflow-appointment.version>
 		<lutece.module-appointment-management.version>2.0.0-beta-02</lutece.module-appointment-management.version>      
         <lutece.module-appointment-desk.version>2.0.0-beta-02</lutece.module-appointment-desk.version>
         <lutece.module-appointment-mydashboard.version>4.0.0-beta-02</lutece.module-appointment-mydashboard.version>
         <lutece.module-appointment-resource.version>4.0.0-beta-02</lutece.module-appointment-resource.version>
         <lutece.module-appointment-ants.version>2.0.0-beta-02</lutece.module-appointment-ants.version>
-        <lutece.module-appointment-alert.version>4.0.0-beta-02</lutece.module-appointment-alert.version>
+        <lutece.module-appointment-alert.version>4.0.0-SNAPSHOT</lutece.module-appointment-alert.version>
         <lutece.module-appointment-solrsearchapp.version>4.0.0-beta-02</lutece.module-appointment-solrsearchapp.version>
 		<lutece.module-appointment-rest.version>2.0.0-beta-02</lutece.module-appointment-rest.version>
 	    <lutece.module-appointment-solr.version>4.0.0-beta-02</lutece.module-appointment-solr.version>
@@ -148,10 +148,10 @@
         <lutece.plugin-document.version>6.0.1-beta-02</lutece.plugin-document.version>
         <lutece.plugin-library.version>6.0.1-beta-01</lutece.plugin-library.version>
 		<lutece.module-extend-rating.version>4.0.1-SNAPSHOT</lutece.module-extend-rating.version>
-        <lutece.module-extend-feedback.version>3.0.1-beta-01</lutece.module-extend-feedback.version>
-        <lutece.plugin-extend.version>2.0.1-SNAPSHOT</lutece.plugin-extend.version>
+        <lutece.module-extend-feedback.version>3.0.1-SNAPSHOT</lutece.module-extend-feedback.version>
+        <lutece.plugin-extend.version>2.0.2-SNAPSHOT</lutece.plugin-extend.version>
         <lutece.module-extend-statistics.version>2.0.0-beta-01</lutece.module-extend-statistics.version>
-        <lutece.module-extend-comment.version>2.0.0-beta-02</lutece.module-extend-comment.version>
+        <lutece.module-extend-comment.version>2.0.0-SNAPSHOT</lutece.module-extend-comment.version>
         <lutece.plugin-avatar.version>2.0.0-beta-01</lutece.plugin-avatar.version>
         <lutece.plugin-xmltransformer.version>2.0.1-beta-02</lutece.plugin-xmltransformer.version>
         <lutece.plugin-childpages.version>6.0.0-beta-01</lutece.plugin-childpages.version>
