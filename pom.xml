@@ -142,7 +142,7 @@
         <lutece.plugin-html.version>6.0.1-beta-02</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.0.1-SNAPSHOT</lutece.plugin-htmlpage.version>
         <lutece.plugin-contact.version>6.0.2</lutece.plugin-contact.version>
-        <lutece.plugin-menus.version>3.0.1-beta-01</lutece.plugin-menus.version>
+        <lutece.plugin-menus.version>3.0.1-SNAPSHOT</lutece.plugin-menus.version>
         <lutece.plugin-blog.version>4.0.1-SNAPSHOT</lutece.plugin-blog.version>
         <lutece.plugin-newsletter.version>5.0.0-beta-02</lutece.plugin-newsletter.version>
         <lutece.module-newsletter-blog.version>2.0.0-beta-01</lutece.module-newsletter-blog.version>
@@ -187,7 +187,7 @@
         <lutece.plugin-referencelist.version>2.0.1-beta-01</lutece.plugin-referencelist.version>
         <lutece.plugin-genericattributes.version>3.0.2-SNAPSHOT</lutece.plugin-genericattributes.version>
         <lutece.module-genericattributes-openstreetmap.version>2.0.0-beta-01</lutece.module-genericattributes-openstreetmap.version>
-        <lutece.plugin-asynchronousupload.version>2.0.1-beta-01</lutece.plugin-asynchronousupload.version>
+        <lutece.plugin-asynchronousupload.version>2.0.1-SNAPSHOT</lutece.plugin-asynchronousupload.version>
         <lutece.plugin-regularexpression.version>5.0.1-beta-01</lutece.plugin-regularexpression.version>
         <lutece.plugin-filegenerator.version>3.0.1-beta-01</lutece.plugin-filegenerator.version>
         <lutece.plugin-htmltopdf.version>2.0.1-SNAPSHOT</lutece.plugin-htmltopdf.version>
@@ -197,7 +197,7 @@
         <lutece.plugin-liquibase.version>2.0.2-beta-02</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.1.0</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.1-beta-01</lutece.library-configsource-vault.version>
-        <lutece.plugin-quartz-scheduler.version>1.0.0</lutece.plugin-quartz-scheduler.version>
+        <lutece.plugin-quartz-scheduler.version>1.0.1-SNAPSHOT</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.0.1-beta-01</lutece.plugin-rest.version>
         <lutece.plugin-sitelabels.version>3.0.2-beta-02</lutece.plugin-sitelabels.version>
