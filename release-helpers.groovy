@@ -241,6 +241,28 @@ def resolveMasterBranch() {
 }
 
 /**
+ * Commit id of a branch on the remote, empty when the branch does not exist.
+ */
+def remoteBranchHead(String branch) {
+    return sh(script: "git ls-remote --heads origin '${branch}' | cut -f1", returnStdout: true).trim()
+}
+
+/**
+ * Fails at initialization when a stable release of all the modules targets a
+ * MASTER_BRANCH missing on the remote : nothing is tagged nor deployed yet.
+ */
+def validateMasterBranch() {
+    def master = env.MASTER_BRANCH
+    if (env.IS_PRERELEASE == 'true' || !master || isSingleModuleRelease()) {
+        return
+    }
+    if (!remoteBranchHead(master)) {
+        error("Branch ${master} does not exist on the remote : create it (or fix MASTER_BRANCH) before releasing.")
+    }
+    echo "Master branch        : ${master} (found on the remote)"
+}
+
+/**
  * Determines the branch the workspace actually holds.
  *
  * Jenkins checks out a detached SHA, so `git rev-parse --abbrev-ref HEAD`
@@ -731,6 +753,7 @@ def stageInitialize() {
     }
     writeAskpassScript()
     sh 'git remote set-url origin https://github.com/lutece-platform/lutece-platform.git'
+    validateMasterBranch()
 
     def pomContent = readFile('pom.xml')
     def currentVersion
@@ -1027,7 +1050,7 @@ def stagePromoteToMaster() {
         echo "Single-module release: ${master} is not touched (other modules may still be in SNAPSHOT)"
         return
     }
-    def remoteMaster = sh(script: "git ls-remote --heads origin '${master}' | cut -f1", returnStdout: true).trim()
+    def remoteMaster = remoteBranchHead(master)
     if (!remoteMaster) {
         error("Branch ${master} does not exist on the remote : create it (or fix MASTER_BRANCH) before promoting the release.")
     }
