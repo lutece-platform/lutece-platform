@@ -146,7 +146,7 @@
         <lutece.plugin-blog.version>4.0.1-SNAPSHOT</lutece.plugin-blog.version>
         <lutece.plugin-newsletter.version>5.0.0-beta-02</lutece.plugin-newsletter.version>
         <lutece.module-newsletter-blog.version>2.0.0-beta-01</lutece.module-newsletter-blog.version>
-        <lutece.plugin-document.version>6.0.1-beta-02</lutece.plugin-document.version>
+        <lutece.plugin-document.version>6.0.1-SNAPSHOT</lutece.plugin-document.version>
         <lutece.plugin-library.version>6.0.1-beta-01</lutece.plugin-library.version>
 		<lutece.module-extend-rating.version>4.0.1-SNAPSHOT</lutece.module-extend-rating.version>
         <lutece.module-extend-feedback.version>3.0.1-SNAPSHOT</lutece.module-extend-feedback.version>
@@ -194,6 +194,7 @@
         <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
         <lutece.library-httpaccess.version>4.0.1-beta-01</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.1-SNAPSHOT</lutece.library-core-utils.version>
+        <lutece.library-cache-hazelcast.version>1.0.0-SNAPSHOT</lutece.library-cache-hazelcast.version>
         <lutece.plugin-liquibase.version>2.0.2-beta-02</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.1.0</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.1-beta-01</lutece.library-configsource-vault.version>
