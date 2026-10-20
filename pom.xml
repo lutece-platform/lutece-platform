@@ -91,7 +91,7 @@
         <lutece.module-accesscontrol-forms.version>2.0.0</lutece.module-accesscontrol-forms.version>
         <lutece.module-forms-unittree.version>3.0.2-SNAPSHOT</lutece.module-forms-unittree.version>
         <lutece.plugin-unittree.version>4.0.1-SNAPSHOT</lutece.plugin-unittree.version>
-        <lutece.module-unittree-notification.version>2.0.1</lutece.module-unittree-notification.version>
+        <lutece.module-unittree-notification.version>2.0.2-SNAPSHOT</lutece.module-unittree-notification.version>
         <lutece.module-workflow-unittree.version>3.0.2-SNAPSHOT</lutece.module-workflow-unittree.version>
         <lutece.module-workflow-unittree-userassignment.version>2.0.0</lutece.module-workflow-unittree-userassignment.version>
         <lutece.plugin-userassignment.version>2.0.0</lutece.plugin-userassignment.version>
