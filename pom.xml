@@ -177,7 +177,7 @@
         <!-- ELK -->
         <lutece.library-elastic.version>2.0.0</lutece.library-elastic.version>
         <lutece.plugin-elasticdata.version>3.0.1-SNAPSHOT</lutece.plugin-elasticdata.version>
-        <lutece.module-elasticdata-forms.version>2.0.1-beta-01</lutece.module-elasticdata-forms.version>
+        <lutece.module-elasticdata-forms.version>2.0.1-SNAPSHOT</lutece.module-elasticdata-forms.version>
 
         <!-- Kibana -->
         <lutece.plugin-kibana.version>3.0.0</lutece.plugin-kibana.version>
