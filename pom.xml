@@ -87,7 +87,7 @@
         <lutece.library-jwt.version>3.0.0</lutece.library-jwt.version>
         <lutece.module-workflow-forms-automatic-assignment.version>3.0.1-SNAPSHOT</lutece.module-workflow-forms-automatic-assignment.version>
         <lutece.module-workflow-formstopdf.version>2.0.2-SNAPSHOT</lutece.module-workflow-formstopdf.version>
-        <lutece.module-forms-userassignment.version>3.0.0</lutece.module-forms-userassignment.version>
+        <lutece.module-forms-userassignment.version>3.0.1-SNAPSHOT</lutece.module-forms-userassignment.version>
         <lutece.module-accesscontrol-forms.version>2.0.0</lutece.module-accesscontrol-forms.version>
         <lutece.module-forms-unittree.version>3.0.2-SNAPSHOT</lutece.module-forms-unittree.version>
         <lutece.plugin-unittree.version>4.0.1-SNAPSHOT</lutece.plugin-unittree.version>
@@ -108,7 +108,7 @@
         <lutece.plugin-carto.version>2.0.1-SNAPSHOT</lutece.plugin-carto.version>
         <lutece.module-genericattributes-cartography.version>2.0.1-SNAPSHOT</lutece.module-genericattributes-cartography.version>
         -->
-        <lutece.plugin-leaflet.version>2.0.0</lutece.plugin-leaflet.version>
+        <lutece.plugin-leaflet.version>2.0.1-SNAPSHOT</lutece.plugin-leaflet.version>
 
         <!-- GRU -->
         <lutece.module-workflow-notifygru.version>3.0.1-SNAPSHOT</lutece.module-workflow-notifygru.version>
