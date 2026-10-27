@@ -9,7 +9,7 @@
 
     <groupId>fr.paris.lutece.starters</groupId>
     <artifactId>lutece-parent</artifactId>
-    <version>8.0.0-beta-03</version>
+    <version>8.0.0-beta-03-b</version>
     <packaging>pom</packaging>
     <name>Lutece platform parent</name>
     <description>Lutece platform parent</description>
