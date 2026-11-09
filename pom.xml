@@ -148,11 +148,11 @@
         <lutece.module-newsletter-blog.version>2.0.0-beta-01</lutece.module-newsletter-blog.version>
         <lutece.plugin-document.version>6.0.1-beta-03</lutece.plugin-document.version>
         <lutece.plugin-library.version>6.0.1-beta-01</lutece.plugin-library.version>
-        <lutece.module-extend-rating.version>4.0.2-SNAPSHOT</lutece.module-extend-rating.version>
-        <lutece.module-extend-feedback.version>3.0.1-SNAPSHOT</lutece.module-extend-feedback.version>
-        <lutece.plugin-extend.version>2.0.1-beta-01</lutece.plugin-extend.version>
-        <lutece.module-extend-statistics.version>2.0.0-SNAPSHOT</lutece.module-extend-statistics.version>
-        <lutece.module-extend-comment.version>2.0.0-SNAPSHOT</lutece.module-extend-comment.version>
+        <lutece.module-extend-rating.version>4.0.2-beta-02</lutece.module-extend-rating.version>
+        <lutece.module-extend-feedback.version>3.0.1-beta-03</lutece.module-extend-feedback.version>
+        <lutece.plugin-extend.version>2.0.2-beta-01</lutece.plugin-extend.version>
+        <lutece.module-extend-statistics.version>2.0.1-beta-01</lutece.module-extend-statistics.version>
+        <lutece.module-extend-comment.version>2.0.0-beta-04</lutece.module-extend-comment.version>
         <lutece.plugin-avatar.version>2.0.0-beta-01</lutece.plugin-avatar.version>
         <lutece.plugin-xmltransformer.version>2.0.1-beta-02</lutece.plugin-xmltransformer.version>
         <lutece.plugin-childpages.version>6.0.0-beta-01</lutece.plugin-childpages.version>
