@@ -40,6 +40,37 @@
     <dependencyManagement>
         <dependencies>
             <!-- ================================================== -->
+            <!-- Starters                                           -->
+            <!-- ================================================== -->
+            <!-- The BOM is released after the starters (see RELEASE_PLAYBOOK.md):
+                 releasing a starter on its own means releasing the BOM again,
+                 otherwise it keeps announcing the previous version. -->
+            <dependency>
+                <groupId>fr.paris.lutece.starters</groupId>
+                <artifactId>forms-starter</artifactId>
+                <version>${lutece.forms-starter.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.starters</groupId>
+                <artifactId>appointment-starter</artifactId>
+                <version>${lutece.appointment-starter.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.starters</groupId>
+                <artifactId>editorial-starter</artifactId>
+                <version>${lutece.editorial-starter.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>fr.paris.lutece.starters</groupId>
+                <artifactId>lutece-starter</artifactId>
+                <version>${lutece.lutece-starter.version}</version>
+                <type>jar</type>
+            </dependency>
+
+            <!-- ================================================== -->
             <!-- Core & Libraries                                   -->
             <!-- ================================================== -->
             <dependency>
