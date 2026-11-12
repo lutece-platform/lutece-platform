@@ -62,7 +62,7 @@
         <lutece.core.version>7.1.10-beta-03</lutece.core.version>
 
         <!-- Shared libraries -->
-        <lutece.library-lucene.version>5.1.0-SNAPSHOT</lutece.library-lucene.version>
+        <lutece.library-lucene.version>5.0.3</lutece.library-lucene.version>
         <lutece.library-user-api.version>1.0.2</lutece.library-user-api.version>
         <lutece.library-rbac-api.version>1.0.1</lutece.library-rbac-api.version>
         <lutece.library-workflow-core.version>3.0.8-beta-02</lutece.library-workflow-core.version>
@@ -136,7 +136,7 @@
         <lutece.plugin-profiles.version>[4.0.2]</lutece.plugin-profiles.version>
         <lutece.plugin-filegenerator.version>2.1.7-beta-02</lutece.plugin-filegenerator.version>
         <lutece.plugin-regularexpression.version>4.0.5-beta-01</lutece.plugin-regularexpression.version>
-        <lutece.plugin-genericattributes.version>2.4.12-SNAPSHOT</lutece.plugin-genericattributes.version>
+        <lutece.plugin-genericattributes.version>2.4.12-beta-01</lutece.plugin-genericattributes.version>
         <lutece.plugin-referencelist.version>[1.1.5]</lutece.plugin-referencelist.version>
         <lutece.plugin-asynchronousupload.version>1.1.14-beta-01</lutece.plugin-asynchronousupload.version>
         <lutece.plugin-mermaidjs.version>[1.0.1]</lutece.plugin-mermaidjs.version>
