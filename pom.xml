@@ -227,7 +227,7 @@
         <!-- Divers -->
         <lutece.plugin-matomo.version>[1.0.1]</lutece.plugin-matomo.version>
         <lutece.plugin-liquibase.version>1.0.2-beta-02</lutece.plugin-liquibase.version>
-        <lutece.library-sql-utils.version>1.1.0-SNAPSHOT</lutece.library-sql-utils.version>
+        <lutece.library-sql-utils.version>1.0.2</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>1.0.1-beta-01</lutece.library-configsource-vault.version>
     </properties>
 
