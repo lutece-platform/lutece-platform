@@ -77,9 +77,9 @@
         <lutece.library-notifygru.version>[1.3.0]</lutece.library-notifygru.version>
 
         <!-- Lutece forms -->
-        <lutece.plugin-forms.version>3.1.6-SNAPSHOT</lutece.plugin-forms.version>
+        <lutece.plugin-forms.version>3.1.6-beta-03</lutece.plugin-forms.version>
         <lutece.plugin-unittree.version>[3.1.6]</lutece.plugin-unittree.version>
-        <lutece.plugin-workflow.version>6.0.10-SNAPSHOT</lutece.plugin-workflow.version>
+        <lutece.plugin-workflow.version>6.0.10-beta-02</lutece.plugin-workflow.version>
         <lutece.module-forms-unittree.version>2.1.3-beta-01</lutece.module-forms-unittree.version>
         <lutece.module-workflow-forms.version>2.3.7-beta-02</lutece.module-workflow-forms.version>
         <lutece.module-workflow-unittree.version>[2.1.3-beta-01]</lutece.module-workflow-unittree.version>
