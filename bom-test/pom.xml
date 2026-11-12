@@ -48,6 +48,12 @@
         <!-- type: jar -->
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
+            <artifactId>library-cache-hazelcast</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-configsource-vault</artifactId>
             <type>jar</type>
             <scope>provided</scope>
@@ -151,6 +157,30 @@
         <dependency>
             <groupId>fr.paris.lutece.plugins</groupId>
             <artifactId>library-workgroup-api</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.starters</groupId>
+            <artifactId>appointment-starter</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.starters</groupId>
+            <artifactId>editorial-starter</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.starters</groupId>
+            <artifactId>forms-starter</artifactId>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>fr.paris.lutece.starters</groupId>
+            <artifactId>lutece-starter</artifactId>
             <type>jar</type>
             <scope>provided</scope>
         </dependency>

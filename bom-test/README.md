@@ -31,6 +31,8 @@ without a version would have hit *dependency version not specified*.
 - a managed entry whose `${...}` version property is not defined anywhere
 - a declared version that does not exist in the repositories
 - a BOM that cannot be imported at all
+- a starter (`fr.paris.lutece.starters`) that the BOM no longer manages, or manages
+  under a version property that no longer exists
 
 ## What it does NOT catch
 
@@ -45,8 +47,13 @@ It also says nothing about whether an artifact is *useful* — only that it reso
 ## Running it
 
 ```bash
-mvn -Pbom-test -pl bom-test test
+mvn -Pbom-test -pl bom-test -am test
 ```
+
+`-am` is required: the BOM also manages the starters, and at `-SNAPSHOT` they only
+resolve from the reactor. Without it Maven looks for them in the repositories, finds
+nothing or an outdated snapshot, and the test checks something other than the
+working copy.
 
 The module lives behind the `bom-test` profile and is not part of the default
 build: it resolves the full transitive closure of the managed artifacts, which is
