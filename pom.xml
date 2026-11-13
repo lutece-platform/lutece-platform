@@ -141,25 +141,25 @@
         <!-- Lutece Editorial -->
         <lutece.plugin-html.version>6.1.0-SNAPSHOT</lutece.plugin-html.version>
         <lutece.plugin-htmlpage.version>6.1.0-SNAPSHOT</lutece.plugin-htmlpage.version>
-        <lutece.plugin-contact.version>6.0.2</lutece.plugin-contact.version>
-        <lutece.plugin-menus.version>3.0.1-beta-02</lutece.plugin-menus.version>
-        <lutece.plugin-blog.version>4.0.1-beta-03</lutece.plugin-blog.version>
-        <lutece.plugin-newsletter.version>5.0.0-beta-02</lutece.plugin-newsletter.version>
-        <lutece.module-newsletter-blog.version>2.0.0-beta-01</lutece.module-newsletter-blog.version>
-        <lutece.plugin-document.version>6.0.1-beta-03</lutece.plugin-document.version>
-        <lutece.plugin-library.version>6.0.1-beta-01</lutece.plugin-library.version>
-        <lutece.module-extend-rating.version>4.0.2-beta-02</lutece.module-extend-rating.version>
+        <lutece.plugin-contact.version>6.1.0-SNAPSHOT</lutece.plugin-contact.version>
+        <lutece.plugin-menus.version>3.1.0-SNAPSHOT</lutece.plugin-menus.version>
+        <lutece.plugin-blog.version>4.1.0-SNAPSHOT</lutece.plugin-blog.version>
+        <lutece.plugin-newsletter.version>5.1.0-SNAPSHOT</lutece.plugin-newsletter.version>
+        <lutece.module-newsletter-blog.version>2.1.0-SNAPSHOT</lutece.module-newsletter-blog.version>
+        <lutece.plugin-document.version>6.1.0-SNAPSHOT</lutece.plugin-document.version>
+        <lutece.plugin-library.version>6.1.0-SNAPSHOT</lutece.plugin-library.version>
+        <lutece.module-extend-rating.version>4.1.0-SNAPSHOT</lutece.module-extend-rating.version>
         <lutece.module-extend-feedback.version>3.1.0-SNAPSHOT</lutece.module-extend-feedback.version>
         <lutece.plugin-extend.version>2.1.0-SNAPSHOT</lutece.plugin-extend.version>
-        <lutece.module-extend-statistics.version>2.0.1-beta-01</lutece.module-extend-statistics.version>
-        <lutece.module-extend-comment.version>2.0.0-beta-04</lutece.module-extend-comment.version>
-        <lutece.plugin-avatar.version>2.0.0-beta-01</lutece.plugin-avatar.version>
-        <lutece.plugin-xmltransformer.version>2.0.1-beta-02</lutece.plugin-xmltransformer.version>
-        <lutece.plugin-childpages.version>6.0.0-beta-01</lutece.plugin-childpages.version>
-        <lutece.plugin-linkpages.version>6.0.0-beta-01</lutece.plugin-linkpages.version>
-        <lutece.plugin-pagelinkservice.version>4.0.0-beta-01</lutece.plugin-pagelinkservice.version>
-        <lutece.plugin-quicklinks.version>4.0.0-beta-01</lutece.plugin-quicklinks.version>
-        <lutece.plugin-files2docs.version>2.0.0-beta-01</lutece.plugin-files2docs.version>
+        <lutece.module-extend-statistics.version>2.1.0-SNAPSHOT</lutece.module-extend-statistics.version>
+        <lutece.module-extend-comment.version>2.1.0-SNAPSHOT</lutece.module-extend-comment.version>
+        <lutece.plugin-avatar.version>2.1.0-SNAPSHOT</lutece.plugin-avatar.version>
+        <lutece.plugin-xmltransformer.version>2.1.0-SNAPSHOT</lutece.plugin-xmltransformer.version>
+        <lutece.plugin-childpages.version>6.1.0-SNAPSHOT</lutece.plugin-childpages.version>
+        <lutece.plugin-linkpages.version>6.1.0-SNAPSHOT</lutece.plugin-linkpages.version>
+        <lutece.plugin-pagelinkservice.version>4.1.0-SNAPSHOT</lutece.plugin-pagelinkservice.version>
+        <lutece.plugin-quicklinks.version>4.1.0-SNAPSHOT</lutece.plugin-quicklinks.version>
+        <lutece.plugin-files2docs.version>2.1.0-SNAPSHOT</lutece.plugin-files2docs.version>
 
 	<!-- Authentification -->
 	<lutece.plugin-mylutece.version>5.1.0-SNAPSHOT</lutece.plugin-mylutece.version>
@@ -191,7 +191,7 @@
         <lutece.plugin-regularexpression.version>5.1.0-SNAPSHOT</lutece.plugin-regularexpression.version>
         <lutece.plugin-filegenerator.version>3.1.0-SNAPSHOT</lutece.plugin-filegenerator.version>
         <lutece.plugin-htmltopdf.version>2.0.1-beta-02</lutece.plugin-htmltopdf.version>
-        <lutece.plugin-galleryimage.version>2.0.0</lutece.plugin-galleryimage.version>
+        <lutece.plugin-galleryimage.version>2.1.0-SNAPSHOT</lutece.plugin-galleryimage.version>
         <lutece.library-httpaccess.version>4.0.1-beta-01</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.1-beta-01</lutece.library-core-utils.version>
         <lutece.library-cache-hazelcast.version>1.0.0-beta-01</lutece.library-cache-hazelcast.version>
@@ -199,7 +199,7 @@
         <lutece.library-sql-utils.version>2.1.0</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.1-beta-01</lutece.library-configsource-vault.version>
         <lutece.plugin-quartz-scheduler.version>1.0.1-beta-01</lutece.plugin-quartz-scheduler.version>
-        <lutece.plugin-systeminfo.version>4.0.0</lutece.plugin-systeminfo.version>
+        <lutece.plugin-systeminfo.version>4.1.0-SNAPSHOT</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.0.1-beta-01</lutece.plugin-rest.version>
         <lutece.plugin-sitelabels.version>3.1.0-SNAPSHOT</lutece.plugin-sitelabels.version>
         <!--
