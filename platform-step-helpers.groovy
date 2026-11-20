@@ -25,9 +25,13 @@ import groovy.transform.Field
 @Field final String SAFE_COMMIT = '[0-9a-f]{7,40}'
 // Only this server id of the Maven settings, toward these hosts : its credentials must never be sent anywhere else
 @Field final String SAFE_DEPLOY_REPOSITORY = 'lutece_releases_private_repository::default::https://(piclutece-p30\\.apps\\.paris\\.mdp)/[A-Za-z0-9._/~-]+'
-// SNAPSHOT repository of lutece-global-pom, mirrored to the published versions outside step 0
-@Field final String SNAPSHOT_REPOSITORY_ID = 'luteceSnapshot'
+// SNAPSHOT repositories of lutece-global-pom, of the Jenkins settings and of some component POMs, mirrored to the published versions
+// outside step 0
+@Field final List SNAPSHOT_REPOSITORY_IDS = ['luteceSnapshot', 'luteceSnapshotPrivate', 'luteceSnapshotRepository', 'lutece-snapshot',
+                                            'lutece_snapshots_repository', 'snapshot']
 @Field final String PUBLISHED_REPOSITORY_URL = 'https://dev.lutece.paris.fr/maven_repository'
+// Local repository of the step pipeline outside step 0 : the other jobs install their SNAPSHOT in the default one
+@Field final String RELEASE_LOCAL_REPOSITORY = '${env.HOME}/.m2/release-step/repository'
 
 // ========================================================================
 // Plan and report
@@ -313,30 +317,70 @@ exec env -u GITHUB_TOKEN -u GITLAB_TOKEN -u GITHUB_LOGIN -u GITLAB_LOGIN -u GIT_
 }
 
 /**
- * Mirrors the SNAPSHOT repository of the Lutece POMs to the repository of the published versions, in the Maven settings of the build :
- * a range such as [8.0.0,) then resolves to a stable, beta or RC version, never to the SNAPSHOT of a develop branch. First mirror of the
- * list, so that an existing mirror of the same repository does not win. A SNAPSHOT already installed in the local repository stays visible.
+ * Hides every SNAPSHOT from the build, in its Maven settings : a range such as [8.0.0,) then resolves to a stable, beta or RC version,
+ * never to the SNAPSHOT of a develop branch.
+ * - each SNAPSHOT repository is mirrored to the repository of the published versions, one mirror per id at the head of the list : Maven
+ *   takes the first mirror naming the id exactly before any list or pattern, so an existing mirror of the same repository does not win ;
+ * - the local repository is one of its own : Maven always adds the SNAPSHOT installed in the local repository to a range, and the other
+ *   jobs of the server install theirs in the default one. The step pipeline installs only the versions it releases.
  */
 def hideSnapshotRepository() {
-    def mirror = "<mirror><id>no-snapshot</id><mirrorOf>${SNAPSHOT_REPOSITORY_ID}</mirrorOf><url>${PUBLISHED_REPOSITORY_URL}</url></mirror>"
-    def settings = withFirstMirror(readFile(env.MAVEN_SETTINGS_XML), mirror)
+    def mirrors = SNAPSHOT_REPOSITORY_IDS.collect { id ->
+        "<mirror><id>no-snapshot-${id}</id><mirrorOf>${id}</mirrorOf><url>${PUBLISHED_REPOSITORY_URL}</url></mirror>"
+    }.join('')
+    def settings = withLocalRepository(withFirstMirror(readFile(env.MAVEN_SETTINGS_XML), mirrors), RELEASE_LOCAL_REPOSITORY)
     if (settings == null) {
-        error("Maven settings without <settings> element : the SNAPSHOT repository cannot be hidden")
+        error("Maven settings without <settings> element : the SNAPSHOT repositories cannot be hidden")
     }
     writeFile file: env.MAVEN_SETTINGS_XML, text: settings
-    echo "SNAPSHOT repository ${SNAPSHOT_REPOSITORY_ID} mirrored to ${PUBLISHED_REPOSITORY_URL}"
+    echo "SNAPSHOT repositories ${SNAPSHOT_REPOSITORY_IDS.join(', ')} mirrored to ${PUBLISHED_REPOSITORY_URL}, local repository ${RELEASE_LOCAL_REPOSITORY}"
 }
 
 /**
- * The settings with a mirror first in their <mirrors> element, created if absent. The tags of the XML comments are skipped. Null when the
+ * The settings with their <localRepository> set to a path, added after the <settings> tag if absent. The tags of the XML comments are
+ * skipped. Null when the settings are null or have no <settings> element.
+ */
+@NonCPS
+def withLocalRepository(String settings, String path) {
+    if (settings == null) {
+        return null
+    }
+    def element = "<localRepository>${path}</localRepository>"
+    int open = firstTagOutsideComment(settings, '<localRepository>')
+    if (open >= 0) {
+        int close = settings.indexOf('</localRepository>', open)
+        if (close < 0) {
+            return null
+        }
+        return settings.substring(0, open) + element + settings.substring(close + '</localRepository>'.length())
+    }
+    int root = firstTagOutsideComment(settings, '<settings')
+    int after = root < 0 ? -1 : settings.indexOf('>', root)
+    if (after < 0) {
+        return null
+    }
+    return settings.substring(0, after + 1) + element + settings.substring(after + 1)
+}
+
+/**
+ * The position of the first occurrence of a tag outside the XML comments, -1 if none.
+ */
+@NonCPS
+def firstTagOutsideComment(String text, String tag) {
+    int index = text.indexOf(tag)
+    while (index >= 0 && inXmlComment(text, index)) {
+        index = text.indexOf(tag, index + 1)
+    }
+    return index
+}
+
+/**
+ * The settings with mirrors first in their <mirrors> element, created if absent. The tags of the XML comments are skipped. Null when the
  * settings have no <settings> element.
  */
 @NonCPS
 def withFirstMirror(String settings, String mirror) {
-    int open = settings.indexOf('<mirrors>')
-    while (open >= 0 && inXmlComment(settings, open)) {
-        open = settings.indexOf('<mirrors>', open + 1)
-    }
+    int open = firstTagOutsideComment(settings, '<mirrors>')
     if (open >= 0) {
         int after = open + '<mirrors>'.length()
         return settings.substring(0, after) + mirror + settings.substring(after)
