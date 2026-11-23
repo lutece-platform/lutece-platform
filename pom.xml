@@ -105,7 +105,7 @@
         <lutece.module-appointmentgru.version>2.0.8</lutece.module-appointmentgru.version>
 
         <!-- Lutece editorial -->
-        <lutece.plugin-blog.version>3.0.8-SNAPSHOT</lutece.plugin-blog.version>
+        <lutece.plugin-blog.version>3.0.8</lutece.plugin-blog.version>
         <lutece.plugin-newsletter.version>4.0.5</lutece.plugin-newsletter.version>
         <lutece.module-newsletter-blog.version>[1.0.3]</lutece.module-newsletter-blog.version>
         <lutece.plugin-html.version>5.0.2</lutece.plugin-html.version>
@@ -118,7 +118,7 @@
         <lutece.plugin-quicklinks.version>[3.1.4]</lutece.plugin-quicklinks.version>
         <lutece.plugin-contact.version>[5.1.2]</lutece.plugin-contact.version>
         <lutece.plugin-pagelinkservice.version>3.0.4</lutece.plugin-pagelinkservice.version>
-        <lutece.plugin-xmltransformer.version>1.0.1-SNAPSHOT</lutece.plugin-xmltransformer.version>
+        <lutece.plugin-xmltransformer.version>1.0.1</lutece.plugin-xmltransformer.version>
         <lutece.plugin-extend.version>[1.3.8]</lutece.plugin-extend.version>
         <lutece.module-extend-comment.version>1.2.2</lutece.module-extend-comment.version>
 
@@ -154,15 +154,15 @@
         <lutece.plugin-termofservice.version>1.0.8</lutece.plugin-termofservice.version>
         <lutece.plugin-adminauthenticationwsso.version>2.1.7</lutece.plugin-adminauthenticationwsso.version>
         <lutece.plugin-myluteceaccessrules.version>1.0.4</lutece.plugin-myluteceaccessrules.version>
-        <lutece.module-mylutece-users.version>1.0.0-SNAPSHOT</lutece.module-mylutece-users.version>
+        <lutece.module-mylutece-users.version>1.0.0</lutece.module-mylutece-users.version>
         <lutece.module-mylutece-cacheuserattribute.version>[1.0.1]</lutece.module-mylutece-cacheuserattribute.version>
 
         <!-- Cartography / Solr / Leaflet -->
         <lutece.plugin-solr.version>4.0.8</lutece.plugin-solr.version>
         <lutece.plugin-solrserver.version>3.0.2</lutece.plugin-solrserver.version>
-        <lutece.plugin-leaflet.version>1.0.5-SNAPSHOT</lutece.plugin-leaflet.version>
-        <lutece.plugin-carto.version>1.0.2-SNAPSHOT</lutece.plugin-carto.version>
-        <lutece.module-cartography-solr.version>1.0.2-beta-02</lutece.module-cartography-solr.version>
+        <lutece.plugin-leaflet.version>1.0.5</lutece.plugin-leaflet.version>
+        <lutece.plugin-carto.version>1.0.2</lutece.plugin-carto.version>
+        <lutece.module-cartography-solr.version>1.0.2</lutece.module-cartography-solr.version>
         <lutece.module-forms-solr.version>1.0.3</lutece.module-forms-solr.version>
         <lutece.module-forms-cartography.version>1.0.3</lutece.module-forms-cartography.version>
         <lutece.module-genericattributes-cartography.version>1.0.2</lutece.module-genericattributes-cartography.version>
@@ -202,7 +202,7 @@
         <!-- Appointment (extras) -->
         <lutece.module-appointment-leaflet.version>3.0.2</lutece.module-appointment-leaflet.version>
         <lutece.module-appointment-mydashboard.version>3.0.2</lutece.module-appointment-mydashboard.version>
-        <lutece.module-appointment-solr.version>3.0.3-SNAPSHOT</lutece.module-appointment-solr.version>
+        <lutece.module-appointment-solr.version>3.0.3</lutece.module-appointment-solr.version>
         <lutece.module-appointment-solrsearchapp.version>3.0.6</lutece.module-appointment-solrsearchapp.version>
         <lutece.module-appointment-ants.version>1.0.3</lutece.module-appointment-ants.version>
         <lutece.module-workflow-appointmentants.version>1.0.3</lutece.module-workflow-appointmentants.version>
