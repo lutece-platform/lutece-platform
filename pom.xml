@@ -66,7 +66,7 @@
         <!-- Lutece core -->
         <lutece.core.version>8.1.0-SNAPSHOT</lutece.core.version>
         <lutece.library-lutece-unit-testing-common.version>1.0.0</lutece.library-lutece-unit-testing-common.version>
-        <lutece.library-lucene.version>6.0.0</lutece.library-lucene.version>
+        <lutece.library-lucene.version>6.0.1-SNAPSHOT</lutece.library-lucene.version>
         <lutece.library-user-api.version>2.0.0</lutece.library-user-api.version>
         <lutece.library-rbac-api.version>2.0.0</lutece.library-rbac-api.version>
         <lutece.library-workflow-core.version>4.0.2-beta-03</lutece.library-workflow-core.version>
