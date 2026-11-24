@@ -77,7 +77,7 @@
         
         <!-- Lutece forms -->
         <lutece.plugin-forms.version>4.1.0-SNAPSHOT</lutece.plugin-forms.version>
-        <lutece.library-utils.version>2.0.0</lutece.library-utils.version>
+        <lutece.library-utils.version>2.0.1-SNAPSHOT</lutece.library-utils.version>
         <lutece.module-forms-breadcrumbaccordion.version>2.1.0-SNAPSHOT</lutece.module-forms-breadcrumbaccordion.version>
         <lutece.module-workflow-forms.version>3.1.0-SNAPSHOT</lutece.module-workflow-forms.version>
         <lutece.plugin-workflow.version>7.1.0-SNAPSHOT</lutece.plugin-workflow.version>
