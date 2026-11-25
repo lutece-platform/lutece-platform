@@ -93,7 +93,7 @@
         <lutece.plugin-unittree.version>4.1.0-SNAPSHOT</lutece.plugin-unittree.version>
         <lutece.module-unittree-notification.version>2.1.0-SNAPSHOT</lutece.module-unittree-notification.version>
         <lutece.module-workflow-unittree.version>3.1.0-SNAPSHOT</lutece.module-workflow-unittree.version>
-        <lutece.module-workflow-unittree-userassignment.version>2.0.0</lutece.module-workflow-unittree-userassignment.version>
+        <lutece.module-workflow-unittree-userassignment.version>2.0.1-SNAPSHOT</lutece.module-workflow-unittree-userassignment.version>
         <lutece.plugin-userassignment.version>2.0.1-SNAPSHOT</lutece.plugin-userassignment.version>
         <lutece.module-workflow-userassignment.version>3.1.0-SNAPSHOT</lutece.module-workflow-userassignment.version>
         <lutece.module-notifygru-forms.version>2.1.0-SNAPSHOT</lutece.module-notifygru-forms.version>
@@ -135,7 +135,7 @@
         <lutece.module-workflow-appointmentants.version>2.1.0-SNAPSHOT</lutece.module-workflow-appointmentants.version>
 	    
         <lutece.plugin-resource.version>3.1.0-SNAPSHOT</lutece.plugin-resource.version>
-        <lutece.module-resource-adminuser.version>2.0.0-beta-02</lutece.module-resource-adminuser.version>
+        <lutece.module-resource-adminuser.version>2.1.0-SNAPSHOT</lutece.module-resource-adminuser.version>
         <lutece.plugin-mydashboard.version>2.1.0-SNAPSHOT</lutece.plugin-mydashboard.version>
 
         <!-- Lutece Editorial -->
@@ -181,7 +181,7 @@
 
         <!-- Kibana -->
         <lutece.plugin-kibana.version>3.1.0-SNAPSHOT</lutece.plugin-kibana.version>
-        <lutece.module-kibana-forms.version>2.0.1-beta-01</lutece.module-kibana-forms.version>
+        <lutece.module-kibana-forms.version>2.0.2-SNAPSHOT</lutece.module-kibana-forms.version>
 
         <!-- Others -->
         <lutece.plugin-referencelist.version>2.1.0-SNAPSHOT</lutece.plugin-referencelist.version>
@@ -221,12 +221,12 @@
         <lutece.plugin-captcha.version>3.1.0-SNAPSHOT</lutece.plugin-captcha.version>
         <lutece.module-captcha-captchetat.version>1.1.0-SNAPSHOT</lutece.module-captcha-captchetat.version>
         <lutece.plugin-verifybackurl.version>2.1.0-SNAPSHOT</lutece.plugin-verifybackurl.version>
-        <lutece.plugin-sitemap.version>2.0.0-beta-01</lutece.plugin-sitemap.version>
+        <lutece.plugin-sitemap.version>2.0.1-SNAPSHOT</lutece.plugin-sitemap.version>
         <lutece.plugin-seo.version>5.1.0-SNAPSHOT</lutece.plugin-seo.version>
 		<!-- 
 		<lutece.module-seo-wiki.version>2.0.0-SNAPSHOT</lutece.module-seo-wiki.version>
        	-->
-		<lutece.module-seo-blog.version>2.0.0-beta-01</lutece.module-seo-blog.version>
+		<lutece.module-seo-blog.version>2.1.0-SNAPSHOT</lutece.module-seo-blog.version>
         <lutece.module-seo-robots.version>2.1.0-SNAPSHOT</lutece.module-seo-robots.version>
         <lutece.plugin-health.version>1.0.1-beta-01</lutece.plugin-health.version>
     </properties>
