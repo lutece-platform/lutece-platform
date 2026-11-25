@@ -897,7 +897,8 @@ def releaseResource(String workDir, resource, boolean isAggregate) {
     }
     if (mustRunTests(resource)) {
         def headSha = sh(script: "git -C '${workDir}' rev-parse HEAD", returnStdout: true).trim()
-        if (resource.verifiedCommit && resource.verifiedCommit == headSha) {
+        // A parent chosen in the releaser is not part of the verified commit : the tests run again
+        if (resource.verifiedCommit && resource.verifiedCommit == headSha && !resource.parentVersion) {
             appendReport("${coordinates(resource)} : tests skipped, commit ${shortSha(headSha)} already tested by the verification")
         } else {
             runTests(workDir, resource)
