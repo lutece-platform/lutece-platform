@@ -116,18 +116,18 @@
         <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
         <!-- Lutece appointment -->
         <lutece.plugin-appointment.version>4.0.0</lutece.plugin-appointment.version>
-        <lutece.module-workflow-appointment.version>4.0.0-beta-02</lutece.module-workflow-appointment.version>
+        <lutece.module-workflow-appointment.version>4.0.0</lutece.module-workflow-appointment.version>
 		<lutece.module-appointment-management.version>2.0.0</lutece.module-appointment-management.version>      
         <lutece.module-appointment-desk.version>2.0.0</lutece.module-appointment-desk.version>
-        <lutece.module-appointment-mydashboard.version>4.0.0-beta-02</lutece.module-appointment-mydashboard.version>
-        <lutece.module-appointment-resource.version>4.0.0-beta-02</lutece.module-appointment-resource.version>
+        <lutece.module-appointment-mydashboard.version>4.0.0</lutece.module-appointment-mydashboard.version>
+        <lutece.module-appointment-resource.version>4.0.0</lutece.module-appointment-resource.version>
         <lutece.module-appointment-ants.version>2.0.0</lutece.module-appointment-ants.version>
         <lutece.module-appointment-alert.version>4.0.0</lutece.module-appointment-alert.version>
         <lutece.module-appointment-importer.version>2.0.0-beta-01</lutece.module-appointment-importer.version>
-        <lutece.module-appointment-solrsearchapp.version>4.0.0-beta-02</lutece.module-appointment-solrsearchapp.version>
+        <lutece.module-appointment-solrsearchapp.version>4.0.0</lutece.module-appointment-solrsearchapp.version>
 		<lutece.module-appointment-rest.version>2.0.0</lutece.module-appointment-rest.version>
-	    <lutece.module-appointment-solr.version>4.0.0-beta-02</lutece.module-appointment-solr.version>
-	    <lutece.module-appointment-leaflet.version>4.0.0-beta-02</lutece.module-appointment-leaflet.version>
+	    <lutece.module-appointment-solr.version>4.0.0</lutece.module-appointment-solr.version>
+	    <lutece.module-appointment-leaflet.version>4.0.0</lutece.module-appointment-leaflet.version>
 	    <lutece.module-elasticdata-appointment.version>4.0.0</lutece.module-elasticdata-appointment.version>
         <lutece.module-appointmentgru.version>3.0.0</lutece.module-appointmentgru.version>
         <lutece.module-appointment-filling.version>4.0.0</lutece.module-appointment-filling.version>
@@ -135,7 +135,7 @@
         <lutece.module-workflow-appointmentants.version>2.0.0</lutece.module-workflow-appointmentants.version>
 	    
         <lutece.plugin-resource.version>3.0.0</lutece.plugin-resource.version>
-        <lutece.module-resource-adminuser.version>2.0.0-beta-02</lutece.module-resource-adminuser.version>
+        <lutece.module-resource-adminuser.version>2.0.0</lutece.module-resource-adminuser.version>
         <lutece.plugin-mydashboard.version>2.0.0</lutece.plugin-mydashboard.version>
 
         <!-- Lutece Editorial -->
