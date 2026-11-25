@@ -145,7 +145,7 @@
         <lutece.plugin-menus.version>3.0.1</lutece.plugin-menus.version>
         <lutece.plugin-blog.version>4.0.1</lutece.plugin-blog.version>
         <lutece.plugin-newsletter.version>5.0.0</lutece.plugin-newsletter.version>
-        <lutece.module-newsletter-blog.version>2.0.0-beta-01</lutece.module-newsletter-blog.version>
+        <lutece.module-newsletter-blog.version>2.0.0</lutece.module-newsletter-blog.version>
         <lutece.plugin-document.version>6.0.1-beta-03</lutece.plugin-document.version>
         <lutece.plugin-library.version>6.0.1</lutece.plugin-library.version>
         <lutece.module-extend-rating.version>4.0.2</lutece.module-extend-rating.version>
