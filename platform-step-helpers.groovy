@@ -799,9 +799,14 @@ def prereleaseProblems(List declared) {
 }
 
 /**
- * Runs the tests of a resource and fails with the failed test classes and the first failure lines. The work tree is then restored.
+ * Runs the tests of a resource and fails with the failed test classes and the first failure lines. The tests run on the parent chosen in
+ * the releaser, the one of the release commit : a tag whose parent no longer resolves is tested as it will be released. The work tree is
+ * then restored.
  */
 def runTests(String workDir, resource) {
+    if (resource.parentVersion) {
+        setParentVersion(workDir, resource.parentVersion)
+    }
     dir(workDir) {
         echo "Running the tests of ${resource.artifactId}"
         runLogged(resource, 'Tests (mvn test)', "mvn -s ${env.MAVEN_SETTINGS_XML} clean lutece:exploded antrun:run -Dlutece-test-hsql test -q")
