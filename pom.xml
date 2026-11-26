@@ -128,9 +128,9 @@
 		<lutece.module-appointment-rest.version>2.1.0-SNAPSHOT</lutece.module-appointment-rest.version>
 	    <lutece.module-appointment-solr.version>4.0.0-SNAPSHOT</lutece.module-appointment-solr.version>
 	    <lutece.module-appointment-leaflet.version>4.1.0-SNAPSHOT</lutece.module-appointment-leaflet.version>
-	    <lutece.module-elasticdata-appointment.version>4.0.0-beta-02</lutece.module-elasticdata-appointment.version>
-        <lutece.module-appointmentgru.version>3.0.0-beta-01</lutece.module-appointmentgru.version>
-        <lutece.module-appointment-filling.version>4.0.0-beta-01</lutece.module-appointment-filling.version>
+	    <lutece.module-elasticdata-appointment.version>4.0.1-SNAPSHOT</lutece.module-elasticdata-appointment.version>
+        <lutece.module-appointmentgru.version>3.0.1-SNAPSHOT</lutece.module-appointmentgru.version>
+        <lutece.module-appointment-filling.version>4.0.1-SNAPSHOT</lutece.module-appointment-filling.version>
         <lutece.module-notifygru-appointment.version>4.1.0-SNAPSHOT</lutece.module-notifygru-appointment.version>
         <lutece.module-workflow-appointmentants.version>2.1.0-SNAPSHOT</lutece.module-workflow-appointmentants.version>
 	    
