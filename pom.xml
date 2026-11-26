@@ -146,7 +146,7 @@
         <lutece.plugin-blog.version>4.1.0-SNAPSHOT</lutece.plugin-blog.version>
         <lutece.plugin-newsletter.version>5.1.0-SNAPSHOT</lutece.plugin-newsletter.version>
         <lutece.module-newsletter-blog.version>2.1.0-SNAPSHOT</lutece.module-newsletter-blog.version>
-        <lutece.plugin-document.version>6.1.0-SNAPSHOT</lutece.plugin-document.version>
+        <lutece.plugin-document.version>7.0.0-SNAPSHOT</lutece.plugin-document.version>
         <lutece.plugin-library.version>7.0.0-SNAPSHOT</lutece.plugin-library.version>
         <lutece.module-extend-rating.version>4.1.0-SNAPSHOT</lutece.module-extend-rating.version>
         <lutece.module-extend-feedback.version>3.1.0-SNAPSHOT</lutece.module-extend-feedback.version>
