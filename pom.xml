@@ -67,9 +67,9 @@
         <lutece.core.version>8.1.0-SNAPSHOT</lutece.core.version>
         <lutece.library-lutece-unit-testing-common.version>1.0.0</lutece.library-lutece-unit-testing-common.version>
         <lutece.library-lucene.version>6.0.1-SNAPSHOT</lutece.library-lucene.version>
-        <lutece.library-user-api.version>2.0.0</lutece.library-user-api.version>
+        <lutece.library-user-api.version>2.0.1-SNAPSHOT</lutece.library-user-api.version>
         <lutece.library-rbac-api.version>2.0.0</lutece.library-rbac-api.version>
-        <lutece.library-workflow-core.version>4.0.2-beta-03</lutece.library-workflow-core.version>
+        <lutece.library-workflow-core.version>4.0.2</lutece.library-workflow-core.version>
         <lutece.library-workgroup-api.version>2.0.0</lutece.library-workgroup-api.version>
         <lutece.library-priority-extension.version>1.0.0</lutece.library-priority-extension.version>
         <lutece.library-freemarker.version>2.2.0-SNAPSHOT</lutece.library-freemarker.version>
@@ -101,7 +101,7 @@
         <lutece.plugin-accesscontrol.version>2.1.0-SNAPSHOT</lutece.plugin-accesscontrol.version>
 
         <!-- Address -->
-        <lutece.plugin-address.version>2.0.1-SNAPSHOT</lutece.plugin-address.version>
+        <lutece.plugin-address.version>2.0.2-SNAPSHOT</lutece.plugin-address.version>
         <lutece.module-address-autocomplete.version>2.1.0-SNAPSHOT</lutece.module-address-autocomplete.version>
         <lutece.module-genericattributes-address.version>3.1.0-SNAPSHOT</lutece.module-genericattributes-address.version>
         <!--
@@ -112,7 +112,7 @@
 
         <!-- GRU -->
         <lutece.module-workflow-notifygru.version>3.1.0-SNAPSHOT</lutece.module-workflow-notifygru.version>
-        <lutece.library-notifygru.version>2.0.1-beta-02</lutece.library-notifygru.version>
+        <lutece.library-notifygru.version>2.0.1</lutece.library-notifygru.version>
         <lutece.library-grubusiness.version>2.0.0</lutece.library-grubusiness.version>
         <!-- Lutece appointment -->
         <lutece.plugin-appointment.version>4.1.0-SNAPSHOT</lutece.plugin-appointment.version>
@@ -166,7 +166,7 @@
         <lutece.module-mylutece-users.version>2.1.0-SNAPSHOT</lutece.module-mylutece-users.version>
         <lutece.plugin-automaticroleprovider.version>2.0.0</lutece.plugin-automaticroleprovider.version>
         <lutece.module-mylutece-database.version>7.1.0-SNAPSHOT</lutece.module-mylutece-database.version>
-        <lutece.module-mylutece-cacheuserattribute.version>2.0.0-beta-01</lutece.module-mylutece-cacheuserattribute.version>
+        <lutece.module-mylutece-cacheuserattribute.version>2.0.0</lutece.module-mylutece-cacheuserattribute.version>
         <lutece.module-mylutece-oauth2.version>3.1.0-SNAPSHOT</lutece.module-mylutece-oauth2.version>
         <lutece.plugin-oauth2.version>3.1.0-SNAPSHOT</lutece.plugin-oauth2.version>
         <lutece.plugin-termofservice.version>2.1.0-SNAPSHOT</lutece.plugin-termofservice.version>
@@ -192,13 +192,13 @@
         <lutece.plugin-filegenerator.version>3.1.0-SNAPSHOT</lutece.plugin-filegenerator.version>
         <lutece.plugin-htmltopdf.version>2.1.0-SNAPSHOT</lutece.plugin-htmltopdf.version>
         <lutece.plugin-galleryimage.version>2.1.0-SNAPSHOT</lutece.plugin-galleryimage.version>
-        <lutece.library-httpaccess.version>4.0.1-SNAPSHOT</lutece.library-httpaccess.version>
+        <lutece.library-httpaccess.version>4.0.2-SNAPSHOT</lutece.library-httpaccess.version>
         <lutece.library-core-utils.version>1.0.2-SNAPSHOT</lutece.library-core-utils.version>
         <lutece.library-cache-hazelcast.version>1.0.0-beta-01</lutece.library-cache-hazelcast.version>
-        <lutece.plugin-liquibase.version>2.0.2-beta-03</lutece.plugin-liquibase.version>
+        <lutece.plugin-liquibase.version>2.0.2</lutece.plugin-liquibase.version>
         <lutece.library-sql-utils.version>2.1.0</lutece.library-sql-utils.version>
         <lutece.library-configsource-vault.version>2.0.2-SNAPSHOT</lutece.library-configsource-vault.version>
-        <lutece.plugin-quartz-scheduler.version>1.0.1-beta-01</lutece.plugin-quartz-scheduler.version>
+        <lutece.plugin-quartz-scheduler.version>1.0.1</lutece.plugin-quartz-scheduler.version>
         <lutece.plugin-systeminfo.version>4.1.0-SNAPSHOT</lutece.plugin-systeminfo.version>
         <lutece.plugin-rest.version>4.1.0-SNAPSHOT</lutece.plugin-rest.version>
         <lutece.plugin-sitelabels.version>3.1.0-SNAPSHOT</lutece.plugin-sitelabels.version>
@@ -213,7 +213,7 @@
         <lutece.plugin-parser.version>2.0.0</lutece.plugin-parser.version>
         -->
         <!--
-        <lutece.plugin-wiki.version>6.0.0-SNAPSHOT</lutece.plugin-wiki.version>
+        <lutece.plugin-wiki.version>6.0.1-SNAPSHOT</lutece.plugin-wiki.version>
 		<lutece.module-wiki-quiz.version>2.0.0-SNAPSHOT</lutece.module-wiki-quiz.version>
         <lutece.module-wiki-ai.version>2.0.0-SNAPSHOT</lutece.module-wiki-ai.version>
 	    -->
@@ -228,7 +228,7 @@
        	-->
 		<lutece.module-seo-blog.version>2.1.0-SNAPSHOT</lutece.module-seo-blog.version>
         <lutece.module-seo-robots.version>2.1.0-SNAPSHOT</lutece.module-seo-robots.version>
-        <lutece.plugin-health.version>1.0.1-beta-01</lutece.plugin-health.version>
+        <lutece.plugin-health.version>1.0.1</lutece.plugin-health.version>
     </properties>
 
     <build>
